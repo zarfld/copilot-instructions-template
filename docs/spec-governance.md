@@ -98,9 +98,12 @@ Add `integrityLevel` in YAML to escalate required gates.
 ## Automation Components (Planned / Current)
 | Component | Status | Purpose |
 |-----------|--------|---------|
-| Spec Schema Validation | Planned | Enforce mandatory YAML keys |
-| Traceability Matrix Script | In progress / placeholder | Build JSON → Markdown matrix |
-| Orphan Detector | Planned | Fail build on orphaned IDs |
+| Spec Schema Validation | Implemented | Enforce mandatory YAML keys |
+| Spec Index Generation (spec_parser) | Implemented | Canonical inventory of governed IDs & refs |
+| Traceability Matrix Script | Implemented | Build JSON → Markdown matrix |
+| Traceability JSON (build_trace_json) | Implemented | Machine-readable forward/back links + metrics |
+| Requirement Test Skeleton Generator | Implemented | Ensure every REQ-* has at least placeholder test |
+| Orphan Detector | Implemented (trace scripts) | Fail build on orphaned IDs |
 | Integrity Level Gate | Planned | Dynamic job matrix (extra checks) |
 | Evidence Bundler | Planned | Collect & zip compliance artifacts |
 
@@ -124,13 +127,41 @@ Add to PR template:
 ## Roadmap
 | Item | Priority | Notes |
 |------|---------|-------|
-| Implement JSON Schema validation | High | Python script with `jsonschema` |
-| Add CODEOWNERS | High | Enforces independent review |
-| Generate machine-readable trace JSON | High | Fuel dashboards |
-| Orphan element CI check | High | Use parsed IDs & cross sets |
 | Integrity-level conditional jobs | Medium | Matrix strategy in GitHub Actions |
 | Evidence bundler | Medium | Zip artifacts + spec snapshot |
 | Formal verification hook (future) | Low | Placeholder for critical systems |
+| ADR impact analysis automation | Medium | Diff-driven detection of architectural change |
+| Spec/code drift detection | Medium | Timestamp / semantic hash comparison |
+
+## Automated Generation Stage
+The CI job `spec-generation` (after `spec-validation`) performs deterministic generation of:
+1. `build/spec-index.json` – authoritative list of all governed IDs (requirements, architecture, ADRs, QA scenarios, tests) with references.
+2. `build/traceability.json` – forward/backward link graph + coverage metrics by ID prefix.
+3. `05-implementation/tests/generated/` placeholder requirement test skeletons for any REQ-* lacking explicit tests.
+
+### Guarantees
+- Idempotent: re-running without spec edits makes no changes.
+- Non-destructive: generated tests live under `tests/generated`; promoting a test involves copying & deleting the generated file.
+- Deterministic ordering: stable JSON output for diff minimization (facilitates caching & code review clarity).
+
+### Failure Modes / Mitigations
+| Risk | Mitigation |
+|------|------------|
+| Duplicate IDs across specs | First wins, duplicates ignored + future enhancement: warning | 
+| Missing spec index (parser error) | Job fails, blocking downstream quality gates |
+| Large test explosion | Placeholder tests are lightweight; future cap or grouping strategy possible |
+
+### Usage in Local Workflow
+Developers can run:
+```
+python scripts/generators/spec_parser.py
+python scripts/generators/build_trace_json.py
+python scripts/generators/gen_tests.py
+```
+to preview artifacts prior to opening a PR.
+
+### Traceability Coverage Metrics
+`traceability.json` includes per-prefix coverage allowing dashboards to highlight unlinked items (e.g., REQ without design refs). Threshold-based gating can be added later (e.g., enforce ≥90% REQ linkage).
 
 ## References
 - ISO/IEC/IEEE 29148:2018 (Requirements)

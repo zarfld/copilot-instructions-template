@@ -34,9 +34,37 @@ jobs:
             echo '❌ Spec structure validation failed.'
             exit 1
           }
+  spec-generation:
+    needs: [spec-validation]
+    name: Spec Artifact Generation (Index, Trace JSON, Test Skeletons)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Generate spec index
+        run: |
+          python scripts/generators/spec_parser.py
+      - name: Build traceability JSON
+        run: |
+          python scripts/generators/build_trace_json.py
+      - name: Generate requirement test skeletons
+        run: |
+          python scripts/generators/gen_tests.py
+      - name: Upload generated artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: spec-generated-artifacts
+          path: |
+            build/spec-index.json
+            build/traceability.json
+            05-implementation/tests/generated/
   # Phase 05: Implementation Quality Checks
   code-quality:
-    needs: [spec-validation]
+    needs: [spec-generation]
     name: Code Quality & Standards (IEEE 1016, XP Practices)
     runs-on: ubuntu-latest
 
