@@ -101,16 +101,26 @@ def main() -> int:
                 all_items.extend(parse_file(path))
             except Exception as e:
                 print(f"WARN: failed to parse {path}: {e}", file=sys.stderr)
-    # De-duplicate by ID keeping first occurrence
-    seen = set()
+    # De-duplicate by ID keeping first occurrence while tracking duplicates
+    seen = {}
     dedup: List[Dict[str, Any]] = []
+    duplicates: Dict[str, int] = {}
     for item in all_items:
-        if item['id'] in seen:
+        iid = item['id']
+        if iid in seen:
+            duplicates[iid] = duplicates.get(iid, 1) + 1
             continue
-        seen.add(item['id'])
+        seen[iid] = 1
         dedup.append(item)
-    OUTPUT_FILE.write_text(json.dumps({'items': dedup}, indent=2), encoding='utf-8')
-    print(f"Wrote {OUTPUT_FILE} with {len(dedup)} items")
+    if duplicates:
+        print("⚠️ Duplicate ID(s) detected (keeping first occurrence):", file=sys.stderr)
+        for k, count in duplicates.items():
+            print(f"  - {k} (occurrences: {count+0})", file=sys.stderr)
+    OUTPUT_FILE.write_text(
+        json.dumps({'items': dedup, 'duplicateIds': list(duplicates.keys())}, indent=2),
+        encoding='utf-8'
+    )
+    print(f"Wrote {OUTPUT_FILE} with {len(dedup)} unique items (duplicates: {len(duplicates)})")
     return 0
 
 if __name__ == '__main__':

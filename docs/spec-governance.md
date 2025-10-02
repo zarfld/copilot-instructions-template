@@ -125,6 +125,7 @@ Add to PR template:
 - [ ] Integrity level requirements satisfied
 
 ## Roadmap
+
 | Item | Priority | Notes |
 |------|---------|-------|
 | Integrity-level conditional jobs | Medium | Matrix strategy in GitHub Actions |
@@ -134,33 +135,41 @@ Add to PR template:
 | Spec/code drift detection | Medium | Timestamp / semantic hash comparison |
 
 ## Automated Generation Stage
+
 The CI job `spec-generation` (after `spec-validation`) performs deterministic generation of:
+
 1. `build/spec-index.json` – authoritative list of all governed IDs (requirements, architecture, ADRs, QA scenarios, tests) with references.
 2. `build/traceability.json` – forward/backward link graph + coverage metrics by ID prefix.
 3. `05-implementation/tests/generated/` placeholder requirement test skeletons for any REQ-* lacking explicit tests.
 
 ### Guarantees
+
 - Idempotent: re-running without spec edits makes no changes.
 - Non-destructive: generated tests live under `tests/generated`; promoting a test involves copying & deleting the generated file.
 - Deterministic ordering: stable JSON output for diff minimization (facilitates caching & code review clarity).
 
 ### Failure Modes / Mitigations
+
 | Risk | Mitigation |
 |------|------------|
-| Duplicate IDs across specs | First wins, duplicates ignored + future enhancement: warning | 
+| Duplicate IDs across specs | First wins, duplicates ignored + future enhancement: warning |
 | Missing spec index (parser error) | Job fails, blocking downstream quality gates |
 | Large test explosion | Placeholder tests are lightweight; future cap or grouping strategy possible |
 
 ### Usage in Local Workflow
+
 Developers can run:
-```
+
+```bash
 python scripts/generators/spec_parser.py
 python scripts/generators/build_trace_json.py
 python scripts/generators/gen_tests.py
 ```
+
 to preview artifacts prior to opening a PR.
 
 ### Traceability Coverage Metrics
+
 `traceability.json` includes per-prefix coverage allowing dashboards to highlight unlinked items (e.g., REQ without design refs). Threshold-based gating can be added later (e.g., enforce ≥90% REQ linkage).
 
 ## References
