@@ -1,6 +1,13 @@
 # Requirements Specification Template
 
 > **Spec-Driven Development**: This markdown file serves as both specification and "code" for generating requirements documentation and test cases.
+> **Traceability Guardrail**: Every functional (REQ-F-xxx) and non-functional (REQ-NF-<category>-xxx) requirement MUST include:
+> - Unique ID pattern: REQ-F-\d{3} or REQ-NF-[A-Z]-\d{3}
+> - Rationale
+> - Acceptance criteria (Given/When/Then)
+> - Upstream stakeholder link (StR-xxx)
+> - Verification method (test strategy section)
+> - (If critical) integrityLevel override in YAML front matter
 
 ---
 

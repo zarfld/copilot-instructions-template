@@ -2,36 +2,55 @@ name: CI - Standards Compliance & Quality Gates
 
 on:
   push:
-    branches: [main, develop, 'feature/**', 'release/**']
+    branches: [main, develop, "feature/**", "release/**"]
   pull_request:
     branches: [main, develop]
   schedule:
     # Run daily at 2 AM UTC
-    - cron: '0 2 * * *'
+    - cron: "0 2 * * *"
 
 env:
-  NODE_VERSION: '20.x'
-  PYTHON_VERSION: '3.11'
+  NODE_VERSION: "20.x"
+  PYTHON_VERSION: "3.11"
   MIN_TEST_COVERAGE: 80
   MAX_CYCLOMATIC_COMPLEXITY: 10
 
 jobs:
+  spec-validation:
+    name: Spec Structure Validation (Schema & Traceability Prereq)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: pip install pyyaml jsonschema
+      - name: Validate spec structure
+        run: |
+          python scripts/validate-spec-structure.py || {
+            echo '❌ Spec structure validation failed.'
+            exit 1
+          }
   # Phase 05: Implementation Quality Checks
   code-quality:
+    needs: [spec-validation]
     name: Code Quality & Standards (IEEE 1016, XP Practices)
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Full history for better analysis
+          fetch-depth: 0 # Full history for better analysis
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
+          cache: "npm"
 
       - name: Install dependencies
         run: |
@@ -42,7 +61,7 @@ jobs:
         run: |
           echo "🔍 Checking code style compliance..."
           npm run lint
-          
+
       - name: Check code formatting
         run: |
           echo "📝 Checking code formatting..."
@@ -71,7 +90,7 @@ jobs:
   unit-tests:
     name: Unit Tests (XP - TDD Red-Green-Refactor)
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -80,7 +99,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
+          cache: "npm"
 
       - name: Install dependencies
         run: npm ci
@@ -95,7 +114,7 @@ jobs:
           echo "📊 Checking test coverage threshold..."
           COVERAGE=$(npm test -- --coverage --watchAll=false --silent | grep 'All files' | awk '{print $10}' | sed 's/%//')
           echo "Current coverage: ${COVERAGE}%"
-          
+
           if (( $(echo "$COVERAGE < ${{ env.MIN_TEST_COVERAGE }}" | bc -l) )); then
             echo "❌ Test coverage ${COVERAGE}% is below minimum ${{ env.MIN_TEST_COVERAGE }}%"
             exit 1
@@ -115,7 +134,7 @@ jobs:
     name: Integration Tests (XP - Continuous Integration)
     runs-on: ubuntu-latest
     needs: [unit-tests]
-    
+
     services:
       postgres:
         image: postgres:16
@@ -148,7 +167,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
+          cache: "npm"
 
       - name: Install dependencies
         run: npm ci
@@ -177,9 +196,10 @@ jobs:
 
   # Phase 02: Requirements Traceability Check
   requirements-traceability:
+    needs: [spec-validation]
     name: Requirements Traceability (ISO/IEC/IEEE 29148)
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -223,7 +243,7 @@ jobs:
     name: Acceptance Tests (XP - Customer Tests, IEEE 1012)
     runs-on: ubuntu-latest
     needs: [integration-tests]
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -232,7 +252,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
+          cache: "npm"
 
       - name: Install dependencies
         run: npm ci
@@ -271,9 +291,10 @@ jobs:
 
   # Phase 03: Architecture Compliance (ISO/IEC/IEEE 42010)
   architecture-validation:
+    needs: [spec-validation]
     name: Architecture Compliance (ISO/IEC/IEEE 42010)
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -281,55 +302,39 @@ jobs:
       - name: Validate Architecture Decision Records
         run: |
           echo "📐 Validating ADR completeness..."
-          
-          # Check all ADRs have required sections
           for adr in 03-architecture/decisions/*.md; do
-            if [ -f "$adr" ]; then
-              echo "Checking $adr..."
-              
-              grep -q "## Status" "$adr" || {
-                echo "❌ Missing Status section in $adr"
-                exit 1
-              }
-              
-              grep -q "## Context" "$adr" || {
-                echo "❌ Missing Context section in $adr"
-                exit 1
-              }
-              
-              grep -q "## Decision" "$adr" || {
-                echo "❌ Missing Decision section in $adr"
-                exit 1
-              }
-              
-              grep -q "## Consequences" "$adr" || {
-                echo "❌ Missing Consequences section in $adr"
-                exit 1
-              }
-              
-              echo "✅ $adr is valid"
-            fi
+            [ -f "$adr" ] || continue
+            echo "Checking $adr..."
+            grep -q "## Status" "$adr" || { echo "❌ Missing Status section in $adr"; exit 1; }
+            grep -q "## Context" "$adr" || { echo "❌ Missing Context section in $adr"; exit 1; }
+            grep -q "## Decision" "$adr" || { echo "❌ Missing Decision section in $adr"; exit 1; }
+            grep -q "## Consequences" "$adr" || { echo "❌ Missing Consequences section in $adr"; exit 1; }
           done
-
       - name: Validate architecture views
         run: |
           echo "🏗️ Checking required architecture views..."
-          
-          REQUIRED_VIEWS=("logical" "process" "development" "physical" "data")
-          
+          REQUIRED_VIEWS=(logical process development physical data)
           for view in "${REQUIRED_VIEWS[@]}"; do
             if [ ! -d "03-architecture/views/$view" ]; then
               echo "⚠️ Missing architecture view: $view"
-            else
-              echo "✅ Found $view view"
             fi
           done
+      - name: Verify quality attribute scenarios
+        run: |
+          echo "🔎 Checking quality attribute scenarios coverage..."
+          FILE=03-architecture/architecture-quality-scenarios.md
+          if [ ! -f "$FILE" ]; then
+            echo "❌ Missing quality attribute scenarios file"; exit 1; fi
+          for attr in Performance Availability Security; do
+            grep -qi "$attr" "$FILE" || { echo "❌ Missing scenario for $attr"; exit 1; }
+          done
+          echo "✅ Basic QA scenario coverage present"
 
   # Security Scanning
   security-scan:
     name: Security Scan
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -348,24 +353,34 @@ jobs:
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@master
         with:
-          scan-type: 'fs'
-          scan-ref: '.'
-          format: 'sarif'
-          output: 'trivy-results.sarif'
+          scan-type: "fs"
+          scan-ref: "."
+          format: "sarif"
+          output: "trivy-results.sarif"
 
       - name: Upload Trivy results to GitHub Security
         uses: github/codeql-action/upload-sarif@v3
         if: always()
         with:
-          sarif_file: 'trivy-results.sarif'
+          sarif_file: "trivy-results.sarif"
 
   # Standards Compliance Report
   compliance-report:
+    needs:
+      [
+        spec-validation,
+        code-quality,
+        unit-tests,
+        integration-tests,
+        requirements-traceability,
+        acceptance-tests,
+        architecture-validation,
+        security-scan,
+      ]
     name: Generate Standards Compliance Report
     runs-on: ubuntu-latest
-    needs: [code-quality, unit-tests, integration-tests, requirements-traceability, acceptance-tests, architecture-validation, security-scan]
     if: always()
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -376,16 +391,16 @@ jobs:
       - name: Generate compliance report
         run: |
           echo "📋 Generating standards compliance report..."
-          
+
           cat > compliance-report.md << 'EOF'
           # Standards Compliance Report
-          
+
           **Generated**: $(date -u +"%Y-%m-%d %H:%M:%S UTC")
           **Branch**: ${{ github.ref_name }}
           **Commit**: ${{ github.sha }}
-          
+
           ## ISO/IEC/IEEE 12207:2017 - Software Life Cycle Processes
-          
+
           - [x] Phase 01: Stakeholder Requirements Definition
           - [x] Phase 02: Requirements Analysis
           - [x] Phase 03: Architecture Design
@@ -395,36 +410,36 @@ jobs:
           - [x] Phase 07: Verification & Validation
           - [ ] Phase 08: Transition (manual)
           - [ ] Phase 09: Operation & Maintenance (manual)
-          
+
           ## ISO/IEC/IEEE 29148:2018 - Requirements Engineering
-          
+
           - ✅ Requirements traceability: ${{ needs.requirements-traceability.result }}
           - ✅ Stakeholder requirements documented
           - ✅ System requirements specified
           - ✅ Acceptance criteria defined
-          
+
           ## IEEE 1016-2009 - Software Design Descriptions
-          
+
           - ✅ Architecture documented
           - ✅ Design decisions recorded (ADRs)
           - ✅ Component designs specified
-          
+
           ## ISO/IEC/IEEE 42010:2011 - Architecture Description
-          
+
           - ✅ Architecture validation: ${{ needs.architecture-validation.result }}
           - ✅ Stakeholder concerns addressed
           - ✅ Architecture viewpoints defined
           - ✅ Architecture views documented
-          
+
           ## IEEE 1012-2016 - Verification and Validation
-          
+
           - ✅ Unit tests: ${{ needs.unit-tests.result }}
           - ✅ Integration tests: ${{ needs.integration-tests.result }}
           - ✅ Acceptance tests: ${{ needs.acceptance-tests.result }}
           - ✅ Test coverage: >=${{ env.MIN_TEST_COVERAGE }}%
-          
+
           ## XP Practices Compliance
-          
+
           - ✅ Test-Driven Development: Tests run before merge
           - ✅ Continuous Integration: Multiple integrations per day
           - ✅ Coding Standards: Enforced via linting
@@ -432,9 +447,9 @@ jobs:
           - ⚠️ Pair Programming: Manual (not automated)
           - ⚠️ Collective Ownership: Manual (code reviews)
           - ✅ Refactoring: Continuous (with tests)
-          
+
           ## Quality Metrics
-          
+
           | Metric | Target | Status |
           |--------|--------|--------|
           | Test Coverage | ≥80% | ${{ needs.unit-tests.result == 'success' && '✅' || '❌' }} |
@@ -442,9 +457,9 @@ jobs:
           | Linting | 0 errors | ${{ needs.code-quality.result == 'success' && '✅' || '❌' }} |
           | Security Vulnerabilities | 0 high/critical | ${{ needs.security-scan.result == 'success' && '✅' || '⚠️' }} |
           | Requirements Traceability | 100% | ${{ needs.requirements-traceability.result == 'success' && '✅' || '❌' }} |
-          
+
           ## Overall Status
-          
+
           - Code Quality: ${{ needs.code-quality.result }}
           - Unit Tests: ${{ needs.unit-tests.result }}
           - Integration Tests: ${{ needs.integration-tests.result }}
@@ -452,10 +467,10 @@ jobs:
           - Architecture: ${{ needs.architecture-validation.result }}
           - Security: ${{ needs.security-scan.result }}
           - Traceability: ${{ needs.requirements-traceability.result }}
-          
+
           **Build Status**: ${{ needs.code-quality.result == 'success' && needs.unit-tests.result == 'success' && needs.integration-tests.result == 'success' && '✅ PASSED' || '❌ FAILED' }}
           EOF
-          
+
           cat compliance-report.md
 
       - name: Upload compliance report
@@ -471,7 +486,7 @@ jobs:
           script: |
             const fs = require('fs');
             const report = fs.readFileSync('compliance-report.md', 'utf8');
-            
+
             github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
@@ -483,12 +498,19 @@ jobs:
   deploy-staging:
     name: Deploy to Staging (Phase 08 - Transition)
     runs-on: ubuntu-latest
-    needs: [code-quality, unit-tests, integration-tests, acceptance-tests, security-scan]
+    needs:
+      [
+        code-quality,
+        unit-tests,
+        integration-tests,
+        acceptance-tests,
+        security-scan,
+      ]
     if: github.ref == 'refs/heads/develop' && github.event_name == 'push'
     environment:
       name: staging
       url: https://staging.example.com
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -509,7 +531,7 @@ jobs:
           echo "🚀 Deploying to staging environment..."
           # Add your deployment commands here
           # e.g., aws, gcloud, kubectl, etc.
-          
+
       - name: Run smoke tests
         run: |
           echo "💨 Running smoke tests..."

@@ -1,6 +1,15 @@
 # Architecture Specification Template
 
 > **Spec-Driven Development**: This markdown serves as executable architecture documentation following ISO/IEC/IEEE 42010:2011.
+> **Traceability Guardrail**: Ensure every architectural element has IDs:
+> - Components: ARC-C-\d{3}
+> - Processes (runtime): ARC-P-\d{3}
+> - Interfaces: INT-\d{3}
+> - Data entities: DATA-\d{3}
+> - Deployment nodes: DEP-\d{3}
+> - Decisions: ADR-\d{3}
+> - Quality attribute scenarios: QA-SC-\d{3}
+> Each ADR must reference ≥1 REQ-* or QA-SC-*, and each QA-SC-* must map to ≥1 REQ-NF-*.
 
 ---
 
