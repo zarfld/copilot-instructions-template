@@ -461,6 +461,38 @@ interface User extends UserData {
 - **Right to be Forgotten**: Support GDPR data deletion
 ```
 
+## 🆕 Guardrail Artifacts Added
+To strengthen standards compliance and evaluability, the following mandatory (or strongly recommended) artifacts are now part of this phase:
+
+| Artifact | Location | Purpose | Standard Alignment |
+|----------|----------|---------|--------------------|
+| ADR Template | `decisions/ADR-template.md` | Consistent decision capture | ISO 42010 Rationale / IEEE 1016 Decisions |
+| Architecture Views Overview | `views/README.md` | Defines viewpoints & view consistency rules | ISO 42010 Viewpoints/Views |
+| Quality Attribute Scenarios | `architecture-quality-scenarios.md` | Concrete measurable QA scenarios | ATAM / 29148 NFR Traceability |
+| Architecture Evaluation | `architecture-evaluation.md` | ATAM-style evaluation record | Risk & Tradeoff Analysis |
+| Architecture Review Checklist | `standards-compliance/checklists/architecture-review-checklist.md` | Exit / readiness review | 42010 completeness, 1016 review |
+
+### Quality Attribute Scenario Requirements
+Each prioritized quality attribute (e.g., Performance, Availability, Security, Scalability, Maintainability) MUST have at least one scenario defined using the structured template (`architecture-quality-scenarios.md`). Scenarios must:
+- Trace to at least one Non-Functional Requirement (REQ-NF-*)
+- Reference the affected View(s) and ADR(s)
+- Contain measurable response criteria (no vague terms)
+- Define validation method (benchmark, chaos test, security test, inspection, simulation)
+
+### Evaluation Requirements
+An initial architecture evaluation (`architecture-evaluation.md`) MUST:
+- List evaluated scenarios and outcomes (utility tree excerpt)
+- Identify risks, non-risks, sensitivity points & tradeoffs
+- Provide actionable mitigation items
+- Record approval status & participants
+
+### View Consistency Rules (Summary)
+See `views/README.md` for full rules. Highlights:
+- Every component (ARC-C-*) appears in logical + at least one runtime/deployment related view.
+- Every interface (INT-*) linked to a provider component and (if used) at least one consumer.
+- Every ADR references at least one requirement OR scenario.
+- No orphan quality scenarios (all tie to ADR + component + view).
+
 ## 🚨 Critical Requirements for This Phase
 
 ### Always Do
@@ -563,42 +595,39 @@ The architecture must be:
 
 ## 📊 Phase Exit Criteria
 
-✅ Architecture Description Document complete  
-✅ All architectural decisions documented (ADRs)  
-✅ Architecture views created for all key concerns  
-✅ C4 diagrams completed (Context, Container, Component)  
-✅ Component interfaces specified  
-✅ Technical constraints documented  
-✅ Architecture risks identified and mitigated  
-✅ Traceability to requirements established  
-✅ Architecture reviewed and approved by stakeholders  
-✅ Architecture supports XP practices (TDD, Refactoring)  
+Add the following additional mandatory exit criteria:
+- ✅ Quality attribute scenarios documented and validated for all prioritized attributes
+- ✅ Architecture evaluation (ATAM-lite) performed and recorded
+- ✅ Risks & tradeoffs explicitly captured (architecture-evaluation.md)
+- ✅ Architecture review checklist completed (standards-compliance/checklists/architecture-review-checklist.md)
+- ✅ No orphan elements (every component, ADR, scenario participates in traceability chain)
+
+Traceability completeness rule:
+```
+Requirement (REQ-*) ↔ Scenario (QA-SC-*) ↔ ADR (ADR-*) ↔ Component (ARC-C-*) ↔ View(s) ↔ Test (planned/implemented)
+```
+
+Additions integrate with existing criteria; failure to satisfy any above blocks transition to Phase 04 unless explicitly risk-accepted.
 
 ## 🔗 Traceability
 
-Establish complete traceability chain:
+Augment existing traceability guidance with scenario layer:
 ```
-REQ-F-XXX, REQ-NF-XXX (System Requirements)
-  ↓
-ARC-C-XXX (Architecture Components)
-ARC-P-XXX (Architecture Patterns)
-ADR-XXX (Architecture Decisions)
-  ↓
-[Next Phase: Detailed Design - DES-XXX]
+REQ-NF-P-001
+  → QA-SC-001 (Performance Latency)
+    → ADR-002 (Adopt Redis Cache Layer)
+      → ARC-C-007 (CacheService)
+        → Logical / Process / Deployment Views
+          → Performance Benchmark Test (TEST-PERF-001)
 ```
+
+Include a machine-checkable matrix in `07-verification-validation/traceability/architecture-traceability-matrix.md` (see Phase 07 addition) for CI validation.
 
 ## 📚 Standards References
 
-- **ISO/IEC/IEEE 42010:2011** - Architecture description standard
-- **IEEE 1016-2009** - Software design descriptions
-- **C4 Model** - https://c4model.com/
-- **Architecture Decision Records** - Michael Nygard
-- **XP Practices** - Simple Design, Metaphor, Refactoring
-
-## 🎯 Next Phase
-
-Once this phase is complete, proceed to:
-**Phase 04: Detailed Design** (`04-design/`)
+Add:
+- **ATAM** (Architecture Tradeoff Analysis Method) – Scenario-based evaluation
+- **SAAM** (Scenario-Based Architecture Analysis Method) – Optional lightweight alternative
 
 ---
 
