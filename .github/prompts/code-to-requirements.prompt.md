@@ -463,7 +463,408 @@ Scenario: Rate limiting on login attempts
 ```
 ```
 
-### Step 4: Test-Driven Requirements
+### Step 4: Copilot Artifact Analysis & Intent Recovery
+
+**Extract requirements from Copilot-generated documentation and session logs**:
+
+#### **🤖 Copilot-Generated Artifact Detection**
+
+**Identify Copilot-generated documentation that contains implementation rationale**:
+
+```bash
+# Find potential Copilot-generated markdown files
+find . -name "*.md" -exec grep -l "copilot\|generated\|agent\|assistant" {} \;
+find . -name "*copilot*" -o -name "*session*" -o -name "*log*" -type f
+find . -name "*.md" -exec grep -l "I will\|I'll\|Let me\|I'm going to" {} \;
+
+# Look for common Copilot documentation patterns
+grep -r "implementation plan\|step-by-step\|approach\|rationale" docs/ --include="*.md"
+grep -r "## Analysis\|## Implementation\|## Approach\|## Solution" docs/ --include="*.md"
+
+# Find session logs or development notes
+find . -name "*session*.md" -o -name "*notes*.md" -o -name "*development*.md"
+find . -name "*.md" -exec grep -l "Session\|TODO\|Plan\|Implementation" {} \;
+```
+
+#### **📋 Copilot Artifact Types & Analysis Patterns**
+
+**1. Session Logs & Development Reports**:
+```markdown
+# Example: copilot_session_2024-03-15.md
+## Session Summary
+I implemented user authentication with the following approach:
+
+### Requirements Analysis
+- Need secure user login system
+- JWT tokens for stateless authentication  
+- Rate limiting to prevent brute force attacks
+- Password hashing with bcrypt
+
+### Implementation Decisions
+1. **JWT Token Expiry**: Set to 24 hours based on security vs UX balance
+2. **Rate Limiting**: 5 attempts per 15 minutes to prevent abuse
+3. **Password Requirements**: 8+ characters with special chars for security
+4. **Error Messages**: Generic messages to prevent user enumeration
+
+### Code Changes
+- Created authController.js with login/register endpoints
+- Added JWT middleware for protected routes
+- Implemented rate limiting middleware
+- Added password validation utilities
+```
+
+**Generated Requirements from Copilot Session**:
+```markdown
+## REQ-F-AUTH-001: User Authentication System
+**Source**: Copilot Session 2024-03-15, Authentication Implementation
+**Priority**: High (P1)
+**Rationale**: "Need secure user login system" - Copilot analysis
+
+### Description
+The system shall provide secure user authentication using JWT tokens with rate limiting protection.
+
+### Sub-Requirements
+
+#### REQ-F-AUTH-001.1: JWT Token Authentication  
+**Source**: Copilot decision - "JWT tokens for stateless authentication"
+**Implementation**: authController.js, JWT middleware
+The system shall use JWT tokens for stateless user authentication.
+
+#### REQ-F-AUTH-001.2: Session Duration
+**Source**: Copilot decision - "24 hours based on security vs UX balance"  
+**Implementation**: JWT expiry configuration
+The system shall set JWT token expiry to 24 hours to balance security and user experience.
+
+#### REQ-F-AUTH-001.3: Brute Force Protection
+**Source**: Copilot decision - "Rate limiting to prevent brute force attacks"
+**Implementation**: Rate limiting middleware  
+The system shall limit login attempts to 5 per 15-minute window to prevent brute force attacks.
+
+#### REQ-F-AUTH-001.4: Password Security
+**Source**: Copilot decision - "Password hashing with bcrypt"
+**Implementation**: Password validation utilities
+The system shall hash passwords using bcrypt and require 8+ characters with special characters.
+
+#### REQ-F-AUTH-001.5: Security Through Obscurity  
+**Source**: Copilot decision - "Generic messages to prevent user enumeration"
+**Implementation**: Error handling in authController.js
+The system shall return generic error messages to prevent user enumeration attacks.
+
+### Validation Status
+- [ ] **Intent Verification**: Confirm security requirements still applicable
+- [ ] **Implementation Alignment**: Verify code matches documented decisions  
+- [ ] **Currency Check**: Validate 24-hour expiry still appropriate
+- [ ] **Rate Limit Validation**: Confirm 5/15min limit meets current needs
+```
+
+**2. Architecture Decision Documents**:
+```markdown
+# Example: architecture_decisions.md
+## Database Choice: PostgreSQL vs MongoDB
+
+### Analysis by Copilot
+After analyzing the requirements, I recommended PostgreSQL because:
+
+1. **ACID Compliance**: Financial transactions require strong consistency
+2. **Complex Queries**: Reporting needs require complex joins and aggregations  
+3. **Data Integrity**: User and order relationships need referential integrity
+4. **Mature Ecosystem**: Well-established tools and expertise available
+
+### Implementation
+- Set up PostgreSQL with connection pooling
+- Created normalized schema for users, orders, products
+- Added indexes for common query patterns
+- Implemented transaction boundaries for order processing
+```
+
+**Generated Architecture Requirements**:
+```markdown
+## REQ-NF-DATA-001: Database Technology Choice
+**Source**: Copilot Architecture Decision, Database Analysis
+**Priority**: Critical (P0)
+**Rationale**: "Financial transactions require strong consistency" - Copilot
+
+### Description  
+The system shall use PostgreSQL as primary database for ACID compliance and complex query support.
+
+### Non-Functional Requirements
+
+#### REQ-NF-DATA-001.1: ACID Compliance
+**Source**: Copilot rationale - "Financial transactions require strong consistency"
+**Validation Needed**: ✅ Still critical for financial operations
+The system shall ensure ACID properties for all financial transactions.
+
+#### REQ-NF-DATA-001.2: Complex Query Support
+**Source**: Copilot rationale - "Reporting needs require complex joins"  
+**Validation Needed**: ❓ Confirm current reporting requirements
+The system shall support complex queries with joins and aggregations for reporting.
+
+#### REQ-NF-DATA-001.3: Data Integrity  
+**Source**: Copilot rationale - "User and order relationships need referential integrity"
+**Validation Needed**: ✅ Still applicable for data consistency
+The system shall maintain referential integrity between related entities.
+```
+
+#### **🔍 Code-Documentation Alignment Validation**
+
+**Cross-validate Copilot intentions against current implementation**:
+
+```javascript
+// Copilot Documentation Validation Framework
+class CopilotArtifactValidator {
+  
+  async validateIntentionAlignment(copilotDoc, codebase) {
+    const validationResults = [];
+    
+    // Extract stated intentions from Copilot docs
+    const intentions = this.extractIntentions(copilotDoc);
+    
+    for (const intention of intentions) {
+      const alignment = await this.checkImplementationAlignment(intention, codebase);
+      validationResults.push({
+        intention: intention.description,
+        source: intention.source,
+        currentImplementation: alignment.actualImplementation,
+        alignment: alignment.matches ? '✅ ALIGNED' : '❌ MISALIGNED',
+        discrepancy: alignment.discrepancy,
+        staleness: this.checkStaleness(intention, codebase),
+        userValidationNeeded: !alignment.matches
+      });
+    }
+    
+    return validationResults;
+  }
+  
+  extractIntentions(document) {
+    // Parse Copilot markdown for stated intentions
+    const patterns = [
+      /I will implement (.*)/g,
+      /The approach is to (.*)/g,  
+      /I decided to (.*) because (.*)/g,
+      /Requirements?: (.*)/g,
+      /Implementation plan: (.*)/g
+    ];
+    
+    return this.parseIntentions(document, patterns);
+  }
+}
+```
+
+**Example Validation Results**:
+```markdown
+## Copilot Intention Validation Report
+
+### ALIGNED Intentions ✅
+1. **JWT Authentication Implementation**
+   - **Copilot Intent**: "Use JWT tokens for stateless authentication"
+   - **Current Code**: JWT middleware implemented in auth/middleware.js
+   - **Status**: ✅ ALIGNED - Implementation matches intention
+
+2. **Password Hashing**  
+   - **Copilot Intent**: "Hash passwords with bcrypt for security"
+   - **Current Code**: bcrypt.hash() used in userController.js
+   - **Status**: ✅ ALIGNED - Implementation matches intention
+
+### MISALIGNED Intentions ❌
+1. **Rate Limiting Configuration**
+   - **Copilot Intent**: "5 attempts per 15 minutes to prevent brute force"
+   - **Current Code**: 10 attempts per 30 minutes in rateLimiter.js  
+   - **Status**: ❌ MISALIGNED - Configuration changed post-implementation
+   - **User Validation Needed**: ❓ Which rate limit is correct for current needs?
+
+2. **JWT Token Expiry**
+   - **Copilot Intent**: "24 hours based on security vs UX balance" 
+   - **Current Code**: 12 hours in jwt.config.js
+   - **Status**: ❌ MISALIGNED - Expiry shortened after implementation
+   - **User Validation Needed**: ❓ Was 12-hour change intentional or error?
+
+### OUTDATED Intentions ⚠️
+1. **Database Choice Rationale**
+   - **Copilot Intent**: "PostgreSQL for complex reporting queries"
+   - **Current Code**: Still PostgreSQL but no complex reporting implemented
+   - **Status**: ⚠️ OUTDATED - Reporting requirements may have changed
+   - **User Validation Needed**: ❓ Are complex reporting features still planned?
+```
+
+#### **🗣️ User Interaction Framework for Discrepancy Resolution**
+
+**Structured user interaction to resolve discrepancies and validate intentions**:
+
+```markdown
+### User Validation Questions for Discrepancies
+
+#### Discrepancy Type: MISALIGNED Implementation
+
+**DISC-001: Rate Limiting Configuration Mismatch**
+**Copilot Intent**: 5 attempts per 15 minutes  
+**Current Code**: 10 attempts per 30 minutes
+**File**: src/middleware/rateLimiter.js:12
+
+**Questions for User**:
+1. ❓ **Which rate limit is correct for your current security needs?**
+   - A) Use original Copilot recommendation (5/15min) - more secure
+   - B) Keep current implementation (10/30min) - more user-friendly  
+   - C) Different configuration based on new requirements
+
+2. ❓ **Why was the rate limit changed from the original design?**
+   - A) Security requirements changed
+   - B) User experience feedback  
+   - C) Accidental modification
+   - D) Don't know - needs investigation
+
+3. ❓ **Should we document this as a new requirement?**
+   - A) Yes - update requirement with current rationale
+   - B) No - revert to original Copilot design
+   - C) Need security team review first
+
+**Recommended Actions Based on Response**:
+- **If A1+A2**: Document new security requirement with updated rationale
+- **If B1+C2**: Revert to original configuration and document reason
+- **If C1+D2**: Schedule security review to determine correct configuration
+
+#### Discrepancy Type: OUTDATED Rationale
+
+**DISC-002: Database Rationale No Longer Applicable**  
+**Copilot Intent**: "PostgreSQL for complex reporting queries"
+**Current State**: No complex reporting features implemented
+**Status**: Intent may be outdated
+
+**Questions for User**:
+1. ❓ **Are complex reporting features still planned?**
+   - A) Yes - still required, just not implemented yet
+   - B) No - requirements changed, simple queries sufficient
+   - C) Uncertain - need product owner clarification
+
+2. ❓ **If reporting not needed, is PostgreSQL still the right choice?**
+   - A) Yes - other benefits (ACID compliance, team expertise) still apply
+   - B) No - could simplify to simpler database  
+   - C) Need architecture review
+
+3. ❓ **Should we update the requirement documentation?**
+   - A) Yes - remove reporting rationale, keep other benefits
+   - B) Yes - document that reporting is deferred/cancelled
+   - C) No - keep original rationale in case requirements return
+
+### User Interaction Workflow
+
+#### Phase 1: Automated Discrepancy Detection
+```bash
+# Run discrepancy detection
+/code-to-requirements.prompt.md --copilot-validation
+
+# Output: List of misaligned/outdated intentions requiring user input
+```
+
+#### Phase 2: Interactive Validation Session
+```bash
+# Present discrepancies one by one for user resolution
+DISC-001: Rate limiting mismatch detected
+Current: 10 attempts/30min
+Copilot Intent: 5 attempts/15min  
+
+Which should we document as the requirement?
+[1] Current implementation (10/30)
+[2] Original Copilot design (5/15)  
+[3] Different configuration
+[4] Need team discussion
+
+User Input: 1
+Rationale: User feedback indicated original was too restrictive
+
+# Generate updated requirement
+REQ-NF-SEC-001.3: Rate Limiting (UPDATED)
+Original: 5 attempts per 15 minutes (Copilot recommendation)
+Current: 10 attempts per 30 minutes 
+Rationale: Adjusted based on user feedback - original too restrictive
+Change Date: [Current date]
+Change Reason: User experience optimization
+```
+
+#### Phase 3: Documentation Update
+```markdown
+# Updated requirement with change history
+## REQ-NF-SEC-001.3: Authentication Rate Limiting
+
+**Current Requirement**: System shall limit login attempts to 10 per 30-minute window.
+
+**Implementation**: Rate limiting middleware (rateLimiter.js)
+
+**Change History**:
+- **v1.0** (Copilot): 5 attempts per 15 minutes - "prevent brute force attacks"
+- **v1.1** (User Update): 10 attempts per 30 minutes - "user feedback: original too restrictive"
+
+**Validation Status**: ✅ User confirmed - requirement current as of [date]
+```
+
+#### **📊 Copilot Artifact Timeline Analysis**
+
+**Track evolution of Copilot intentions over time**:
+
+```javascript
+// Timeline analysis to detect stale documentation
+class CopilotTimelineAnalyzer {
+  
+  analyzeArtifactFreshness(copilotDocs, gitHistory) {
+    const timeline = [];
+    
+    copilotDocs.forEach(doc => {
+      const intentions = this.extractIntentions(doc);
+      const lastModified = this.getLastModified(doc.path);
+      const relatedCodeChanges = this.findRelatedCodeChanges(intentions, gitHistory);
+      
+      timeline.push({
+        document: doc.path,
+        intentions: intentions.length,
+        lastModified: lastModified,
+        relatedCodeChanges: relatedCodeChanges,
+        staleness: this.calculateStaleness(lastModified, relatedCodeChanges),
+        freshness: this.calculateFreshness(doc, relatedCodeChanges)
+      });
+    });
+    
+    return timeline.sort((a, b) => b.staleness - a.staleness);
+  }
+  
+  calculateStaleness(docModified, codeChanges) {
+    const lastCodeChange = Math.max(...codeChanges.map(c => c.timestamp));
+    const daysSinceDocUpdate = (Date.now() - docModified) / (1000 * 60 * 60 * 24);
+    const daysSinceCodeChange = (Date.now() - lastCodeChange) / (1000 * 60 * 60 * 24);
+    
+    // Staleness increases when code changes after doc was written
+    return Math.max(0, daysSinceCodeChange - daysSinceDocUpdate);
+  }
+}
+```
+
+**Timeline Analysis Report**:
+```markdown
+## Copilot Artifact Freshness Analysis
+
+### STALE Documentation (High Priority Review) ⚠️
+1. **architecture_decisions.md** (Modified: 3 months ago)
+   - **Related Code Changes**: 15 changes in last month  
+   - **Staleness Score**: 87/100 (very stale)
+   - **Risk**: Architecture decisions may no longer reflect current code
+
+2. **authentication_implementation.md** (Modified: 6 weeks ago)
+   - **Related Code Changes**: 8 changes in auth/ directory
+   - **Staleness Score**: 65/100 (moderately stale)
+   - **Risk**: Security implementations may have evolved
+
+### FRESH Documentation (Low Priority) ✅  
+1. **database_schema.md** (Modified: 1 week ago)
+   - **Related Code Changes**: 2 minor schema updates
+   - **Staleness Score**: 15/100 (fresh)
+   - **Status**: Documentation likely current
+
+### ORPHANED Documentation (Review Required) 🗑️
+1. **payment_integration.md** (Modified: 8 months ago)
+   - **Related Code**: No payment code found in current codebase
+   - **Status**: Feature may have been removed or never implemented
+   - **Action**: Verify if payment features still planned
+```
+
+### Step 5: Test-Driven Requirements
 
 **Extract acceptance criteria from existing tests**:
 
