@@ -636,17 +636,352 @@ This specification covers functional and non-functional requirements extracted f
 | REQ-F-ORDER-002 | orderService.py | order.test.py | orders table | OrderForm.vue |
 [Continue for all requirements...]
 
-## 8. Validation and Verification
+## 8. Specification Validation & Gap Detection Framework
 
-### 8.1 Requirements Validation
-- All requirements derived from actual implemented functionality
-- Requirements verified against existing test cases
-- Acceptance criteria match test assertions
+### 8.1 Requirements Validation Against Original Specifications
 
-### 8.2 Completeness Assessment
-- **Code Coverage**: [%] of codebase analyzed for requirements
-- **Test Coverage**: [%] of requirements have corresponding tests  
-- **Gap Analysis**: [Areas where requirements may be incomplete]
+#### **⚠️ CRITICAL: Prevent Codifying Bugs and Missing Context**
+
+**The Challenge**: Code may have been implemented based on:
+- Missing or lost specifications  
+- Incomplete understanding of business rules
+- Temporary workarounds that became permanent
+- Bugs that were never identified or fixed
+- Domain knowledge that was never documented
+
+**Simply reverse-engineering from code can perpetuate these issues.**
+
+#### **8.1.1 Missing Specification Detection**
+
+**Identify areas where original specifications may be missing**:
+
+```bash
+# Look for suspicious code patterns that suggest missing specs
+grep -r "TODO\|FIXME\|HACK\|WORKAROUND\|TEMP" src/
+grep -r "magic number\|hardcoded\|assume" src/ 
+find src/ -name "*.js" -exec grep -l "// ?" {} \;  # Comments indicating uncertainty
+```
+
+**Red Flags in Code**:
+```javascript
+// Examples of code that suggests missing specifications
+const TAX_RATE = 0.08;  // MISSING: Which jurisdiction? What conditions?
+if (user.age >= 21) {   // MISSING: Legal requirement? Business rule? Why 21?
+  // Alcohol purchase logic
+}
+
+function calculateDiscount(customer) {
+  // FIXME: Not sure about VIP discount rules
+  if (customer.type === 'VIP') {
+    return 0.15;  // MISSING: Where did 15% come from?
+  }
+}
+
+// Hardcoded business rules without explanation
+const MAX_RETRY_ATTEMPTS = 3;  // MISSING: SLA requirement? Technical limit?
+const SESSION_TIMEOUT = 1800000;  // MISSING: Security policy? UX requirement?
+```
+
+**Generated Specification Gaps**:
+```markdown
+## SPEC-GAP-001: Tax Calculation Rules
+**Missing Specification**: Tax rate hardcoded as 8%
+**Required Information**: 
+- Which tax jurisdiction applies?
+- Are there different rates for different product categories?
+- How are tax-exempt purchases handled?
+- What are the rules for international customers?
+
+**Validation Required**: 
+- Consult tax regulations/legal team
+- Review original business requirements
+- Verify against accounting system rules
+
+## SPEC-GAP-002: Age Verification Business Rules  
+**Missing Specification**: Age verification logic assumes 21 as threshold
+**Required Information**:
+- Legal requirements for age verification (jurisdiction-specific)
+- Product categories requiring age verification
+- Acceptable forms of age verification
+- Consequences of failed verification
+
+**Validation Required**:
+- Legal compliance review
+- Product manager confirmation
+- Regulatory requirements check
+```
+
+#### **8.1.2 Business Domain Validation**
+
+**Cross-reference against domain standards and regulations**:
+
+```markdown
+### Domain-Specific Validation Checklist
+
+#### Financial/Payment Processing
+- [ ] **PCI DSS Compliance**: Does payment handling meet PCI requirements?
+- [ ] **GDPR/Data Protection**: Are financial data retention rules followed?
+- [ ] **Financial Regulations**: Do calculations comply with local financial laws?
+- [ ] **Currency Handling**: Are currency conversions and rounding correct?
+
+#### Healthcare/Medical
+- [ ] **HIPAA Compliance**: Is PHI handled according to regulations?
+- [ ] **Medical Standards**: Do calculations follow medical protocols?
+- [ ] **Drug Interactions**: Are contraindication rules complete?
+- [ ] **Emergency Procedures**: Are critical path requirements documented?
+
+#### E-commerce/Retail
+- [ ] **Consumer Protection**: Do refund/return policies meet legal requirements?
+- [ ] **Inventory Management**: Are stock handling rules complete?
+- [ ] **Pricing Rules**: Are discount/promotion calculations accurate?
+- [ ] **Tax Compliance**: Are sales tax rules jurisdiction-appropriate?
+
+#### Automotive/Manufacturing
+- [ ] **Safety Standards**: Do safety checks meet industry requirements?
+- [ ] **Quality Control**: Are QC processes properly specified?
+- [ ] **Regulatory Compliance**: Do processes meet DOT/EPA/etc. requirements?
+- [ ] **Material Standards**: Are material specifications complete?
+```
+
+#### **8.1.3 Inconsistency and Bug Detection**
+
+**Identify potential bugs in extracted requirements**:
+
+**Logic Inconsistency Detection**:
+```python
+# Example: Inconsistent validation rules across endpoints
+# Endpoint 1: User registration
+def validate_password(password):
+    return len(password) >= 8 and has_special_char(password)
+
+# Endpoint 2: Password reset  
+def validate_new_password(password):
+    return len(password) >= 6  # INCONSISTENT! Missing special char requirement
+
+# Generated Bug Report:
+# BUG-REQ-001: Inconsistent password validation rules
+# - Registration requires 8+ chars + special char
+# - Reset only requires 6+ chars
+# - VALIDATION NEEDED: Which rule is correct?
+```
+
+**Edge Case Analysis**:
+```javascript
+// Example: Missing edge case handling
+function calculateAge(birthDate) {
+  const today = new Date();
+  const birth = new Date(birthDate);
+  return today.getFullYear() - birth.getFullYear();
+}
+
+// MISSING EDGE CASES:
+// - What if birth date is in the future?
+// - What about leap years and exact birth dates?
+// - How are time zones handled?
+// - What's the behavior for invalid dates?
+
+// Generated Gap Analysis:
+// GAP-REQ-002: Age calculation missing edge case specifications
+// - Future birth dates: Should return error or 0?
+// - Timezone handling: Use UTC or local time?
+// - Invalid dates: Should throw exception or return null?
+```
+
+**Data Consistency Validation**:
+```sql
+-- Check for data inconsistencies that suggest missing business rules
+SELECT user_id, COUNT(*) as order_count, SUM(total) as total_spent
+FROM orders 
+WHERE total < 0  -- SUSPICIOUS: Negative order totals
+GROUP BY user_id;
+
+SELECT * FROM users 
+WHERE created_at > NOW()  -- SUSPICIOUS: Future creation dates
+OR age < 0 OR age > 150;  -- SUSPICIOUS: Invalid ages
+
+-- Generated Validation Questions:
+-- VAL-Q-001: Are negative order totals valid (refunds/credits)?
+-- VAL-Q-002: Should age have upper/lower bounds? What are business rules?
+```
+
+#### **8.1.4 Stakeholder Validation Framework**
+
+**Process to validate extracted requirements with domain experts**:
+
+```markdown
+### Stakeholder Validation Process
+
+#### Phase 1: Expert Review Sessions
+**Schedule validation sessions with**:
+- **Product Owners**: Business logic and user workflow validation
+- **Domain Experts**: Industry-specific rules and compliance requirements
+- **Original Developers**: Historical context and design decisions
+- **Customer Support**: Real-world usage patterns and edge cases
+- **Legal/Compliance**: Regulatory requirements and constraints
+
+#### Phase 2: Validation Questions Template
+For each extracted requirement:
+
+**REQ-F-[ID]: [Requirement Title]**
+✅ **Business Justification**: Why does this requirement exist?
+✅ **Completeness**: Are there missing scenarios or edge cases?
+✅ **Accuracy**: Does the implementation match intended behavior?
+✅ **Currency**: Are the business rules still valid today?
+✅ **Compliance**: Does this meet all regulatory/legal requirements?
+
+**Validation Examples**:
+```
+REQ-F-USER-001: User Registration with Email Validation
+
+Validation Questions:
+1. **Business Justification**: Why is email validation required?
+   - Answer: User verification and password recovery capability
+   
+2. **Completeness**: Are all email validation scenarios covered?
+   - Current: Basic format validation
+   - Missing: Domain blacklists, disposable email detection, international domains
+   
+3. **Accuracy**: Does current implementation meet business intent?
+   - Issue Found: Code allows emails without TLD (.com, .org, etc.)
+   - Business Intent: Should accept all valid international domains
+   
+4. **Currency**: Are current rules still applicable?
+   - Update Needed: GDPR requires explicit consent for email storage
+   - New Requirement: Email preferences and unsubscribe capability
+   
+5. **Compliance**: Does this meet current regulations?
+   - Gap Found: Missing GDPR consent tracking
+   - Gap Found: No email retention policy implementation
+```
+
+#### Phase 3: External Validation Sources
+**Cross-reference requirements against external sources**:
+
+```markdown
+### External Validation Checklist
+
+#### Industry Standards
+- [ ] **ISO Standards**: Relevant ISO standards for the domain
+- [ ] **IEEE Standards**: Technical implementation standards  
+- [ ] **W3C Standards**: Web accessibility and standards compliance
+- [ ] **OWASP Guidelines**: Security best practices
+- [ ] **Industry Best Practices**: Domain-specific best practices
+
+#### Regulatory Sources
+- [ ] **Government Regulations**: Applicable local/federal laws
+- [ ] **Industry Regulations**: Sector-specific compliance requirements
+- [ ] **International Standards**: Cross-border compliance requirements
+- [ ] **Professional Standards**: Industry association guidelines
+
+#### Business Context
+- [ ] **Company Policies**: Internal business rules and policies
+- [ ] **SLA Requirements**: Service level agreements and contracts
+- [ ] **Competitive Analysis**: Industry standard practices
+- [ ] **Customer Contracts**: Specific customer requirements
+```
+
+#### **8.1.5 Automated Validation Checks**
+
+**Set up automated validation to catch specification issues**:
+
+```javascript
+// Automated business rule validation
+class RequirementValidator {
+  validateBusinessRules(extractedRequirements) {
+    const issues = [];
+    
+    // Check for hardcoded values without business context
+    const hardcodedValues = this.findHardcodedValues();
+    hardcodedValues.forEach(value => {
+      issues.push({
+        type: 'MISSING_SPECIFICATION',
+        severity: 'HIGH',
+        description: `Hardcoded value ${value.value} in ${value.location}`,
+        validation_needed: 'Business justification for this value'
+      });
+    });
+    
+    // Check for inconsistent validation rules
+    const inconsistencies = this.findValidationInconsistencies();
+    inconsistencies.forEach(inconsistency => {
+      issues.push({
+        type: 'INCONSISTENT_LOGIC', 
+        severity: 'CRITICAL',
+        description: `Inconsistent validation: ${inconsistency.description}`,
+        validation_needed: 'Clarify which validation rule is correct'
+      });
+    });
+    
+    return issues;
+  }
+}
+```
+
+#### **8.1.6 Specification Gap Report Template**
+
+```markdown
+# Specification Validation Report
+
+## Executive Summary
+- **Total Requirements Extracted**: [N]
+- **Validation Gaps Identified**: [N] 
+- **Critical Missing Specifications**: [N]
+- **Stakeholder Review Required**: [N] requirements
+
+## Critical Specification Gaps
+
+### SPEC-GAP-001: [Title]
+**Severity**: CRITICAL/HIGH/MEDIUM/LOW
+**Category**: Business Logic/Compliance/Security/Performance
+**Description**: [What specification is missing]
+**Impact**: [Potential consequences of missing specification]
+**Current Implementation**: [What the code currently does]
+**Validation Required**: [What needs to be verified/researched]
+**Stakeholder**: [Who should validate this]
+**Timeline**: [When validation is needed]
+
+## Requirements Requiring External Validation
+
+### REQ-F-[ID]: [Title]
+**Current Status**: EXTRACTED - NEEDS VALIDATION
+**Validation Type**: 
+- [ ] Business Logic Review
+- [ ] Compliance Check  
+- [ ] Technical Standards Review
+- [ ] Stakeholder Confirmation
+
+**Validation Questions**:
+1. [Specific question about business rule]
+2. [Specific question about edge cases]
+3. [Specific question about compliance]
+
+**Assigned Validator**: [Name/Role]
+**Due Date**: [Date]
+
+## Automated Validation Results
+
+### Inconsistency Alerts
+- [List of logical inconsistencies found]
+- [List of hardcoded values needing justification]
+- [List of missing edge case handling]
+
+### Compliance Checks
+- [Industry standard compliance status]
+- [Regulatory requirement coverage]
+- [Security standard adherence]
+
+## Next Steps
+1. **Immediate**: Address critical specification gaps
+2. **This Week**: Complete stakeholder validation sessions
+3. **This Sprint**: Resolve inconsistencies and missing edge cases
+4. **This Quarter**: Implement missing compliance requirements
+
+## Validation Sign-offs
+- [ ] **Product Owner**: Business logic validated
+- [ ] **Domain Expert**: Industry rules confirmed  
+- [ ] **Compliance Officer**: Regulatory requirements verified
+- [ ] **Technical Lead**: Implementation feasibility confirmed
+```
 
 ## 9. Assumptions and Dependencies
 
