@@ -26,7 +26,20 @@ Reverse engineer formal requirements specifications from existing code:
 4. **Create traceability links** between code and requirements
 5. **Produce ISO 29148 compliant** requirements specification
 
-## 🔍 Code Analysis Framework
+## � AI Agent Guardrails
+**CRITICAL**: Prevent common AI pitfalls during requirements recovery:
+- ❌ **No implementation-based assumptions**: Never assume current code represents correct requirements
+- ❌ **Prefer incremental modification during maintenance**: Extend existing patterns unless discrepancies detected
+- ✅ **Validate legacy assumptions**: Always question existing business rules until verified
+- ✅ **Reimplementation legitimate when**: Discrepancies/bugs detected after requirements validation
+- ✅ **Follow proper validation path**: Requirements → Architecture → Implementation decision
+
+**Validation Questions**:
+1. Have I validated legacy assumptions against business requirements?
+2. Am I extending existing patterns appropriately during maintenance?
+3. Have I identified when reimplementation is legitimately needed?
+
+## �🔍 Code Analysis Framework
 
 ### Step 1: Code Structure Analysis
 

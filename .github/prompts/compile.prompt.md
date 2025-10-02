@@ -6,6 +6,20 @@ mode: agent
 
 Transform specification files into working code following standards and XP practices.
 
+## 🚨 AI Agent Guardrails
+**CRITICAL**: Prevent production code contamination and assumptions:
+- ❌ **No stubs/simulations in PRODUCTIVE code**: Test doubles belong in test code only
+- ✅ **Test mocks are acceptable**: Use dependency injection for testability
+- ❌ **No "TODO" or placeholder implementations**: Complete implementations only
+- ✅ **Clear test/production boundaries**: Maintain strict separation
+- ❌ **No implementation-based assumptions**: Always reference specifications
+- ✅ **Always trace to specification**: Every decision must have documented rationale
+
+**Validation Questions**:
+1. Have I validated against specifications rather than assumptions?
+2. Am I distinguishing between test and production code appropriately?
+3. Are all implementations complete without placeholders?
+
 ## Objective
 
 Compile Markdown specifications (`*-spec.md`, `main.md`) into production-ready code that:
