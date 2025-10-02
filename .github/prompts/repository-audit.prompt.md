@@ -339,24 +339,324 @@ go test -cover ./...          # Go
 - Design diagrams: [files found]
 - Decision records: [files found]
 
+**Existing Architecture Analysis**:
+
+#### **1. Architecture Pattern Detection**
+```bash
+# Analyze codebase structure to identify architecture patterns
+find src -type f -name "*.js" -o -name "*.ts" -o -name "*.py" | xargs grep -l "controller\|service\|repository\|model"
+find . -name "*Controller*" -o -name "*Service*" -o -name "*Repository*"
+ls -la src/components src/services src/models src/controllers 2>/dev/null
+```
+
+**Detected Patterns**:
+- **MVC**: ✅/🔴 Controllers, Models, Views identified
+- **Layered Architecture**: ✅/🔴 Presentation, Business, Data layers
+- **Microservices**: ✅/🔴 Service boundaries and communication
+- **Event-Driven**: ✅/🔴 Event handlers and publishers
+- **Hexagonal/Clean**: ✅/🔴 Ports and adapters structure
+- **Domain-Driven Design**: ✅/🔴 Domain entities and services
+
+**Pattern Consistency Score**: [X/10]
+**Pattern Clarity Score**: [X/10]
+
+#### **2. Architecture Quality Assessment**
+
+**Structural Analysis**:
+```typescript
+// Example analysis for Node.js/TypeScript project
+// Check dependency directions and layers
+interface ArchitectureLayer {
+  name: string;
+  dependencies: string[];
+  violations: string[];
+}
+
+const layers: ArchitectureLayer[] = [
+  {
+    name: "Controllers",
+    dependencies: ["Services"], // Should only depend on Services
+    violations: ["Direct database access", "Business logic in controllers"]
+  },
+  {
+    name: "Services", 
+    dependencies: ["Repositories", "Domain"],
+    violations: ["HTTP dependencies", "UI coupling"]
+  },
+  {
+    name: "Repositories",
+    dependencies: ["Database", "Domain"],
+    violations: ["Business logic in data layer"]
+  }
+];
+```
+
+**Architecture Violations Detection**:
+- **Circular Dependencies**: [Count] violations found
+  ```bash
+  # Check for circular deps (Node.js example)
+  npx madge --circular src/
+  ```
+- **Layer Violations**: [Count] violations found
+  - Controllers calling Repositories directly
+  - Data layer containing business logic
+  - UI components in business layer
+- **Coupling Issues**: [Count] violations found
+  - High coupling between modules
+  - Tight coupling to external services
+  - Database schema leaked to business layer
+
+#### **3. Architecture Discrepancy Analysis**
+
+**Intended vs Actual Architecture**:
+
+| Aspect | Intended (from docs/ADRs) | Actual (from code) | Discrepancy | Intentional? |
+|--------|---------------------------|-------------------|-------------|--------------|
+| Database Access | Repository Pattern | Direct ORM calls | 🔴 High | ❓ Unclear |
+| Service Communication | Event-driven | Direct HTTP calls | 🟡 Medium | ✅ Documented |
+| Error Handling | Centralized | Scattered try-catch | 🔴 High | 🔴 Accidental |
+| Authentication | JWT with refresh | Basic JWT only | 🟡 Medium | ⚠️ Simplified |
+| Caching Strategy | Redis distributed | In-memory only | 🔴 High | ❓ Unknown |
+
+#### **4. Architecture Intent Analysis**
+
+**Decision Traceability**:
+```bash
+# Check for ADRs and architectural decisions
+find . -name "*ADR*" -o -name "*decision*" -o -name "*architecture*" | grep -i record
+git log --grep="architecture\|refactor\|redesign" --oneline
+```
+
+**Intent Assessment Framework**:
+
+**✅ Intentional Architecture Decisions** (Clear documentation/rationale):
+- Decision has corresponding ADR
+- Consistent implementation across codebase  
+- Recent commits reference the decision
+- Team discussion in PR/issue comments
+
+**❓ Unclear Intent** (Needs investigation):
+- Partial implementation of pattern
+- Inconsistent application across modules
+- No documentation but appears deliberate
+- Mixed old/new patterns coexisting
+
+**🔴 Accidental Inconsistencies** (Likely unintentional):
+- Violates documented architecture
+- Inconsistent with established patterns
+- Quick fixes without pattern consideration
+- Copy-paste code with different patterns
+
+#### **5. Technical Debt & Problem Areas**
+
+**Code Smell Detection**:
+```bash
+# Static analysis for common issues
+npx eslint src/ --ext .js,.ts | grep -E "(complexity|cognitive|duplicate)"
+flake8 src/ --max-complexity=10  # Python
+sonarqube-scanner  # Comprehensive analysis
+```
+
+**Critical Problem Areas**:
+
+**🔴 High Severity**:
+- **God Classes**: [Count] classes >500 lines
+  - `UserService.js` (847 lines) - Handles auth, profile, notifications
+  - `OrderController.py` (623 lines) - Mixed business/presentation logic
+- **Circular Dependencies**: [Count] modules
+  - `auth.service` ↔ `user.service` ↔ `notification.service`
+- **Security Anti-patterns**: [Count] issues
+  - Hardcoded secrets in configuration files
+  - SQL injection vulnerabilities in legacy queries
+  - Missing input validation on 12 endpoints
+
+**🟡 Medium Severity**:  
+- **Performance Bottlenecks**: [Count] issues
+  - N+1 queries in user profile loading
+  - Missing database indexes on frequent queries
+  - Inefficient serialization in API responses
+- **Maintenance Issues**: [Count] issues
+  - Dead code in deprecated modules (23% of codebase)
+  - Inconsistent error handling patterns
+  - Missing test coverage on critical paths (45% coverage)
+
+**⚠️ Design Issues**:
+- **Violation of SOLID Principles**:
+  - Single Responsibility: Controllers doing business logic
+  - Open/Closed: Hardcoded logic without extension points
+  - Dependency Inversion: Direct dependencies on concrete classes
+- **Poor Abstraction**:
+  - Business logic scattered across layers
+  - No clear domain boundaries
+  - Mixed concerns in single modules
+
+#### **6. Architecture Evolution Analysis**
+
+**Historical Pattern Changes**:
+```bash
+# Analyze architecture evolution over time
+git log --stat --since="1 year ago" | grep -E "(src/|lib/)" | head -20
+git blame $(find src -name "*.js" | head -10) | cut -d' ' -f1 | sort | uniq -c
+```
+
+**Evolution Timeline**:
+- **Phase 1** (6 months ago): Simple MVC structure
+- **Phase 2** (3 months ago): Added service layer, some repositories
+- **Phase 3** (1 month ago): Attempted microservices split (incomplete)
+- **Current**: Mixed patterns, partial migrations
+
+**Migration Inconsistencies**:
+- Old modules still using direct database access
+- New modules follow repository pattern  
+- API endpoints split between old/new authentication
+- Half-migrated from REST to GraphQL
+
 **Migration Actions**:
-1. Use `architecture-starter.prompt.md` to generate architecture spec
-2. Create C4 diagrams from existing code
-3. Document architectural decisions as ADRs
+1. **Use `architecture-starter.prompt.md` to generate proper architecture spec**
+2. **Create C4 diagrams documenting current actual architecture** 
+3. **Use `code-to-requirements.prompt.md` to understand intended behavior**
+4. **Document architectural decisions as ADRs** with rationale for discrepancies
+5. **Create architecture modernization roadmap** with migration priorities
+6. **Establish architecture governance** to prevent future inconsistencies
+
+**Architecture Modernization Priority**:
+1. **CRITICAL**: Resolve security anti-patterns and circular dependencies
+2. **HIGH**: Standardize data access patterns and error handling  
+3. **MEDIUM**: Complete partial migrations and remove dead code
+4. **LOW**: Optimize performance and improve test coverage
 
 [Continue for Phases 04-07...]
 
-### 3. Code Quality Assessment
+### 3. Code Quality & Problem Area Assessment
 
 **Overall Score**: [X/10]
 
-#### Code Organization
+#### **1. Code Organization Analysis**
 - **Structure**: [X/10] - [Comments on organization]
 - **Naming**: [X/10] - [Comments on naming conventions]  
 - **Modularity**: [X/10] - [Comments on SOLID principles]
 - **Documentation**: [X/10] - [Comments on code docs]
 
-#### Test Coverage Analysis
+#### **2. Comprehensive Problem Detection**
+
+**Static Analysis Tools**:
+```bash
+# Multi-language static analysis
+eslint src/ --ext .js,.ts --format json > eslint-report.json
+sonarqube-scanner -Dsonar.projectKey=audit
+flake8 src/ --output-file=flake8-report.txt
+pylint src/ --output-format=json > pylint-report.json
+detekt --input src/ --report xml:detekt-report.xml  # Kotlin
+swiftlint > swiftlint-report.json  # Swift
+```
+
+#### **🔴 Critical Problems (Fix Immediately)**
+
+**Security Vulnerabilities**:
+```bash
+# Security scanning
+npm audit --audit-level=high
+safety check  # Python
+snyk test
+bandit -r src/  # Python security issues
+```
+
+**Critical Issues Found**:
+- **SQL Injection**: [Count] vulnerable queries
+  ```sql
+  -- Example: user_controller.py line 45
+  query = f"SELECT * FROM users WHERE id = {user_id}"  # VULNERABLE
+  ```
+- **Hardcoded Secrets**: [Count] instances
+  ```javascript
+  // Example: config.js line 12
+  const API_KEY = "sk-1234567890abcdef";  // HARDCODED SECRET
+  ```
+- **Authentication Bypass**: [Count] endpoints
+  ```python
+  # Example: No auth check on admin endpoints
+  @app.route('/admin/users', methods=['DELETE'])
+  def delete_user():  # MISSING AUTH CHECK
+  ```
+- **XSS Vulnerabilities**: [Count] injection points
+- **CSRF Missing Protection**: [Count] state-changing endpoints
+
+**Data Integrity Issues**:
+- **Race Conditions**: [Count] concurrent access issues
+- **Transaction Boundaries**: [Count] incomplete transactions  
+- **Data Validation**: [Count] missing input validation
+- **Injection Attacks**: [Count] unsanitized inputs
+
+#### **🟡 High Priority Problems (Fix This Sprint)**
+
+**Performance Bottlenecks**:
+```bash
+# Performance analysis
+npx clinic doctor -- node server.js
+py-spy top --pid $(pgrep python)
+java -javaagent:profiler.jar MyApp
+```
+
+**Performance Issues Found**:
+- **N+1 Query Problems**: [Count] instances
+  ```python
+  # Example: Inefficient data loading
+  users = User.all()
+  for user in users:
+      profile = UserProfile.get(user.id)  # N+1 QUERY
+  ```
+- **Memory Leaks**: [Count] potential leaks
+  ```javascript
+  // Example: Event listeners not cleaned up
+  setInterval(() => { /* ... */ }, 1000);  // NEVER CLEARED
+  ```
+- **Inefficient Algorithms**: [Count] O(n²) or worse complexity
+- **Large Object Creation**: [Count] unnecessary object allocations
+- **Missing Indexes**: [Count] slow database queries
+- **Synchronous I/O**: [Count] blocking operations
+
+**Maintainability Issues**:
+- **God Classes**: [Count] classes >500 lines
+  ```typescript
+  // Example: UserService.ts (1,247 lines)
+  class UserService {
+    // Handles auth, profiles, notifications, billing, analytics...
+  }
+  ```
+- **Long Methods**: [Count] methods >50 lines
+- **High Complexity**: [Count] methods with cyclomatic complexity >10
+- **Code Duplications**: [Count] duplicated code blocks
+- **Technical Debt**: Estimated [X] hours to address
+
+#### **⚠️ Medium Priority Problems (Fix Next Sprint)**
+
+**Design Pattern Violations**:
+```bash
+# Anti-pattern detection
+grep -r "instanceof" src/  # Potential violation of OCP
+grep -r "switch.*type" src/  # Missing polymorphism
+find src -name "*.js" -exec wc -l {} \; | sort -nr | head -10  # Large files
+```
+
+**Anti-Patterns Found**:
+- **Spaghetti Code**: [Count] modules with >10 dependencies
+- **God Objects**: [Count] classes doing too much
+- **Tight Coupling**: [Count] direct class instantiations
+- **Magic Numbers**: [Count] unexplained constants
+- **Dead Code**: [Count] unused methods/classes
+  ```bash
+  # Unused code detection
+  npx ts-unused-exports tsconfig.json
+  vulture src/  # Python dead code
+  ```
+
+**Code Smells**:
+- **Long Parameter Lists**: [Count] methods >5 parameters
+- **Feature Envy**: [Count] methods using other classes excessively
+- **Data Clumps**: [Count] repeated parameter groups
+- **Primitive Obsession**: [Count] complex data as primitives
+
+#### **3. Test Coverage Analysis**
 ```
 Current Coverage: [X]%
 Target Coverage: 80%
@@ -369,18 +669,132 @@ Coverage by Component:
 
 Critical Untested Code:
 - [List of critical paths without tests]
+
+Test Quality Issues:
+- [Count] flaky tests (fail intermittently)
+- [Count] slow tests (>1s execution time)
+- [Count] tests without assertions
+- [Count] tests that test implementation details
 ```
+
+**Test Problem Analysis**:
+- **Missing Edge Cases**: [Count] boundary conditions untested
+- **Insufficient Mocking**: [Count] tests hitting real dependencies
+- **Test Isolation Issues**: [Count] tests depending on each other
+- **Outdated Tests**: [Count] tests failing due to code changes
 
 **Migration Actions**:
 1. Use `test-gap-filler.prompt.md` to identify missing tests
 2. Implement TDD going forward with `tdd-compile.prompt.md`
 3. Refactor code for better testability
 
-#### Security Assessment
-- **Secrets Management**: [X/10] - [Issues found]
-- **Input Validation**: [X/10] - [Issues found]
-- **Dependencies**: [X/10] - [Vulnerabilities found]
-- **Authentication**: [X/10] - [Issues found]
+#### **4. Security Assessment Deep Dive**
+
+**Vulnerability Scanning**:
+```bash
+# Comprehensive security analysis
+npm audit --audit-level=moderate
+safety check --json  # Python
+snyk test --severity-threshold=medium
+semgrep --config=auto src/
+```
+
+**Security Issues Found**:
+
+**🔴 Critical Security Issues**:
+- **Secrets Management**: [X/10] - [Count] hardcoded secrets found
+  - API keys in source code: [locations]
+  - Database passwords in config: [files]
+  - JWT secrets in environment files: [files]
+- **Authentication Flaws**: [X/10] - [Count] auth bypass opportunities
+  - Missing authentication on [count] endpoints
+  - Weak password requirements
+  - No account lockout mechanism
+- **Authorization Issues**: [X/10] - [Count] privilege escalation risks
+  - Missing role-based access control
+  - Horizontal privilege escalation in [endpoints]
+  - Admin functions accessible to regular users
+
+**🟡 Medium Security Issues**:
+- **Input Validation**: [X/10] - [Count] injection vulnerabilities
+  - SQL injection in [count] queries
+  - XSS vulnerabilities in [count] forms
+  - Path traversal in [count] file operations
+- **Data Protection**: [X/10] - [Count] data exposure risks
+  - PII logged in plain text: [locations]
+  - Sensitive data in error messages
+  - Missing encryption for data at rest
+- **Dependencies**: [X/10] - [Count] vulnerable dependencies
+  ```bash
+  # Example vulnerable dependencies
+  lodash: 4.17.15 (CVE-2020-8203)
+  express: 4.16.1 (CVE-2022-24999)
+  ```
+
+#### **5. Architecture & Design Problem Assessment**
+
+**SOLID Principles Violations**:
+- **Single Responsibility**: [Count] classes doing multiple things
+- **Open/Closed**: [Count] classes requiring modification for extension
+- **Liskov Substitution**: [Count] inheritance hierarchy violations
+- **Interface Segregation**: [Count] fat interfaces forcing unused methods
+- **Dependency Inversion**: [Count] direct dependencies on concrete classes
+
+**Design Problems**:
+- **Inappropriate Intimacy**: [Count] classes knowing too much about others
+- **Refused Bequest**: [Count] subclasses not using inherited methods
+- **Parallel Inheritance**: [Count] hierarchies that must change together
+- **Shotgun Surgery**: [Count] changes requiring edits in many places
+
+#### **6. Problem Prioritization Matrix**
+
+| Problem Category | Impact | Frequency | Fix Effort | Priority Score |
+|------------------|--------|-----------|------------|----------------|
+| SQL Injection | 🔴 Critical | High | Medium | 95/100 |
+| Performance N+1 | 🟡 High | High | Low | 80/100 |
+| God Classes | 🟡 Medium | Medium | High | 60/100 |
+| Dead Code | ⚠️ Low | Low | Low | 30/100 |
+
+#### **7. Automated Problem Detection Setup**
+
+**Continuous Monitoring**:
+```yaml
+# .github/workflows/code-quality.yml
+name: Code Quality Analysis
+on: [push, pull_request]
+jobs:
+  quality-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Security Scan
+        run: |
+          npm audit --audit-level=high
+          snyk test
+      - name: Code Quality
+        run: |
+          eslint src/ --max-warnings 0
+          sonarqube-scanner
+      - name: Performance Check
+        run: |
+          npm run test:performance
+```
+
+**Quality Gates**:
+- **Security**: Zero high/critical vulnerabilities
+- **Coverage**: Minimum 80% code coverage
+- **Complexity**: Max cyclomatic complexity 10
+- **Duplication**: <3% code duplication
+- **Maintainability**: Maintainability index >70
+
+**Problem Tracking**:
+```markdown
+# Create GitHub issues for each problem category
+- Security: "Fix SQL injection vulnerabilities"
+- Performance: "Resolve N+1 query problems" 
+- Architecture: "Refactor God classes"
+- Test: "Improve test coverage to 80%"
+```
 
 ### 4. Process Compliance
 
@@ -614,6 +1028,382 @@ Critical Untested Code:
 **Expected ROI**: [Benefits vs. costs analysis]
 
 **Recommendation**: [PROCEED / PROCEED WITH MODIFICATIONS / DEFER]
+```
+
+## 🏗️ Architecture Recommendation Engine
+
+### **1. Architecture Modernization Strategy**
+
+Based on the analysis above, generate specific recommendations for addressing architectural issues:
+
+#### **Critical Architecture Fixes (Must Do)**
+
+**🔴 Circular Dependency Resolution**:
+```typescript
+// Current Problem: auth.service ↔ user.service ↔ notification.service
+
+// Recommended Solution: Extract shared dependencies
+interface UserEventBus {
+  publishUserEvent(event: UserEvent): void;
+  subscribeToUserEvents(handler: EventHandler): void;
+}
+
+// Break circular dependencies with event-driven communication
+class AuthService {
+  constructor(private eventBus: UserEventBus) {}
+  
+  async login(credentials: Credentials) {
+    // ... login logic
+    this.eventBus.publishUserEvent(new UserLoginEvent(user));
+    // No direct dependency on NotificationService
+  }
+}
+```
+
+**🔴 Layer Violation Fixes**:
+```python
+# Problem: Controllers directly accessing database
+def get_user(user_id):
+    return db.session.query(User).filter_by(id=user_id).first()  # BAD
+
+# Solution: Introduce repository layer
+class UserRepository:
+    def get_by_id(self, user_id: int) -> Optional[User]:
+        return db.session.query(User).filter_by(id=user_id).first()
+
+class UserController:
+    def __init__(self, user_repository: UserRepository):
+        self.user_repository = user_repository
+    
+    def get_user(self, user_id: int):
+        return self.user_repository.get_by_id(user_id)  # GOOD
+```
+
+#### **High Priority Architecture Improvements**
+
+**🟡 God Class Decomposition**:
+```java
+// Problem: UserService (1,247 lines) doing everything
+public class UserService {
+    // Authentication, profiles, notifications, billing, analytics...
+}
+
+// Solution: Single Responsibility Principle
+public class UserAuthenticationService {
+    public AuthResult authenticate(Credentials credentials) { /* ... */ }
+}
+
+public class UserProfileService {
+    public UserProfile getProfile(UserId id) { /* ... */ }
+}
+
+public class UserNotificationService {
+    public void sendNotification(UserId id, Notification notification) { /* ... */ }
+}
+
+// Coordination through facade if needed
+public class UserFacade {
+    private final UserAuthenticationService authService;
+    private final UserProfileService profileService;
+    private final UserNotificationService notificationService;
+}
+```
+
+**🟡 Performance Optimization**:
+```sql
+-- Problem: N+1 Query
+SELECT * FROM users;
+-- Then for each user:
+SELECT * FROM user_profiles WHERE user_id = ?;
+
+-- Solution: JOIN or preload
+SELECT u.*, up.* 
+FROM users u 
+LEFT JOIN user_profiles up ON u.id = up.user_id;
+```
+
+### **2. Migration Strategy Recommendations**
+
+#### **Strangler Fig Pattern for Legacy Systems**:
+```mermaid
+graph TD
+    A[Legacy System] --> B[Facade Layer]
+    B --> C[New Architecture]
+    B --> D[Legacy Components]
+    E[New Requests] --> B
+    F[Legacy Requests] --> B
+```
+
+**Implementation Phases**:
+1. **Phase 1**: Create facade layer to intercept requests
+2. **Phase 2**: Implement new components behind facade
+3. **Phase 3**: Gradually migrate functionality from legacy to new
+4. **Phase 4**: Remove legacy components when no longer used
+
+#### **Database Migration Strategy**:
+```sql
+-- Phase 1: Add new columns alongside old ones
+ALTER TABLE users ADD COLUMN email_verified_v2 BOOLEAN;
+
+-- Phase 2: Dual writes (write to both old and new)
+UPDATE users SET 
+    email_verified = ?, 
+    email_verified_v2 = ?
+WHERE id = ?;
+
+-- Phase 3: Migrate existing data
+UPDATE users SET email_verified_v2 = email_verified 
+WHERE email_verified_v2 IS NULL;
+
+-- Phase 4: Switch reads to new column
+-- Phase 5: Drop old column
+ALTER TABLE users DROP COLUMN email_verified;
+```
+
+#### **API Versioning Strategy**:
+```typescript
+// Problem: Breaking API changes
+app.get('/api/users/:id', (req, res) => {
+  // Changed response format breaks existing clients
+});
+
+// Solution: API versioning
+app.get('/api/v1/users/:id', getLegacyUser);
+app.get('/api/v2/users/:id', getNewUser);
+
+// Or header-based versioning
+app.get('/api/users/:id', (req, res) => {
+  const version = req.headers['api-version'] || 'v1';
+  if (version === 'v2') {
+    return getNewUser(req, res);
+  }
+  return getLegacyUser(req, res);
+});
+```
+
+### **3. Technology Stack Recommendations**
+
+Based on the architecture analysis, recommend appropriate technologies:
+
+#### **Microservices vs Modular Monolith**:
+
+**Choose Microservices IF**:
+- ✅ Team size >50 developers
+- ✅ Clear domain boundaries identified
+- ✅ Independent deployment needed
+- ✅ Different scaling requirements per service
+
+**Choose Modular Monolith IF**:
+- ✅ Team size <20 developers  
+- ✅ Shared data model across domains
+- ✅ Strong consistency requirements
+- ✅ Simpler deployment preferred
+
+**Current Recommendation**: Based on [team size] and [complexity], recommend [Microservices/Modular Monolith]
+
+#### **Communication Patterns**:
+
+**Synchronous (REST/GraphQL)**:
+- ✅ Real-time user interactions
+- ✅ Simple request-response patterns
+- ❌ High coupling between services
+
+**Asynchronous (Events/Message Queues)**:
+- ✅ Loose coupling between services
+- ✅ Better resilience and scalability
+- ❌ More complex debugging and testing
+
+**Recommended Pattern**: Hybrid approach with [specific recommendations based on use cases]
+
+### **4. Security Architecture Improvements**
+
+#### **Authentication & Authorization Modernization**:
+```typescript
+// Problem: Monolithic auth in every service
+if (req.user.role !== 'admin') {
+  return res.status(403).json({ error: 'Forbidden' });
+}
+
+// Solution: Centralized authorization service
+class AuthorizationService {
+  canAccess(user: User, resource: string, action: string): boolean {
+    return this.rbac.check(user.roles, resource, action);
+  }
+}
+
+// Usage in services
+if (!authService.canAccess(req.user, 'users', 'read')) {
+  return res.status(403).json({ error: 'Forbidden' });
+}
+```
+
+#### **Secret Management Architecture**:
+```yaml
+# Problem: Secrets in code/config files
+database:
+  password: "hardcoded_password"  # BAD
+
+# Solution: External secret management
+database:
+  password: ${SECRET_DB_PASSWORD}  # From HashiCorp Vault, AWS Secrets Manager, etc.
+```
+
+### **5. Performance Architecture Recommendations**
+
+#### **Caching Strategy**:
+```typescript
+// Multi-level caching architecture
+class CacheService {
+  private l1Cache = new Map(); // In-memory
+  private l2Cache: Redis;      // Distributed
+  
+  async get(key: string): Promise<any> {
+    // L1 Cache check
+    if (this.l1Cache.has(key)) {
+      return this.l1Cache.get(key);
+    }
+    
+    // L2 Cache check
+    const value = await this.l2Cache.get(key);
+    if (value) {
+      this.l1Cache.set(key, value);
+      return value;
+    }
+    
+    return null;
+  }
+}
+```
+
+#### **Database Optimization**:
+```sql
+-- Add missing indexes based on query analysis
+CREATE INDEX idx_users_email ON users(email);
+CREATE INDEX idx_orders_user_created ON orders(user_id, created_at);
+
+-- Optimize frequent queries
+EXPLAIN ANALYZE SELECT * FROM orders 
+WHERE user_id = ? AND status = 'active'
+ORDER BY created_at DESC;
+```
+
+### **6. Monitoring & Observability Architecture**
+
+#### **Distributed Tracing Setup**:
+```typescript
+// Add tracing to understand request flows
+import { trace } from '@opentelemetry/api';
+
+class UserService {
+  async getUser(id: string) {
+    const span = trace.getActiveSpan();
+    span?.setAttributes({ 'user.id': id });
+    
+    try {
+      const user = await this.repository.findById(id);
+      span?.setStatus({ code: SpanStatusCode.OK });
+      return user;
+    } catch (error) {
+      span?.recordException(error);
+      span?.setStatus({ code: SpanStatusCode.ERROR });
+      throw error;
+    }
+  }
+}
+```
+
+#### **Health Check Architecture**:
+```typescript
+// Comprehensive health checks
+class HealthCheckService {
+  async checkHealth(): Promise<HealthStatus> {
+    const checks = await Promise.all([
+      this.checkDatabase(),
+      this.checkRedis(),
+      this.checkExternalAPIs(),
+      this.checkFileSystem()
+    ]);
+    
+    return {
+      status: checks.every(c => c.healthy) ? 'healthy' : 'unhealthy',
+      checks,
+      timestamp: new Date().toISOString()
+    };
+  }
+}
+```
+
+### **7. Implementation Roadmap with Effort Estimates**
+
+#### **Quarter 1: Foundation (3 months)**
+**Effort**: 240 hours (3 developers × 20 hours/week × 4 weeks)
+
+**Week 1-2: Architecture Analysis & Planning**
+- [ ] Complete architecture audit (16 hours)
+- [ ] Design target architecture (24 hours)
+- [ ] Create migration strategy (16 hours)
+- [ ] Set up monitoring and metrics (24 hours)
+
+**Week 3-6: Critical Security Fixes**
+- [ ] Fix SQL injection vulnerabilities (32 hours)
+- [ ] Implement proper secret management (24 hours)
+- [ ] Add authentication/authorization checks (40 hours)
+- [ ] Security testing and validation (16 hours)
+
+**Week 7-12: Core Architecture Improvements**
+- [ ] Resolve circular dependencies (48 hours)
+- [ ] Fix layer violations (40 hours)
+- [ ] Implement repository pattern (32 hours)
+- [ ] Add proper error handling (24 hours)
+
+#### **Quarter 2: Optimization (3 months)**
+**Effort**: 180 hours
+
+**Performance Optimization**:
+- [ ] Resolve N+1 query problems (32 hours)
+- [ ] Implement caching strategy (40 hours)
+- [ ] Database optimization (24 hours)
+- [ ] Load testing and tuning (24 hours)
+
+**Code Quality Improvements**:
+- [ ] Refactor God classes (40 hours)
+- [ ] Improve test coverage to 80% (32 hours)
+- [ ] Remove dead code (16 hours)
+- [ ] Code review process improvements (12 hours)
+
+#### **Success Metrics & KPIs**
+
+**Technical Metrics**:
+- **Architecture Compliance**: Target 90% (Current: [X]%)
+- **Code Coverage**: Target 80% (Current: [X]%)  
+- **Security Score**: Target 95% (Current: [X]%)
+- **Performance**: <500ms API response time (Current: [X]ms)
+- **Maintainability Index**: Target >70 (Current: [X])
+
+**Business Metrics**:
+- **Developer Velocity**: 25% improvement in story points/sprint
+- **Bug Rate**: 50% reduction in production bugs
+- **Time to Market**: 30% faster feature delivery
+- **Technical Debt**: Reduce from [X] to [Y] hours
+
+**Monitoring Dashboard**:
+```yaml
+# architecture-health-dashboard.yml
+metrics:
+  - name: "Circular Dependencies"
+    target: 0
+    current: "[X]"
+    trend: "improving"
+  
+  - name: "God Classes"
+    target: 0
+    current: "[X]"
+    trend: "stable"
+    
+  - name: "Test Coverage"
+    target: "80%"
+    current: "[X]%"
+    trend: "improving"
 ```
 
 ## 🚀 Usage
