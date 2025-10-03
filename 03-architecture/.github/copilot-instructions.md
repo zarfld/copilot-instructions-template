@@ -1,3 +1,14 @@
+---
+title: "Phase 03 Copilot Instructions"
+specType: guidance
+phase: 03-architecture
+version: 1.0.0
+status: approved
+author: template-system
+date: 2025-10-03
+description: "Operational guidance for Architecture Design (ISO/IEC/IEEE 42010 & IEEE 1016)."
+---
+
 # Phase 03: Architecture Design
 
 **Standards**: ISO/IEC/IEEE 42010:2011 (Architecture Description), IEEE 1016-2009  

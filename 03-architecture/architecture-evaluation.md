@@ -1,3 +1,13 @@
+---
+title: "Architecture Evaluation"
+specType: architecture-evaluation
+version: 1.0.0
+status: draft
+author: template-system
+date: 2025-10-03
+description: "Scenario-driven architecture evaluation summary using ATAM concepts."
+---
+
 # Architecture Evaluation
 
 This document captures formal and lightweight evaluation of the architecture using ATAM (Architecture Tradeoff Analysis Method) concepts plus scenario-based reviews.

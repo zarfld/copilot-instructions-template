@@ -1,3 +1,14 @@
+---
+title: "Phase 02 Copilot Instructions"
+specType: guidance
+phase: 02-requirements
+version: 1.0.0
+status: approved
+author: template-system
+date: 2025-10-03
+description: "Operational guidance for Requirements Analysis & Specification (ISO/IEC/IEEE 29148, 12207)."
+---
+
 # Phase 02: Requirements Analysis & Specification
 
 **Standards**: ISO/IEC/IEEE 29148:2018 (System Requirements), ISO/IEC/IEEE 12207:2017  

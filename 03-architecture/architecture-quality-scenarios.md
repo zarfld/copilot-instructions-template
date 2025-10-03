@@ -1,3 +1,13 @@
+---
+title: "Architecture Quality Attribute Scenarios"
+specType: architecture-quality-scenarios
+version: 1.0.0
+status: draft
+author: template-system
+date: 2025-10-03
+description: "Structured quality attribute scenarios supporting ATAM-style evaluation and traceability."
+---
+
 # Architecture Quality Attribute Scenarios
 
 Quality Attribute (QA) scenarios make non-functional requirements concrete and testable. Each scenario follows the structured form recommended in architecture evaluation methods (e.g., ATAM) and ties directly to requirements.
