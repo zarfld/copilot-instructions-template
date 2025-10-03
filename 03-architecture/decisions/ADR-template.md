@@ -1,3 +1,13 @@
+---
+title: "ADR Template"
+specType: adr-template
+version: 1.0.0
+status: guidance
+author: template-system
+date: 2025-10-03
+description: "Template for consistent Architecture Decision Records (ADR-* IDs)."
+---
+
 # ADR-TEMPLATE: [Decision Title]
 
 > Use this template for each significant architectural decision. Based on Michael Nygard ADR format and ISO/IEC/IEEE 42010 rationale requirements.
