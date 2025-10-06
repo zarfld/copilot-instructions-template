@@ -2,8 +2,6 @@
 
 **Context**: I have completed Phase 03 (Architecture Design) following ISO/IEC/IEEE 42010:2011 standards and am ready to transition to Phase 04 (Detailed Design) following IEEE 1016-2009 standards.
 
-
-
 **Completed Architecture Artifacts**:
 - Architecture specification with multiple viewpoints (Context, Logical, Deployment)
 - Architecture Decision Records (ADRs) documenting key decisions

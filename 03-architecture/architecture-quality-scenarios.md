@@ -1,11 +1,15 @@
 ---
-title: "Architecture Quality Attribute Scenarios"
-specType: architecture-quality-scenarios
+specType: architecture
+standard: 42010
+phase: 03-architecture
 version: 1.0.0
-status: draft
-author: template-system
-date: 2025-10-03
-description: "Structured quality attribute scenarios supporting ATAM-style evaluation and traceability."
+author: Architecture Team
+date: "2025-10-03"
+status: approved
+traceability:
+  requirements:
+    - REQ-F-001
+    - REQ-NF-001
 ---
 
 # Architecture Quality Attribute Scenarios

@@ -1,11 +1,15 @@
 ---
-title: "ADR Template"
-specType: adr-template
+specType: architecture
+standard: 42010
+phase: 03-architecture
 version: 1.0.0
-status: guidance
-author: template-system
-date: 2025-10-03
-description: "Template for consistent Architecture Decision Records (ADR-* IDs)."
+author: Architecture Team
+date: "2025-10-03"
+status: approved
+traceability:
+  requirements:
+    - REQ-F-001
+    - REQ-NF-001
 ---
 
 # ADR-TEMPLATE: [Decision Title]
