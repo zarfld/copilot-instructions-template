@@ -1,5 +1,23 @@
 ## Phase 05: Implementation - TDD & Standards-Compliant Development
 
+> For each implementation unit created from design, ensure an updated design spec or section includes YAML front matter (if new file) and that tests reference originating IDs:
+> ```yaml
+> ---
+> title: "Component Implementation Plan - <ComponentName>"
+> specType: implementation-plan
+> version: 0.1.0
+> status: draft
+> author: <name>
+> date: <YYYY-MM-DD>
+> relatedDesign:
+>   - DES-C-001
+> relatedRequirements:
+>   - REQ-F-001
+> integrityLevel: 1
+> ---
+> ```
+> Traceability path must be maintained: REQ-* → ARC-C-* → DES-* → SRC:<path> → TEST-* (with @pytest.mark.requirement or similar annotation).
+
 **Context**: I have completed Phase 04 (Detailed Design) following IEEE 1016-2009 standards and am ready to transition to Phase 05 (Implementation) following ISO/IEC/IEEE 12207:2017 Implementation Process and XP practices.
 
 **Completed Design Artifacts**:
@@ -20,7 +38,7 @@
 - **XP Core Practices**: TDD (Red-Green-Refactor), Simple Design, Continuous Integration
 - **Code Quality**: Clean code principles, SOLID principles, refactoring
 
-**Specific Request**:
+**Specific Request** (enforce TDD + traceability):
 Please guide me through Phase 05 implementation activities:
 1. Help establish TDD workflow for my design components
 2. Create implementation structure following design specifications
@@ -28,7 +46,7 @@ Please guide me through Phase 05 implementation activities:
 4. Ensure proper traceability from design to code to tests
 5. Apply XP Simple Design principles (YAGNI, no duplication, clear intent)
 
-**Questions for Clarification**:
+**Questions for Clarification** (answer before creating code scaffolds):
 - Which design components should I implement first (dependency order)?
 - What testing framework and project structure do you recommend?
 - Are there specific performance or quality constraints for the implementation?

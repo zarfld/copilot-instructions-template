@@ -20,7 +20,7 @@ Heuristics (improve later):
 Exit code 0 even if orphans exist (validation script enforces later).
 """
 from __future__ import annotations
-import re, pathlib, os
+import re, pathlib, os, yaml
 from collections import defaultdict
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
@@ -36,7 +36,35 @@ PATTERNS = {
     'test': re.compile(r'TEST-[A-Z0-9-]+'),
 }
 
-files = [p for p in ROOT.rglob('*.md') if 'node_modules' not in p.parts and 'reports' not in p.parts]
+def is_guidance(path: pathlib.Path, text: str) -> bool:
+    if any(seg in path.as_posix() for seg in ['.github/prompts']):
+        return True
+    if 'copilot-instructions.md' in path.name.lower():
+        return True
+    if 'ADR-template.md' in path.name:
+        return True
+    # front matter specType: guidance
+    if text.startswith('---'):
+        try:
+            fm = text.split('---', 2)[1]
+            meta = yaml.safe_load(fm) or {}
+            if meta.get('specType') == 'guidance':
+                return True
+        except Exception:
+            pass
+    return False
+
+files = []
+for p in ROOT.rglob('*.md'):
+    if 'node_modules' in p.parts or 'reports' in p.parts:
+        continue
+    try:
+        txt = p.read_text(encoding='utf-8', errors='ignore')
+    except Exception:
+        continue
+    if is_guidance(p, txt):
+        continue
+    files.append(p)
 index: dict[str, set[str]] = {k: set() for k in PATTERNS}
 occurrence: dict[str, dict[str, set[pathlib.Path]]] = {k: defaultdict(set) for k in PATTERNS}
 
@@ -45,6 +73,9 @@ for path in files:
         text = path.read_text(encoding='utf-8', errors='ignore')
     except Exception:
         continue
+    # Skip placeholder example IDs (e.g., REQ-F-000, ADR-XXX) from counting
+    text = re.sub(r'ADR-XXX', '', text)
+    text = re.sub(r'REQ-(F|NF)-000', '', text)
     for key, pat in PATTERNS.items():
         for match in pat.findall(text):
             index[key].add(match)
@@ -90,6 +121,13 @@ orphans = {
         if not any(a in links for links in req_links.values())
     ]),
 }
+
+# Allow empty repository without producing noise
+if not any(index.values()) and os.environ.get('ALLOW_EMPTY_SPECS'):
+    (REPORTS / 'traceability-matrix.md').write_text('# Traceability Matrix\n\n_No governed spec items found (empty scaffold mode)._', encoding='utf-8')
+    (REPORTS / 'orphans.md').write_text('# Orphan Analysis\n\n_No governed spec items found (empty scaffold mode)._', encoding='utf-8')
+    print('Empty scaffold: generated placeholder traceability outputs.')
+    raise SystemExit(0)
 
 matrix_lines = [
     '# Traceability Matrix (Heuristic Draft)',
