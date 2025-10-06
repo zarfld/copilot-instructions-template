@@ -1,3 +1,14 @@
+---
+title: "Architecture Specification Template"
+specType: architecture
+version: 1.0.0
+status: template
+author: template-system
+date: 2025-10-06
+description: "Template for ISO/IEC/IEEE 42010 architecture specification with multi-view and traceability guardrails."
+phase: 03-architecture
+---
+
 # Architecture Specification Template
 
 > **Spec-Driven Development**: This markdown serves as executable architecture documentation following ISO/IEC/IEEE 42010:2011.

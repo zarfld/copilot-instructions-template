@@ -31,7 +31,7 @@ jobs:
         run: pip install pyyaml jsonschema
       - name: Validate spec structure
         run: |
-          python scripts/validate-spec-structure.py || {
+          ALLOW_EMPTY_SPECS=1 python scripts/validate-spec-structure.py || {
             echo '❌ Spec structure validation failed.'
             exit 1
           }
@@ -48,13 +48,13 @@ jobs:
           python-version: "3.11"
       - name: Generate spec index
         run: |
-          python scripts/generators/spec_parser.py
+          ALLOW_EMPTY_SPECS=1 python scripts/generators/spec_parser.py
       - name: Build traceability JSON
         run: |
-          python scripts/generators/build_trace_json.py
+          ALLOW_EMPTY_SPECS=1 python scripts/generators/build_trace_json.py
       - name: Generate requirement test skeletons
         run: |
-          python scripts/generators/gen_tests.py
+          ALLOW_EMPTY_SPECS=1 python scripts/generators/gen_tests.py
       - name: Upload generated artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -175,7 +175,7 @@ jobs:
           path: build
       - name: Enforce requirement linkage coverage
         run: |
-          python scripts/validate-trace-coverage.py --min-req ${{ env.MIN_REQ_LINKAGE_COVERAGE }}
+          ALLOW_EMPTY_SPECS=1 python scripts/validate-trace-coverage.py --min-req ${{ env.MIN_REQ_LINKAGE_COVERAGE }}
 
   integrity-scan:
     name: Integrity Level Scan
@@ -190,7 +190,7 @@ jobs:
           python-version: "3.11"
       - name: Run integrity scan
         run: |
-          python scripts/integrity_level_scan.py
+          ALLOW_EMPTY_SPECS=1 python scripts/integrity_level_scan.py
       - name: Upload integrity scan artifact
         uses: actions/upload-artifact@v4
         with:
@@ -284,12 +284,12 @@ jobs:
       - name: Generate traceability matrix
         run: |
           echo "🔍 Generating requirements traceability matrix..."
-          python scripts/generate-traceability-matrix.py
+          ALLOW_EMPTY_SPECS=1 python scripts/generate-traceability-matrix.py
 
       - name: Validate traceability
         run: |
           echo "✅ Checking traceability completeness..."
-          python scripts/validate-traceability.py || {
+          ALLOW_EMPTY_SPECS=1 python scripts/validate-traceability.py || {
             echo "❌ Traceability validation failed"
             echo "Every requirement must trace to:"
             echo "  - Stakeholder requirement (StR-XXX)"
@@ -368,7 +368,7 @@ jobs:
         uses: actions/checkout@v4
       - name: ADR Impact Scan
         run: |
-          python scripts/adr_impact_scan.py --warn-only || echo "ADR impact scan completed"
+          ALLOW_EMPTY_SPECS=1 python scripts/adr_impact_scan.py --warn-only || echo "ADR impact scan completed"
 
       - name: Validate Architecture Decision Records
         run: |

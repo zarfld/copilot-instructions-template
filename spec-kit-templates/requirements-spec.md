@@ -1,3 +1,14 @@
+---
+title: "Requirements Specification Template"
+specType: requirements
+version: 1.0.0
+status: template
+author: template-system
+date: 2025-10-06
+description: "Template for creating ISO/IEC/IEEE 29148 compliant requirements specifications."
+phase: 02-requirements
+---
+
 # Requirements Specification Template
 
 > **Spec-Driven Development**: This markdown file serves as both specification and "code" for generating requirements documentation and test cases.
