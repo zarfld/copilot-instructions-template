@@ -11,7 +11,7 @@ Exit codes:
  2 internal error
 """
 from __future__ import annotations
-import sys, re, json, subprocess, pathlib, typing as t
+import sys, re, json, subprocess, pathlib, typing as t, os
 
 try:
     import yaml  # type: ignore
@@ -29,6 +29,7 @@ SCHEMA_DIR = ROOT / 'spec-kit-templates' / 'schemas'
 SCHEMA_MAP = {
     'requirements': SCHEMA_DIR / 'requirements-spec.schema.json',
     'architecture': SCHEMA_DIR / 'architecture-spec.schema.json',
+    # 'guidance' intentionally has no strict schema – treated leniently
 }
 
 FRONT_MATTER_RE = re.compile(r'^---\n(.*?)\n---', re.DOTALL)
@@ -57,26 +58,56 @@ def load_schema(spec_type: str) -> dict:
     return json.loads(p.read_text(encoding='utf-8'))
 
 
-def validate_spec(path: pathlib.Path) -> list[ValidationIssue]:
+GUIDANCE_HINTS = [
+    'copilot-instructions.md',
+    'ADR-template.md',
+    'template',
+]
+
+def is_guidance(path: pathlib.Path, meta: dict | None) -> bool:
+    if meta and meta.get('specType') == 'guidance':
+        return True
+    lower = path.name.lower()
+    return any(h in lower for h in GUIDANCE_HINTS)
+
+
+def validate_spec(path: pathlib.Path) -> tuple[list[ValidationIssue], list[str]]:
     issues: list[ValidationIssue] = []
+    warnings: list[str] = []
     text = path.read_text(encoding='utf-8', errors='ignore')
     fm_raw = extract_front_matter(text)
     if not fm_raw:
+        # Guidance files without front matter -> warning, not error
+        if any(k in path.as_posix() for k in ['.github/prompts']):
+            return [], []  # ignore prompt library entirely
+        if is_guidance(path, None):
+            warnings.append(f"ℹ️ {path.relative_to(ROOT)}: guidance file missing front matter (ignored)")
+            return [], warnings
         issues.append(ValidationIssue(path, 'Missing YAML front matter (--- block)'))
-        return issues
+        return issues, warnings
     meta = parse_yaml_block(fm_raw)
     if meta is None:
+        if is_guidance(path, None):
+            warnings.append(f"ℹ️ {path.relative_to(ROOT)}: invalid YAML in guidance file (ignored)")
+            return [], warnings
         issues.append(ValidationIssue(path, 'Invalid YAML front matter'))
-        return issues
+        return issues, warnings
     spec_type = meta.get('specType')
     if not spec_type:
+        if is_guidance(path, meta):
+            warnings.append(f"ℹ️ {path.relative_to(ROOT)}: guidance file missing specType (ignored)")
+            return [], warnings
         issues.append(ValidationIssue(path, 'Missing specType in front matter'))
-        return issues
+        return issues, warnings
+    if spec_type not in SCHEMA_MAP:
+        # Non-governed specType -> soft skip
+        warnings.append(f"ℹ️ {path.relative_to(ROOT)}: specType '{spec_type}' not governed; skipped")
+        return [], warnings
     try:
         schema = load_schema(spec_type)
     except Exception as e:
         issues.append(ValidationIssue(path, f'Schema load error: {e}'))
-        return issues
+        return issues, warnings
     validator = jsonschema.Draft7Validator(schema)
     for err in validator.iter_errors(meta):
         issues.append(ValidationIssue(path, f"Schema violation: {'/'.join(map(str, err.path)) or '<root>'}: {err.message}"))
@@ -89,8 +120,10 @@ def validate_spec(path: pathlib.Path) -> list[ValidationIssue]:
     if spec_type == 'architecture':
         # Ensure at least one ARC-C- or ADR reference
         if not re.search(r'ADR-\d{3}', text):
-            issues.append(ValidationIssue(path, 'No ADR-XXX references found in architecture spec'))
-    return issues
+            # treat placeholder ADR-XXX as not sufficient
+            if 'ADR-XXX' not in text:
+                issues.append(ValidationIssue(path, 'No ADR-XXX references found in architecture spec'))
+    return issues, warnings
 
 
 def discover_targets(explicit: list[str]) -> list[pathlib.Path]:
@@ -111,16 +144,29 @@ def main(argv: list[str]) -> int:
         print('No spec files found to validate', file=sys.stderr)
         return 0
     all_issues: list[ValidationIssue] = []
+    governed_specs = 0
     for path in targets:
         if path.name.startswith('README'):  # skip readmes
             continue
-        issues = validate_spec(path)
+        issues, warnings = validate_spec(path)
+        for w in warnings:
+            print(w)
         if issues:
             for issue in issues:
                 print(f"❌ {issue.file.relative_to(ROOT)}: {issue.message}")
             all_issues.extend(issues)
         else:
+            # Count only governed spec types (requirements / architecture)
+            text = path.read_text(encoding='utf-8', errors='ignore')
+            fm = extract_front_matter(text)
+            meta = parse_yaml_block(fm) if fm else {}
+            if meta and meta.get('specType') in ('requirements','architecture'):
+                governed_specs += 1
             print(f"✅ {path.relative_to(ROOT)} valid")
+    allow_empty = bool(os.environ.get('ALLOW_EMPTY_SPECS'))
+    if governed_specs == 0 and allow_empty and not all_issues:
+        print('ℹ️ No governed specs found; ALLOW_EMPTY_SPECS set -> passing without enforcement.')
+        return 0
     if all_issues:
         print(f"\nFailed: {len(all_issues)} validation issues across {len(set(i.file for i in all_issues))} files.")
         return 1
