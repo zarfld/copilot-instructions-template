@@ -20,6 +20,77 @@ Guide the initial project discovery to create:
 
 ## 🚀 Project Discovery Process
 
+## 🧠 Structured Brainstorming Rounds (Divergent ➜ Convergent)
+
+To strengthen early discovery (ISO/IEC/IEEE 12207 Phase 01 & ISO/IEC/IEEE 29148 elicitation), run these optional but recommended rounds BEFORE or ALONGSIDE Steps 1–5. They ensure wide idea capture, clustering, prioritization, and gap closure.
+
+### Round 0: Pre-Flight Input Scan
+Quickly surface what we ALREADY know vs. what's UNKNOWN. I will produce a Kickoff Input Status Table with columns: Area | Provided | Missing | Notes.
+Areas scanned:
+- Problem Statement / Business Impact
+- Stakeholder List & Roles
+- Success Metrics / KPIs
+- Core & Secondary Users
+- Critical Constraints (Time / Budget / Compliance / Tech)
+- Data Domains & Sensitivities
+- Initial Feature Candidates
+- Assumptions & Risks
+
+Tag any missing elements with `MISSING:` so they are re-asked later.
+
+### Round 1: Divergent Idea Generation (No Filtering)
+Time-box (e.g., 5–10 min per lane). I will prompt you sequentially; you respond in rapid bullet form.
+Lanes:
+1. Problems / Pain Points (start each with Pain: ...)
+2. Desired Outcomes (Outcome: ... measurable)
+3. Stakeholders & Motivations (Stakeholder: Role – Motivation)
+4. Opportunities / Differentiators (Opportunity: ...)
+5. Risks / Failure Modes (Risk: ... Impact: ... Mitigation: ...)
+6. Constraints (Constraint: Type – Description)
+7. Success Metrics (Metric: Name – Formula – Target – Horizon)
+
+Rules: Avoid debating quality; volume over precision. It's acceptable to duplicate—will merge later.
+
+### Round 2: Clustering & Thematic Grouping
+I synthesize Round 1 into clusters:
+- Themes (e.g., Efficiency, Compliance, User Retention)
+- Map Problems ➜ Outcomes ➜ Metrics per theme
+- Identify Contradictions (e.g., "Reduce cost" vs. "24/7 premium support")
+
+Output Artifact: Theme Matrix (Theme | Problems | Outcomes | Candidate Metrics | Constraints | Risks)
+
+### Round 3: Prioritization (Impact vs. Effort / Risk)
+For each theme or candidate feature:
+- Score Impact: 1–5 (Value / Strategic Alignment)
+- Score Effort: 1–5 (Relative Complexity / Cost)
+- Compute Priority Index = Impact / Effort (higher = earlier)
+- Flag High-Risk / High-Impact items for architectural attention
+
+Output Artifact: Prioritized Backlog Seed (ID | Title | Impact | Effort | PriorityIndex | Notes)
+
+### Round 4: Assumption & Risk Challenge (Pre-mortem)
+Prompt: "Imagine project failed in 12 months—why?" Collect failure narratives; transform into explicit Risks (Probability, Impact, Mitigation, Early Warning Signal).
+
+Add a table: Risk ID | Description | Prob | Impact | Mitigation | Signal | Owner.
+
+### Round 5: Gap Closure & Completeness Audit
+Re-run the Input Status Table now enriched. Anything still `MISSING:` gets:
+- Clarifying Question (WHY it matters, Decision Impact, Deadline Needed By)
+- Suggested Default (if team cannot supply now)
+- Risk Tag if left unresolved (e.g., RISK-GAP-001)
+
+Acceptance Criteria for Brainstorming Phase Completion:
+- ≥1 Theme per major business goal
+- All top-3 Success Metrics have baseline + target + time horizon
+- No critical area in Input Status Table remains `MISSING:`
+- At least one mitigation for every High Impact risk
+- Prioritized Backlog Seed produced (≥5 candidate items)
+
+### How to Invoke Brainstorm Mode
+Start your request with: `Run kickoff brainstorming for <project short name>` and optionally specify focus (e.g., "optimize onboarding", "reduce support load"). I will guide through Rounds 0 → 5 automatically unless you say `skip round <n>`.
+
+---
+
 ### Step 1: Project Context Discovery
 
 **I'll ask you a series of questions to understand your project. Let's start with the basics:**
