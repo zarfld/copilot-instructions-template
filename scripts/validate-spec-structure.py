@@ -115,11 +115,13 @@ def validate_spec(path: pathlib.Path) -> tuple[list[ValidationIssue], list[str]]
     # Additional cross-field custom checks
     if spec_type == 'requirements':
         # Ensure at least one Functional (REQ-F-) or Non-Functional (REQ-NF-) ID present in body
-        if not re.search(r'REQ-(F|NF)-\d{3}', text):
+        # Support optional 4-char category: REQ-AUTH-F-001 or REQ-F-001
+        if not re.search(r'REQ-(?:[A-Z]{4}-)?(?:F|NF)-(?:[A-Z]+-)??\d{3}', text):
             issues.append(ValidationIssue(path, 'No REQ-* identifiers found in body'))
     if spec_type == 'architecture':
         # Ensure at least one ARC-C- or ADR reference
-        if not re.search(r'ADR-\d{3}', text):
+        # Support optional category: ADR-AUTH-001 or ADR-001
+        if not re.search(r'ADR-(?:[A-Z]{4}-)??\d{3}', text):
             # treat placeholder ADR-XXX as not sufficient
             if 'ADR-XXX' not in text:
                 issues.append(ValidationIssue(path, 'No ADR-XXX references found in architecture spec'))
