@@ -1,3 +1,8 @@
+---
+description: "Phase 01 guidance for stakeholder requirements definition following ISO/IEC/IEEE 29148:2018. Covers stakeholder identification, requirements elicitation, and business context documentation."
+applyTo: "01-stakeholder-requirements/**"
+---
+
 # Phase 01: Stakeholder Requirements Definition
 
 **Standards**: ISO/IEC/IEEE 29148:2018 (Stakeholder Requirements), ISO/IEC/IEEE 12207:2017  
@@ -10,16 +15,6 @@
 3. Define business context and constraints
 4. Establish success criteria and acceptance measures
 5. Create foundation for system requirements
-
-## 📂 Working Directory Context
-
-```yaml
-applyTo:
-  - "01-stakeholder-requirements/**/*.md"
-  - "01-stakeholder-requirements/**/stakeholders/**"
-  - "01-stakeholder-requirements/**/business-context/**"
-  - "01-stakeholder-requirements/**/templates/**"
-```
 
 ## 📋 ISO/IEC/IEEE 29148:2018 Compliance
 

@@ -1,12 +1,6 @@
 ---
-title: "Phase 03 Copilot Instructions"
-specType: guidance
-phase: 03-architecture
-version: 1.0.0
-status: approved
-author: template-system
-date: 2025-10-03
-description: "Operational guidance for Architecture Design (ISO/IEC/IEEE 42010 & IEEE 1016)."
+description: "Phase 03 guidance for architecture design following ISO/IEC/IEEE 42010:2011. Covers architectural views, decisions (ADRs), patterns, and component boundaries."
+applyTo: "03-architecture/**"
 ---
 
 # Phase 03: Architecture Design
@@ -22,17 +16,6 @@ description: "Operational guidance for Architecture Design (ISO/IEC/IEEE 42010 &
 4. Identify architectural patterns and styles
 5. Define component boundaries and interfaces
 6. Establish technical foundation for detailed design
-
-## 📂 Working Directory Context
-
-```yaml
-applyTo:
-  - "03-architecture/**/*.md"
-  - "03-architecture/decisions/**"
-  - "03-architecture/views/**"
-  - "03-architecture/diagrams/**"
-  - "03-architecture/constraints/**"
-```
 
 ## 📋 ISO/IEC/IEEE 42010:2011 Compliance
 

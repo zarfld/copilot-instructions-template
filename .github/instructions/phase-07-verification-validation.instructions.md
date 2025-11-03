@@ -1,3 +1,8 @@
+---
+description: "Phase 07 guidance for verification and validation following IEEE 1012-2016. Covers test planning, execution, traceability, acceptance testing, and defect management."
+applyTo: "07-verification-validation/**"
+---
+
 # Phase 07: Verification & Validation (V&V)
 
 **Standards**: IEEE 1012-2016 (System, Software, and Hardware Verification and Validation)  
@@ -11,17 +16,6 @@
 4. Ensure requirements traceability
 5. Perform acceptance testing with customer
 6. Document test results and defects
-
-## 📂 Working Directory Context
-
-```yaml
-applyTo:
-  - "07-verification-validation/**/*.md"
-  - "07-verification-validation/test-plans/**"
-  - "07-verification-validation/test-cases/**"
-  - "07-verification-validation/test-results/**"
-  - "07-verification-validation/traceability/**"
-```
 
 ## 📋 IEEE 1012-2016 Compliance
 

@@ -1,3 +1,8 @@
+---
+description: "Phase 04 guidance for detailed design following IEEE 1016-2009. Covers component designs, class structures, interfaces, data models, and design patterns with XP simple design principles."
+applyTo: "04-design/**"
+---
+
 # Phase 04: Detailed Design
 
 **Standards**: IEEE 1016-2009 (Software Design Descriptions)  
@@ -10,17 +15,6 @@
 3. Specify data models and database schemas
 4. Document design patterns and implementation approaches
 5. Create design specifications enabling implementation
-
-## 📂 Working Directory Context
-
-```yaml
-applyTo:
-  - "04-design/**/*.md"
-  - "04-design/components/**"
-  - "04-design/interfaces/**"
-  - "04-design/data-models/**"
-  - "04-design/patterns/**"
-```
 
 ## 📋 IEEE 1016-2009 Compliance
 

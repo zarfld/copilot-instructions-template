@@ -1,12 +1,6 @@
 ---
-title: "Phase 02 Copilot Instructions"
-specType: guidance
-phase: 02-requirements
-version: 1.0.0
-status: approved
-author: template-system
-date: 2025-10-03
-description: "Operational guidance for Requirements Analysis & Specification (ISO/IEC/IEEE 29148, 12207)."
+description: "Phase 02 guidance for requirements analysis and specification following ISO/IEC/IEEE 29148:2018. Covers functional/non-functional requirements, user stories, and traceability."
+applyTo: "02-requirements/**"
 ---
 
 # Phase 02: Requirements Analysis & Specification
@@ -21,17 +15,6 @@ description: "Operational guidance for Requirements Analysis & Specification (IS
 3. Create detailed use cases and user stories
 4. Establish requirements traceability
 5. Define testable acceptance criteria
-
-## 📂 Working Directory Context
-
-```yaml
-applyTo:
-  - "02-requirements/**/*.md"
-  - "02-requirements/functional/**"
-  - "02-requirements/non-functional/**"
-  - "02-requirements/use-cases/**"
-  - "02-requirements/user-stories/**"
-```
 
 ## 📋 ISO/IEC/IEEE 29148:2018 Compliance
 

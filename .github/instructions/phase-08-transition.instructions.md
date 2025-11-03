@@ -1,3 +1,8 @@
+---
+description: "Phase 08 guidance for transition/deployment following ISO/IEC/IEEE 12207:2017. Covers deployment planning, user training, documentation, and operational handoff."
+applyTo: "08-transition/**"
+---
+
 # Phase 08: Transition (Deployment)
 
 **Standards**: ISO/IEC/IEEE 12207:2017 (Transition Process)  
@@ -11,16 +16,6 @@
 4. Establish support processes
 5. Conduct operational readiness review
 6. Transition system to operations team
-
-## 📂 Working Directory Context
-
-```yaml
-applyTo:
-  - "08-transition/**/*.md"
-  - "08-transition/deployment-plans/**"
-  - "08-transition/user-documentation/**"
-  - "08-transition/training-materials/**"
-```
 
 ## 📋 ISO/IEC/IEEE 12207:2017 Compliance
 

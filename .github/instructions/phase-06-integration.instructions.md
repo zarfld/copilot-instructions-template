@@ -1,3 +1,8 @@
+---
+description: "Phase 06 guidance for integration following ISO/IEC/IEEE 12207:2017. Covers continuous integration, integration testing, component assembly, and automated deployment."
+applyTo: "06-integration/**"
+---
+
 # Phase 06: Integration
 
 **Standards**: ISO/IEC/IEEE 12207:2017 (Integration Process)  
@@ -11,17 +16,6 @@
 4. Verify inter-component interfaces
 5. Automate integration and deployment
 6. Maintain system integrity through continuous integration
-
-## 📂 Working Directory Context
-
-```yaml
-applyTo:
-  - "06-integration/**/*.md"
-  - "06-integration/integration-tests/**"
-  - "06-integration/ci-config/**"
-  - "06-integration/deployment/**"
-  - "**/integration/**/*.test.{js,ts,py}"
-```
 
 ## 📋 ISO/IEC/IEEE 12207:2017 Compliance
 

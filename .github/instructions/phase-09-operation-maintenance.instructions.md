@@ -1,3 +1,8 @@
+---
+description: "Phase 09 guidance for operation and maintenance following ISO/IEC/IEEE 12207:2017. Covers system monitoring, incident response, maintenance types, and continuous improvement."
+applyTo: "09-operation-maintenance/**"
+---
+
 # Phase 09: Operation & Maintenance
 
 **Standards**: ISO/IEC/IEEE 12207:2017 (Maintenance Process, Operation Process)  
@@ -11,16 +16,6 @@
 4. Perform corrective, adaptive, and perfective maintenance
 5. Continuously improve based on feedback
 6. Plan and execute system evolution
-
-## 📂 Working Directory Context
-
-```yaml
-applyTo:
-  - "09-operation-maintenance/**/*.md"
-  - "09-operation-maintenance/monitoring/**"
-  - "09-operation-maintenance/incident-response/**"
-  - "09-operation-maintenance/maintenance-logs/**"
-```
 
 ## 📋 ISO/IEC/IEEE 12207:2017 Compliance
 
