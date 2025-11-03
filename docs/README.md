@@ -209,7 +209,7 @@ Includes:
 
 ### Adding Domain-Specific Guidance
 
-Edit phase-specific `.github/copilot-instructions.md`:
+Phase-specific instructions in `.github/instructions/phase-NN-*.instructions.md` are automatically applied based on the directory you're working in. You can customize them with domain-specific patterns:
 
 ```markdown
 ## Domain-Specific Patterns
