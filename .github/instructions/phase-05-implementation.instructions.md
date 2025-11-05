@@ -17,6 +17,67 @@ applyTo: "05-implementation/**"
 5. Practice pair programming and collective ownership
 6. Refactor continuously to improve design
 
+## ⚠️ MANDATORY: Implementation Compliance and Traceability
+
+CRITICAL: While YAML front matter applies to specification documents (Phases 02–04), the implementation phase MUST enforce code-level traceability, test structure, and CI quality gates.
+
+Scope: Applies to `05-implementation/**` (code, tests, and implementation docs under this phase).
+
+1) Code Header Traceability (required in source files)
+
+Each source file MUST include a top-of-file comment block with traceability to design and requirements.
+
+Example (TypeScript/JavaScript):
+```typescript
+/*
+Module: src/application/user/UserService.ts
+Phase: 05-implementation
+Traceability:
+  Design: DES-C-001
+  Requirements: REQ-F-001, REQ-NF-004
+  Tests: TEST-UNIT-UserService, TEST-INT-UserWorkflow
+Notes: Keep IDs current when refactoring; maintain links in tests.
+*/
+```
+
+Example (Python):
+```python
+"""
+Module: src/app/user/service.py
+Phase: 05-implementation
+Traceability:
+  Design: DES-C-001
+  Requirements: REQ-F-001, REQ-NF-004
+  Tests: TEST-UNIT-user-service, TEST-INT-user-workflow
+Notes: Keep IDs current when refactoring; maintain links in tests.
+"""
+```
+
+2) Test Structure and Naming (required)
+
+- Co-locate unit tests with code or place under `tests/unit/**` using `<module>.spec.(ts|js|py)` naming.
+- Integration tests under `tests/integration/**` using `<feature>.int.spec.(ts|js|py)` naming.
+- Each test file MUST include a header block listing traced IDs (REQ-*, DES-*) and a stable test identifier (e.g., `TEST-UNIT-<Name>`).
+
+3) CI Quality Gates (required)
+
+- Lint and type check: must pass on every push and PR.
+- Tests: 100% of unit tests must pass; integration tests must pass for changed areas.
+- Coverage threshold: ≥ 80% lines/branches for changed code; fail build if below.
+- Fast red/green feedback: fix broken builds immediately (target ≤ 10 minutes).
+
+4) Reliability Hooks (alignment with IEEE 1633)
+
+- Emit structured logs and metrics necessary for reliability evidence (e.g., error counts, retry counts, circuit-breaker opens) to support Phase 06/07 data collection.
+- Provide feature flags or configuration to enable fault injection in non-prod environments.
+- Avoid swallowing exceptions; propagate with context to support failure analysis.
+
+ENFORCEMENT:
+- PRs without code header traceability will be rejected.
+- Test files must follow naming/location conventions and include traceability.
+- CI must block merges if lint/typecheck/tests/coverage gates fail.
+- Reliability hooks are required for components whose failures impact user-visible reliability targets.
+
 ## 📋 ISO/IEC/IEEE 12207:2017 Compliance
 
 ### Implementation Process Activities
