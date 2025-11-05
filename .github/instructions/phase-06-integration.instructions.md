@@ -51,6 +51,18 @@ applyTo: "06-integration/**"
 - Test with real (or realistic) dependencies
 - Automated integration test suites
 
+### Reliability Integration (IEEE 1633 5.4)
+To prepare for reliability estimation during/after testing, ensure the following are in place:
+
+- Operational Profile (OP) created for this release (`spec-kit-templates/operational-profile.md`), with states, transitions, and relative frequencies mapped to executable tests
+- Data collection hooks for reliability metrics:
+  - Execution/duty time capture per test run
+  - Failure logging with severity and timestamps
+  - Trend checks (e.g., Laplace, U/N/S-shaped) for stability
+- Model selection and fitting workflow defined (e.g., Musa-Okumoto, Goel-Okumoto, Crow/AMSAA)
+- Accuracy verification plan comparing SRG estimates to recent observed MTBF (see IEEE 1633 5.4.7)
+- Evidence locations and naming conventions (results, model parameters, and reports)
+
 ### Collective Code Ownership
 - Team owns integration process
 - Anyone can fix integration issues
@@ -178,6 +190,15 @@ describe('Payment Gateway Integration', () => {
   });
 });
 ```
+
+### 4.1 Reliability Test Plan (OP-driven)
+Link to or include the OP and explicitly map abstract actions to executable test adapters. Define:
+
+- Model coverage targets (states %, transitions %)
+- Structural code coverage thresholds (statement/branch/MCDC as applicable)
+- Data collection schema (duty time, failures, restore times)
+- SRG model(s) to be fit and criteria for selection
+- Reporting cadence and locations for estimates (reliability, availability, residual defects)
 
 ## 5. Continuous Integration Configuration
 
@@ -573,6 +594,9 @@ describe('User Workflow Integration Tests', () => {
 ✅ No blocking integration issues  
 ✅ System deploys automatically  
 ✅ Integration documentation complete  
+✅ OP exists and is referenced by the Reliability Test Plan  
+✅ Reliability data collection is enabled (duty time + failure logging)  
+✅ SRG model selection/fitting workflow documented  
 
 ## 🎯 Next Phase
 

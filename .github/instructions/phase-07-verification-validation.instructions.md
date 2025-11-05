@@ -308,6 +308,13 @@ StR-XXX ← REQ-XXX ← TC-XXX (Test Cases)
 - Mean time to detect (MTTD): < 1 day
 - Mean time to resolve (MTTR): < 3 days
 
+### 9.3 Reliability Metrics and Evidence (IEEE 1633 5.4)
+- Operational Profile (OP) model coverage: target ≥90% transitions
+- Failure intensity and MTBF/MTBCF trends (per duty time)
+- Availability with restore time (MTSWR) estimates
+- Residual defects estimate and confidence bounds
+- Model selection and fit quality (e.g., Musa-Okumoto, GO, Crow/AMSAA) with accuracy verification against most recent observed MTBF (see 5.4.7)
+
 ## 10. V&V Reporting
 
 ### 10.1 Test Reports
@@ -324,6 +331,17 @@ StR-XXX ← REQ-XXX ← TC-XXX (Test Cases)
 - [ ] Defect Reports
 - [ ] Requirements Traceability Matrix
 - [ ] V&V Summary Report
+ - [ ] Reliability Evidence Package (OP coverage, SRG fits, estimates, accuracy verification)
+
+## 11. Reliability Evidence and Release Decision (IEEE 1633 5.5)
+
+Before recommending release, compile and review reliability evidence:
+
+- OP-driven reliability test coverage meets target
+- SRG model(s) fitted and validated (accuracy check within acceptable error)
+- Estimated reliability and availability meet objectives at stated confidence
+- Residual defects are within target; no open critical items in CIL (if SFMEA performed)
+- Optional: Reliability Demonstration Test (RDT) plan/results if selected
 ```
 
 ### 2. Test Case Specifications
@@ -553,6 +571,7 @@ Ensure all requirements are:
 ✅ Customer acceptance obtained  
 ✅ All acceptance tests passing  
 ✅ V&V Summary Report approved  
+✅ Reliability evidence reviewed; release decision supported per IEEE 1633 5.5  
 
 ## 🎯 Next Phase
 
