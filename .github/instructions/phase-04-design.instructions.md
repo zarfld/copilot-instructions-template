@@ -16,6 +16,37 @@ applyTo: "04-design/**"
 4. Document design patterns and implementation approaches
 5. Create design specifications enabling implementation
 
+## ⚠️ MANDATORY: YAML Front Matter Schema Compliance
+
+CRITICAL: All design specification files MUST use EXACT YAML front matter format defined in authoritative schema:
+
+Authoritative Schema: `spec-kit-templates/schemas/ieee-design-spec.schema.json`
+
+Required YAML Front Matter Format:
+```yaml
+---
+title: "Component Design Specification Title"
+type: "design_specification"
+standard: "IEEE 1588-2019"  # Use specific IEEE standard 
+phase: "04-design"
+component: "component-name"
+version: "1.0"  # Use X.Y format (NOT semver)
+date: "2025-MM-DD"
+author: "Your Name"
+status: "draft"  # active | draft | review | approved | deprecated
+compliance:
+  section: "Software Design Description"
+traceability:
+---
+```
+
+ENFORCEMENT:
+- Use "type: design_specification" NOT "specType: design" 
+- Version format is "X.Y" NOT semver "X.Y.Z"
+- Traceability IDs must match exact regex patterns
+- Reference authoritative schema file for any questions
+- Validation will FAIL if format deviates from schema
+
 ## 📋 IEEE 1016-2009 Compliance
 
 ### Software Design Description (SDD) Structure

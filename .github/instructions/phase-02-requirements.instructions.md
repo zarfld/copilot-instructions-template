@@ -16,6 +16,32 @@ applyTo: "02-requirements/**"
 4. Establish requirements traceability
 5. Define testable acceptance criteria
 
+## ⚠️ MANDATORY: YAML Front Matter Schema Compliance
+
+CRITICAL: All requirements specification files MUST use EXACT YAML front matter format defined in authoritative schema:
+
+Authoritative Schema: `spec-kit-templates/schemas/requirements-spec.schema.json`
+
+Required YAML Front Matter Format:
+```yaml
+---
+specType: requirements
+standard: 29148
+phase: 02-requirements
+version: 1.0.0
+author: [Your Name]
+date: 2025-MM-DD
+status: draft  # draft | review | approved | deprecated
+traceability:
+---
+```
+
+ENFORCEMENT:
+- Do NOT use full standard names like "ISO/IEC/IEEE 29148:2018" - use "29148" only
+- Do NOT modify schema patterns - match them exactly
+- Reference authoritative schema file for any questions
+- Validation will FAIL if format deviates from schema
+
 ## 📋 ISO/IEC/IEEE 29148:2018 Compliance
 
 ### System Requirements Process Activities
