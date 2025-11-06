@@ -26,21 +26,26 @@ The `README.md` file is **the most important file in your project**. It serves a
 Every README.md MUST contain these sections:
 
 #### 1. Title
+
 ```markdown
 # Project Name
 ```
+
 - Match the repository name, folder name, and package manager name exactly
 - Use H1 heading (single `#`)
 
 #### 2. Short Description (The Hook)
+
 ```markdown
 A brief, compelling description of what your project does in a nutshell.
 ```
+
 - **Maximum 2-3 sentences**
 - Answer: "What does this do?" and "Why should I care?"
 - Place immediately after title, before any other content
 
 #### 3. Purpose/Objectives (Optional but Recommended)
+
 ```markdown
 ## 🎯 Purpose
 
@@ -51,6 +56,7 @@ This project provides:
 ```
 
 #### 4. Table of Contents (For Long READMEs)
+
 ```markdown
 ## 📚 Table of Contents
 
@@ -59,10 +65,12 @@ This project provides:
 - [Contributing](#contributing)
 - [License](#license)
 ```
+
 - Include only if README exceeds ~300 lines
 - Use anchor links to sections
 
 #### 5. Installation Instructions
+
 ```markdown
 ## 🚀 Installation
 
@@ -71,11 +79,13 @@ This project provides:
 npm install package-name
 \`\`\`
 ```
+
 - Provide **concrete, executable commands**
 - Include prerequisites
 - Cover common platforms (Windows, macOS, Linux)
 
 #### 6. Usage Instructions
+
 ```markdown
 ## 📖 Usage
 
@@ -102,6 +112,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 ## 📄 License
 
 This project is licensed under [License Name] - see [LICENSE.md](LICENSE.md).
+
 ```
 - **MANDATORY** - users need to know usage rights
 - Link to full license file
@@ -109,12 +120,14 @@ This project is licensed under [License Name] - see [LICENSE.md](LICENSE.md).
 ### Recommended Additional Sections
 
 #### Project Status/Badges
+
 ```markdown
 ![Build Status](https://img.shields.io/badge/build-passing-brightgreen)
 ![Version](https://img.shields.io/badge/version-1.0.0-blue)
 ```
 
 #### Features
+
 ```markdown
 ## ✨ Features
 
@@ -123,6 +136,7 @@ This project is licensed under [License Name] - see [LICENSE.md](LICENSE.md).
 ```
 
 #### Documentation Links
+
 ```markdown
 ## 📚 Documentation
 
@@ -132,6 +146,7 @@ This project is licensed under [License Name] - see [LICENSE.md](LICENSE.md).
 ```
 
 #### Troubleshooting/FAQ
+
 ```markdown
 ## ❓ FAQ / Troubleshooting
 
@@ -144,9 +159,11 @@ A: Clear answer with solution.
 ### 1. Structure and Legibility
 
 ✅ **Write in Markdown (`.md` extension)**
+
 - Utilize Markdown's formatting capabilities: **bold**, *italics*, `code`, lists
 - Use proper heading hierarchy (H1 → H2 → H3)
 - Include code blocks with language specification:
+
   ````markdown
   ```python
   # Python code here
@@ -154,17 +171,20 @@ A: Clear answer with solution.
   ````
 
 ✅ **Optimize for Readability**
+
 - Keep paragraphs short (3-5 sentences max)
 - Use bullet points for lists
 - Add visual breaks with horizontal rules (`---`) when needed
 - Use emojis sparingly for section markers (🎯, 📚, ⚠️)
 
 ✅ **Define All Terminology**
+
 - Include a **Glossary** section or inline definitions
 - Define all acronyms on first use: "TDD (Test-Driven Development)"
 - Link to detailed terminology documentation if extensive
 
 ✅ **Include Supporting Documents**
+
 - `LICENSE.md` - **MANDATORY** for open-source projects
 - `CODE_OF_CONDUCT.md` - Establishes interaction rules
 - `CONTRIBUTING.md` - Detailed contribution guidelines
@@ -173,18 +193,21 @@ A: Clear answer with solution.
 ### 2. Honest Status and Intent
 
 ✅ **Report Status Honestly**
+
 - Use status badges showing **actual** build/test status
 - Clearly mark sections as "Planned", "In Progress", "Complete"
 - Include version number matching actual releases
 - Document known issues and limitations openly
 
 ✅ **Use Precise Language for Commitment**
+
 - **'shall'** = MANDATORY requirement (use sparingly)
 - **'will'** = Statement of fact or planned future capability
 - **'should'** = Recommendation or preference (not mandatory)
 - **'must'** = Critical necessity
 
 Example:
+
 ```markdown
 ## Installation Requirements
 
@@ -194,6 +217,7 @@ Example:
 ```
 
 ✅ **Document Assumptions**
+
 ```markdown
 ## Assumptions
 
@@ -203,6 +227,7 @@ Example:
 ```
 
 ✅ **Maintain Consistency with Reality**
+
 - Update README when code behavior changes
 - Sync version numbers with actual releases
 - Remove or update outdated examples
@@ -211,9 +236,11 @@ Example:
 ### 3. Maintenance and Evolution
 
 ✅ **Treat README as a Living Document**
+
 - Update with every significant code change
 - Review and update during each release
 - Add dates to time-sensitive information:
+
   ```markdown
   > Last updated: November 2025
   ```
