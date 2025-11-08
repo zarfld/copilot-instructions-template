@@ -821,6 +821,21 @@ Update Architecture Traceability Matrix to include reliability evidence:
 
 **Deliverable**: Defect analysis report with lessons learned
 
+### 6. Corrective-Action Loop (V&V)
+
+For each verified gap/anomaly discovered during V&V, execute a full corrective-action loop to route the issue back to the originating lifecycle phase, implement the fix with tests-first, re-integrate, and re-verify.
+
+**Prompt**: Use `.github/prompts/corrective-action-loop.prompt.md`
+
+Key steps:
+- Document the anomaly and classify severity/integrity level
+- Perform root cause analysis; identify origin phase (requirements/design/code)
+- Write failing unit and system/integration tests that reproduce the defect (TDD)
+- Apply minimal-scoped fix; treat as development (requirements → design → code → test)
+- Execute impact-based regression suite and reliability checks (if affected)
+- Update traceability (Requirement ↔ Design ↔ Code ↔ Test ↔ CAP ↔ SFMEA)
+- Close with objective evidence (CI runs, reports) and stakeholder sign-off
+
 ## �🚨 Critical Requirements for This Phase
 
 ### Always Do
