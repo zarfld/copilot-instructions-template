@@ -16,18 +16,73 @@ This directory contains automation scripts for specification validation, creatio
 
 ### Traceability & Analysis
 
+#### GitHub Issues-Based (Current)
+
 | Script | Purpose | Usage |
 |--------|---------|-------|
-| `generate-traceability-matrix.py` | Generate traceability matrix | `python scripts/generate-traceability-matrix.py` |
-| `generators/spec_parser.py` | Parse specs to JSON index | `python scripts/generators/spec_parser.py` |
-| `generators/build_trace_json.py` | Build traceability JSON | `python scripts/generators/build_trace_json.py` |
-| `generators/gen_tests.py` | Generate test skeletons | `python scripts/generators/gen_tests.py` |
+| `github-traceability-report.py` | Generate traceability matrix from GitHub Issues | `export GITHUB_TOKEN=xxx && python scripts/github-traceability-report.py` |
+| `github-orphan-check.py` | Find requirements without parent links | `export GITHUB_TOKEN=xxx && python scripts/github-orphan-check.py` |
+
+#### File-Based (Legacy - Being Phased Out)
+
+| Script | Purpose | Status | Usage |
+|--------|---------|--------|-------|
+| `generate-traceability-matrix.py` | Generate traceability matrix | ⚠️ **Deprecated** | `python scripts/generate-traceability-matrix.py` |
+| `validate-traceability.py` | Validate traceability links | ⚠️ **Use GitHub Actions** | `python scripts/validate-traceability.py` |
+| `trace_unlinked_requirements.py` | Find unlinked requirements | ⚠️ **Use github-orphan-check.py** | `python scripts/trace_unlinked_requirements.py` |
+| `generators/spec_parser.py` | Parse specs to JSON index | ⚠️ **Use GitHub API** | `python scripts/generators/spec_parser.py` |
+| `generators/build_trace_json.py` | Build traceability JSON | ⚠️ **Use GitHub API** | `python scripts/generators/build_trace_json.py` |
+| `generators/gen_tests.py` | Generate test skeletons | ✅ **Still Valid** | `python scripts/generators/gen_tests.py` |
 
 ## 📦 Dependencies
 
+### GitHub Issues Scripts (Current)
+```bash
+pip install requests pyyaml
+```
+
+### File-Based Scripts (Legacy)
 ```bash
 pip install pyyaml jsonschema
 ```
+
+## 🔄 Migration to GitHub Issues
+
+**Status**: In progress (see `docs/improvement_ideas/MIGRATION-PLAN-file-to-github-issues.md`)
+
+### What's Changing
+
+- **Requirements tracking** → GitHub Issues with templates
+- **ID assignment** → Auto-generated issue numbers (no more duplicates)
+- **Traceability** → Native issue linking (#123 syntax)
+- **Validation** → GitHub Actions workflows
+- **Reports** → API-based scripts (github-traceability-report.py)
+
+### Migration Timeline
+
+- ✅ **Phase 1**: Issue templates created (completed)
+- ✅ **Phase 2**: Copilot instructions updated (completed)
+- ✅ **Phase 3**: GitHub API scripts created (completed)
+- ⏳ **Phase 4**: Data migration (pending)
+- ⏳ **Phase 5**: Deprecate file-based scripts (pending)
+
+### Using New Scripts
+
+**Generate traceability report**:
+```bash
+export GITHUB_TOKEN=ghp_xxx
+python scripts/github-traceability-report.py > reports/traceability.md
+```
+
+**Check for orphans**:
+```bash
+export GITHUB_TOKEN=ghp_xxx
+python scripts/github-orphan-check.py
+```
+
+**GitHub Actions** (automatic):
+- `.github/workflows/traceability-check.yml` - Runs on PR/issue changes
+- `.github/workflows/issue-validation.yml` - Validates parent links
 
 ## 🚀 Quick Start
 
