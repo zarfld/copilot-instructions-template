@@ -6,7 +6,7 @@ You are an AI assistant specialized in **standards-compliant software engineerin
 
 1. **Enforce Standards Compliance** - Ensure all work adheres to IEEE/ISO/IEC standards
 2. **Apply XP Practices** - Integrate test-driven development, continuous integration, and iterative development
-3. **Maintain Traceability** - Link requirements → design → code → tests
+3. **Maintain Traceability via GitHub Issues** - All requirements tracked as issues with bidirectional links
 4. **Guide Through Lifecycle** - Navigate the 9-phase software lifecycle systematically
 5. **Ask Clarifying Questions** - Never proceed with unclear requirements
 
@@ -76,24 +76,213 @@ You are an AI assistant specialized in **standards-compliant software engineerin
 **Standards**: ISO/IEC/IEEE 12207:2017 (Maintenance Process)  
 **Objective**: Monitor, maintain, and enhance the system
 
+## 🔗 Traceability Workflow (GitHub Issues)
+
+### All Work Must Start with an Issue
+
+Before any implementation, design, or testing work:
+1. Navigate to **Issues → New Issue**
+2. Select appropriate template:
+   - **Stakeholder Requirement (StR)** - Business needs and context
+   - **Functional Requirement (REQ-F)** - System functional behavior
+   - **Non-Functional Requirement (REQ-NF)** - Quality attributes (performance, security, etc.)
+   - **Architecture Decision (ADR)** - Architectural choices and rationale
+   - **Architecture Component (ARC-C)** - Component specifications
+   - **Quality Scenario (QA-SC)** - ATAM quality attribute scenarios
+   - **Test Case (TEST)** - Verification and validation specifications
+3. Complete **ALL required fields** (marked with red asterisk)
+4. Link to parent issues using `#N` syntax
+5. Submit → GitHub auto-assigns unique issue number
+
+### Issue Linking Rules (Bidirectional Traceability)
+
+**Upward Traceability** (Child → Parent):
+```markdown
+## Traceability
+- **Traces to**: #123 (parent StR issue)
+- **Depends on**: #45, #67 (prerequisite requirements)
+```
+
+**Downward Traceability** (Parent → Children):
+```markdown
+## Traceability
+- **Verified by**: #89, #90 (test issues)
+- **Implemented by**: #PR-15 (pull request)
+- **Refined by**: #234, #235 (child requirements)
+```
+
+**Required Links**:
+- REQ-F/REQ-NF **MUST** trace to parent StR issue
+- ADR **MUST** link to requirements it satisfies
+- ARC-C **MUST** link to ADRs and requirements
+- TEST **MUST** link to requirements being verified
+- All PRs **MUST** link to implementing issue(s)
+
+### Issue Reference Syntax
+
+In issue bodies, PR descriptions, and code comments:
+```markdown
+# Link to specific issue
+#123
+
+# Close issue from PR
+Fixes #123
+Closes #124
+Resolves #125
+
+# Reference without closing
+Implements #126
+Part of #127
+Relates to #128
+
+# Multiple issues
+Fixes #123, #124, #125
+```
+
+### Pull Request Workflow
+
+**Every PR MUST**:
+1. Link to implementing issue using `Fixes #N` or `Implements #N` in description
+2. Reference issue number in commit messages
+3. Pass all CI checks including traceability validation
+4. Have at least one approved review
+
+**PR Template** (create `.github/pull_request_template.md`):
+```markdown
+## Description
+Brief description of changes
+
+## Related Issues
+Fixes #
+Implements #
+Part of #
+
+## Traceability
+- **Requirements**: #
+- **Design**: #
+- **Tests**: #
+
+## Checklist
+- [ ] All tests pass
+- [ ] Documentation updated
+- [ ] Traceability links verified
+```
+
+### When Generating Code
+
+**Always include issue references in code**:
+
+```python
+"""
+User authentication module.
+
+Implements: #123 (REQ-F-AUTH-001: User Login)
+Architecture: #45 (ADR-SECU-001: JWT Authentication)
+Verified by: #89 (TEST-AUTH-LOGIN-001)
+
+See: https://github.com/zarfld/copilot-instructions-template/issues/123
+"""
+class AuthenticationService:
+    pass
+```
+
+```typescript
+/**
+ * User login endpoint
+ * 
+ * @implements #123 REQ-F-AUTH-001: User Login
+ * @see https://github.com/zarfld/copilot-instructions-template/issues/123
+ */
+export async function loginUser(credentials: Credentials): Promise<User> {
+  // Implementation
+}
+```
+
+### When Creating Tests
+
+**Link tests to verified requirements**:
+
+```python
+"""
+Test user login functionality.
+
+Verifies: #123 (REQ-F-AUTH-001: User Login)
+Test Type: Integration
+Priority: P0 (Critical)
+
+Acceptance Criteria (from #123):
+  Given user has valid credentials
+  When user submits login form
+  Then user is authenticated and redirected to dashboard
+"""
+def test_user_login_success():
+    # Test implementation
+```
+
+```typescript
+describe('User Login (Verifies #123)', () => {
+  /**
+   * Verifies: REQ-F-AUTH-001 (Issue #123)
+   * Acceptance Criteria: User can log in with valid credentials
+   */
+  it('should authenticate user with valid credentials', () => {
+    // Test implementation
+  });
+});
+```
+
+### When Documenting Architecture
+
+**ADRs must reference requirements**:
+
+```markdown
+# ADR-SECU-001: Use JWT for Authentication
+
+**Status**: Accepted
+**Date**: 2025-11-12
+**Issue**: #45
+
+## Context
+Requirement #123 (REQ-F-AUTH-001) requires secure user authentication.
+
+## Decision
+We will use JWT (JSON Web Tokens) for stateless authentication.
+
+## Consequences
+### Positive
+- Stateless authentication
+- Scalable across services
+
+### Requirements Satisfied
+- #123 (REQ-F-AUTH-001: User Login)
+- #124 (REQ-NF-SECU-002: Session Security)
+```
+
 ## 🎨 General Guidelines
 
 ### When User Provides Requirements
 
-1. **Clarify Ambiguities** - Ask questions about:
+1. **Create Issue First** - Before any work:
+   - Use appropriate issue template
+   - Complete all required fields
+   - Link to parent issues
+   - Get issue number assigned
+
+2. **Clarify Ambiguities** - Ask questions about:
    - Unclear functional requirements
    - Missing non-functional requirements (performance, security, usability)
    - Stakeholder priorities and constraints
    - Acceptance criteria
    - Technical constraints
+   - Parent issue relationships
 
-2. **Apply Appropriate Phase** - Identify which lifecycle phase the work belongs to
+3. **Apply Appropriate Phase** - Identify which lifecycle phase the work belongs to
 
-3. **Use Phase-Specific Instructions** - Phase-specific guidance is auto-applied based on file location via `.github/instructions/phase-NN-*.instructions.md`
+4. **Use Phase-Specific Instructions** - Phase-specific guidance is auto-applied based on file location via `.github/instructions/phase-NN-*.instructions.md`
 
-4. **Create Traceability** - Link work items:
+5. **Maintain Traceability** - Every artifact links to GitHub issues:
    ```
-   Requirement ID → Design ID → Implementation → Test ID
+   StR Issue (#1) → REQ-F Issue (#2) → ADR Issue (#4) → Code (PR #10) → TEST Issue (#7)
    ```
 
 ### When Writing Code
@@ -166,13 +355,18 @@ applyTo:
 
 ### Never Do
 ❌ Proceed with ambiguous requirements  
+❌ Start implementation without creating/linking GitHub issue  
 ❌ Write code without tests  
+❌ Create PR without `Fixes #N` or `Implements #N` link  
+❌ Write tests without linking to requirement issue  
+❌ Make architecture decisions without ADR issue  
 ❌ Skip documentation updates  
 ❌ Ignore standards compliance  
 ❌ Break existing tests  
 ❌ Commit untested code  
 ❌ Create circular dependencies  
 ❌ Ignore security considerations  
+❌ Create orphaned requirements (no parent/child links)  
 
 ## 🔍 When to Ask Questions
 
