@@ -17,6 +17,88 @@ applyTo: "07-verification-validation/**"
 5. Perform acceptance testing with customer
 6. Document test results and defects
 
+## 📋 Test Case Documentation Approach
+
+### ⭐ PRIMARY: GitHub Issues (Recommended)
+
+**Test cases should be captured as GitHub Issues** using the Test Case (TEST) template.
+
+#### Creating Test Cases as GitHub Issues
+
+1. **Navigate to Issues → New Issue**
+2. **Select Template**: "Test Case (TEST)"
+3. **Complete Required Fields**:
+   - **Title**: Test case description (e.g., "Verify user can login with valid credentials")
+   - **Verified Requirements**: Link to requirements using `#N` syntax
+   - **Test Type**: Unit / Integration / System / Acceptance / Performance / Security
+   - **Test Steps**: Detailed procedure
+   - **Expected Results**: What should happen
+   - **Test Data**: Required data/fixtures
+   - **Priority**: Critical / High / Medium / Low
+   
+4. **Apply Labels**: `test-case`, `phase-07`, `verify-test`
+5. **Submit** → Issue assigned (e.g., #120)
+
+**Example TEST Issue**:
+
+**Title**: TEST-AUTH-LOGIN-001: Verify user authentication with valid credentials
+
+**Verified Requirements**:
+```markdown
+Verifies:
+- #45 (REQ-F-AUTH-001: User Login)
+- #46 (REQ-NF-SECU-002: Session Security)
+```
+
+**Test Type**: Integration
+
+**Test Steps**:
+```markdown
+1. Navigate to login page
+2. Enter valid email: test@example.com
+3. Enter valid password: SecurePass123!
+4. Click "Login" button
+5. Observe redirect and token generation
+```
+
+**Expected Results**:
+```markdown
+- User is authenticated successfully
+- Access token and refresh token are generated
+- User is redirected to dashboard
+- Session is created with 15-minute expiry
+- Tokens are stored securely (httpOnly cookie)
+```
+
+**Test Data**:
+```markdown
+User: { email: 'test@example.com', password: 'SecurePass123!' }
+Expected: 200 OK response with tokens
+```
+
+**Priority**: Critical (P0)
+
+**Test Results**: Track in issue comments:
+```markdown
+## Test Run: 2025-11-12 14:30 UTC
+**Status**: ✅ PASS
+**Environment**: Staging
+**Tester**: @johndoe
+**Build**: v1.2.3-rc1
+**Duration**: 2.5s
+**Notes**: All acceptance criteria met
+```
+
+#### Traceability: Tests → Requirements
+
+```markdown
+## Traceability
+- **Verifies**: #45, #46 (requirements)
+- **Test Suite**: Integration Tests
+- **Automated**: Yes (src/tests/integration/auth/login.spec.ts)
+- **Coverage**: Lines 92%, Branches 88%
+```
+
 ## 📋 IEEE 1012-2016 Compliance
 
 ### V&V Process Overview
@@ -24,10 +106,12 @@ applyTo: "07-verification-validation/**"
 **Verification**: "Are we building the product right?"
 - Confirms that work products properly reflect requirements
 - Technical correctness evaluation
+- **Tracked via**: TEST issues with `verify-test` label
 
 **Validation**: "Are we building the right product?"
 - Confirms that product fulfills intended use
 - Fitness for purpose evaluation
+- **Tracked via**: Acceptance test issues with `verify-demonstration` label
 
 ### V&V Activities by Lifecycle Phase
 
