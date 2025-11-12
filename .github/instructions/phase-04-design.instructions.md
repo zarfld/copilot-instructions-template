@@ -16,29 +16,99 @@ applyTo: "04-design/**"
 4. Document design patterns and implementation approaches
 5. Create design specifications enabling implementation
 
-## ⚠️ MANDATORY: YAML Front Matter Schema Compliance
+## 📋 Design Documentation Approach
 
-CRITICAL: All design specification files MUST use EXACT YAML front matter format defined in authoritative schema:
+### ⭐ PRIMARY: Link to Architecture Issues (GitHub Issues)
 
-Authoritative Schema: `spec-kit-templates/schemas/ieee-design-spec.schema.json`
+**Design artifacts reference architecture issues** created in Phase 03. Detailed designs can be:
+- **GitHub Issue comments** on architecture component issues (ARC-C)
+- **Wiki pages** linked from architecture issues
+- **Markdown files** in `04-design/` with issue references
 
-Required YAML Front Matter Format:
+#### Linking Design to Architecture Issues
+
+Every design specification MUST reference:
+- **Architecture Component Issue**: `#N` (from ARC-C templates)
+- **Architecture Decisions**: `#N` (from ADR templates)
+- **Requirements**: `#N` (from REQ-F/REQ-NF templates)
+
+**Example Design File Header**:
+```markdown
+# User Authentication Service - Detailed Design
+
+**Architecture Component**: #79 (ARC-C-AUTH: User Authentication Service)
+**Architecture Decisions**:
+- #78 (ADR-SECU-001: JWT Authentication)
+- #80 (ADR-DATA-001: PostgreSQL for User Data)
+
+**Requirements**:
+- #45 (REQ-F-AUTH-001: User Login)
+- #46 (REQ-NF-SECU-002: Session Security)
+
+---
+
+## Class Diagram
+## Sequence Diagrams
+## Data Models
+```
+
+#### Comment on Architecture Issues
+
+Add detailed design as comment on architecture component issue:
+
+**Comment on Issue #79 (ARC-C-AUTH)**:
+```markdown
+## Detailed Design
+
+### Class Structure
+\`\`\`typescript
+class UserService {
+  constructor(
+    private userRepository: IUserRepository,
+    private jwtService: IJwtService,
+    private passwordHasher: IPasswordHasher
+  ) {}
+
+  async login(credentials: Credentials): Promise<AuthResult> {
+    // Implementation details
+  }
+}
+\`\`\`
+
+### Sequence Diagram
+[Mermaid diagram or link to diagram]
+
+### Data Model
+[Tables, schemas, relationships]
+
+### Design Patterns
+- Repository Pattern for data access
+- Dependency Injection for testability
+- Strategy Pattern for password hashing algorithms
+```
+
+### 📁 ALTERNATIVE: File-Based (YAML Front Matter Required)
+
+**Schema**: `spec-kit-templates/schemas/ieee-design-spec.schema.json`
+
 ```yaml
 ---
 title: "Component Design Specification Title"
 type: "design_specification"
-standard: "IEEE 1588-2019"  # Use specific IEEE standard 
+standard: "IEEE 1588-2019"
 phase: "04-design"
 component: "component-name"
-version: "1.0"  # Use X.Y format (NOT semver)
+version: "1.0"
 date: "2025-MM-DD"
 author: "Your Name"
-status: "draft"  # active | draft | review | approved | deprecated
+status: "draft"
 compliance:
   section: "Software Design Description"
 traceability:
 ---
 ```
+
+**Note**: Linking to GitHub Issues is recommended for seamless traceability.
 
 ENFORCEMENT:
 - Use "type: design_specification" NOT "specType: design" 
