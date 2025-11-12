@@ -66,7 +66,111 @@ I want [goal/desire]
 So that [benefit/value]
 ```
 
-## 📝 Required Deliverables
+## 📝 Requirements Documentation Approach
+
+### ⭐ PRIMARY: GitHub Issues (Recommended)
+
+**Stakeholder requirements should be captured as GitHub Issues** using the Stakeholder Requirement template.
+
+#### Creating Stakeholder Requirements as GitHub Issues
+
+1. **Navigate to Issues → New Issue**
+2. **Select Template**: "Stakeholder Requirement (StR)"
+3. **Complete Required Fields**:
+   - **Title**: Clear, concise requirement statement (e.g., "Support multi-language content")
+   - **Stakeholder Source**: Which stakeholder class requested this
+   - **Business Justification**: Why this requirement exists (business value, ROI, competitive advantage)
+   - **Success Criteria**: How we'll know this requirement is satisfied (measurable)
+   - **Priority**: Critical (P0) / High (P1) / Medium (P2) / Low (P3)
+   - **Constraints**: Budget, timeline, technical, regulatory limitations
+   - **Assumptions**: Dependencies that must hold true
+   
+4. **Apply Labels**:
+   - `stakeholder-requirement` (auto-applied by template)
+   - `phase-01` (lifecycle phase)
+   - `priority-critical` / `priority-high` / `priority-medium` / `priority-low`
+   - `integrity-1` through `integrity-4` (criticality per IEEE 1012-2016)
+   
+5. **Submit** → GitHub auto-assigns unique issue number (e.g., #1, #2)
+
+#### Traceability via GitHub Issues
+
+Stakeholder requirements have **no parent** (they are root requirements):
+```markdown
+## Traceability
+- **Traces to**: N/A (root stakeholder requirement)
+- **Refined by**: #45, #46, #47 (system requirements in Phase 02)
+- **Implemented by**: #PR-12 (pull request)
+- **Verified by**: #89 (test case)
+```
+
+Child requirements link back using `#N` syntax:
+```markdown
+## Traceability
+- **Traces to**: #1 (parent stakeholder requirement)
+```
+
+#### Example: Creating StR Issue via UI
+
+**Title**: Multi-Language Support for Customer Portal
+
+**Stakeholder Source**:
+```markdown
+**Stakeholder Class**: International Customers (Europe, Asia)
+**Representatives**: 
+- Maria Schmidt (EU Customer Success Manager)
+- Yuki Tanaka (APAC Sales Director)
+```
+
+**Business Justification**:
+```markdown
+**Problem**: 65% of international customers report difficulty using English-only interface
+**Impact**: Projected 30% increase in international sales with localized content
+**Competitive Gap**: Main competitors offer 12+ languages
+**ROI**: Estimated $2M additional revenue in Year 1
+```
+
+**Success Criteria**:
+```markdown
+1. Customer can select preferred language from 10+ options
+2. All UI text, help documentation, and error messages localized
+3. Language preference persists across sessions
+4. Translation accuracy verified by native speakers
+5. Page load time increase < 200ms with localization
+```
+
+**Constraints**:
+```markdown
+- Must support right-to-left languages (Arabic, Hebrew)
+- Translation budget: $50K for initial 10 languages
+- Must comply with GDPR for language preference storage
+- Launch target: Q2 2024 for initial 5 languages
+```
+
+**Assumptions**:
+```markdown
+- Content management system supports localization
+- Existing translation vendor can scale to support additional languages
+- Customer database schema can store language preferences
+```
+
+After submission → Issue #1 created → Children link to it with `#1`
+
+#### Querying Stakeholder Requirements
+
+Use GitHub's search and filters:
+```
+is:issue label:stakeholder-requirement label:phase-01 is:open
+```
+
+Or via GitHub MCP:
+```
+List all stakeholder requirements (label: stakeholder-requirement)
+```
+
+### 📁 ALTERNATIVE: File-Based Documentation
+
+If GitHub Issues are not yet configured, use file-based documentation:
 
 ### 1. Stakeholder Register
 **Location**: `stakeholders/stakeholder-register.md`
@@ -99,6 +203,25 @@ Must include (per ISO/IEC/IEEE 29148):
 - Standards compliance needs
 
 ### 3. Stakeholder Requirements Specification (StRS)
+
+#### With GitHub Issues (Recommended)
+
+The **collection of all stakeholder requirement issues** forms your Stakeholder Requirements Specification. Generate the specification:
+
+```bash
+# Generate traceability report from issues
+python scripts/github-traceability-report.py --type stakeholder
+```
+
+This produces a markdown report structured per ISO/IEC/IEEE 29148:
+- Introduction (from repository README)
+- All StR issues grouped by category (labels)
+- Traceability matrix showing parent-child relationships
+- Acceptance criteria summary
+- Status dashboard
+
+#### With File-Based Approach
+
 **Location**: `stakeholder-requirements-specification.md`
 
 Structure per ISO/IEC/IEEE 29148:
@@ -140,6 +263,28 @@ Structure per ISO/IEC/IEEE 29148:
 ```
 
 ### 4. Initial User Stories
+
+#### With GitHub Issues (Recommended)
+
+User stories can be captured as **Stakeholder Requirement issues** with the user story format in the title:
+
+**Title Format**: `As a [role] I want [goal] so that [benefit]`
+
+**Example**:
+- **Title**: As an international customer I want to view content in my native language so that I can understand product features
+- **Issue Body**: Complete with business justification, success criteria, constraints
+- **Labels**: `stakeholder-requirement`, `phase-01`, `priority-high`
+- **Project**: Add to "Requirements Traceability System" project
+
+Link epic stories by creating parent-child relationships:
+```markdown
+## Traceability
+- **Epic**: #5 (Multi-Language Support Epic)
+- **Refined by**: #23, #24, #25 (child stories for specific languages)
+```
+
+#### With File-Based Approach
+
 **Location**: `user-stories/`
 
 Create high-level epic stories:
@@ -275,6 +420,45 @@ When gathering stakeholder requirements, always ask:
 ✅ Baseline established for requirements
 
 ## 🔗 Traceability
+
+### With GitHub Issues
+
+Establish forward traceability via issue links:
+```
+Issue #1 (Stakeholder Requirement - StR)
+  ↓ Refined by
+Issue #45, #46, #47 (System Requirements - REQ-F/REQ-NF in Phase 02)
+  ↓ Implemented by
+Pull Request #12
+  ↓ Verified by
+Issue #89 (Test Case - TEST in Phase 07)
+```
+
+**In Issue Bodies**:
+```markdown
+## Traceability
+- **Traces to**: N/A (root requirement)
+- **Refined by**: #45, #46, #47
+- **Implemented by**: #PR-12
+- **Verified by**: #89
+```
+
+**Automated Validation**: GitHub Actions workflow validates that:
+- All non-StR requirements have parent links
+- Parent issues exist and are open or closed
+- No circular dependencies
+- No orphaned requirements
+
+**Generate Reports**:
+```bash
+# Traceability matrix
+python scripts/github-traceability-report.py
+
+# Find orphaned requirements
+python scripts/github-orphan-check.py
+```
+
+### With File-Based Approach
 
 Establish forward traceability:
 ```
