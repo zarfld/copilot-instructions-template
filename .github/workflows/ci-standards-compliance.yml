@@ -262,10 +262,10 @@ jobs:
           name: integration-test-results
           path: test-results/integration/
 
-  # Phase 02: Requirements Traceability Check
+  # Phase 02: Requirements Traceability Check (GitHub Issues)
   requirements-traceability:
     needs: [spec-validation]
-    name: Requirements Traceability (ISO/IEC/IEEE 29148)
+    name: Requirements Traceability (ISO/IEC/IEEE 29148 via GitHub Issues)
     runs-on: ubuntu-latest
 
     steps:
@@ -279,32 +279,59 @@ jobs:
 
       - name: Install traceability tools
         run: |
-          pip install pyyaml markdown
+          pip install pyyaml markdown PyGithub requests
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Generate traceability matrix
+      - name: Check for unlinked requirements
         run: |
-          echo "🔍 Generating requirements traceability matrix..."
-          ALLOW_EMPTY_SPECS=1 python scripts/generate-traceability-matrix.py
+          echo "🔍 Checking for requirements without test issues..."
+          python scripts/trace_unlinked_requirements.py || {
+            echo "⚠️ Found requirements without linked TEST issues"
+            echo "Every REQ-F/REQ-NF issue must have 'Verified by: #N' link to TEST issue"
+          }
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Validate traceability
+      - name: Check for orphan artifacts
         run: |
-          echo "✅ Checking traceability completeness..."
-          ALLOW_EMPTY_SPECS=1 python scripts/validate-traceability.py || {
+          echo "🔍 Checking for orphan code/tests without issue links..."
+          python scripts/github-orphan-check.py || {
+            echo "⚠️ Found code or tests without issue references"
+            echo "All code must include 'Implements: #N' or 'Verifies: #N' comments"
+          }
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Generate GitHub Issues traceability report
+        run: |
+          echo "📊 Generating GitHub Issues traceability report..."
+          python scripts/github-traceability-report.py --output reports/github-traceability.md || {
+            echo "⚠️ Traceability report generation had warnings"
+          }
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Validate traceability chains
+        run: |
+          echo "✅ Validating complete traceability chains (StR→REQ→CODE→TEST)..."
+          python scripts/validate-traceability.py || {
             echo "❌ Traceability validation failed"
-            echo "Every requirement must trace to:"
-            echo "  - Stakeholder requirement (StR-XXX)"
-            echo "  - System requirement (REQ-XXX)"
-            echo "  - Design element (DES-XXX)"
-            echo "  - Implementation (CODE)"
-            echo "  - Test case (TEST-XXX)"
+            echo "Every requirement must have complete chain:"
+            echo "  - StR Issue (#N) → REQ-F/REQ-NF Issue (#M)"
+            echo "  - REQ Issue → Code/PR (Implements: #M)"
+            echo "  - REQ Issue → TEST Issue (Verifies: #M)"
+            echo "  - TEST Issue → Test Implementation"
             exit 1
           }
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Upload traceability report
+      - name: Upload traceability reports
         uses: actions/upload-artifact@v4
         with:
-          name: traceability-matrix
-          path: reports/traceability-matrix.md
+          name: traceability-reports
+          path: reports/
 
   # Phase 07: Verification & Validation (IEEE 1012)
   acceptance-tests:
@@ -482,12 +509,13 @@ jobs:
           - [ ] Phase 08: Transition (manual)
           - [ ] Phase 09: Operation & Maintenance (manual)
 
-          ## ISO/IEC/IEEE 29148:2018 - Requirements Engineering
+          ## ISO/IEC/IEEE 29148:2018 - Requirements Engineering (GitHub Issues)
 
-          - ✅ Requirements traceability: ${{ needs.requirements-traceability.result }}
-          - ✅ Stakeholder requirements documented
-          - ✅ System requirements specified
-          - ✅ Acceptance criteria defined
+          - ✅ Requirements traceability (GitHub Issues): ${{ needs.requirements-traceability.result }}
+          - ✅ Stakeholder requirements documented (StR Issues)
+          - ✅ System requirements specified (REQ-F/REQ-NF Issues)
+          - ✅ Acceptance criteria defined (in issue bodies)
+          - ✅ Bidirectional traceability enforced (StR↔REQ↔TEST↔CODE)
 
           ## IEEE 1016-2009 - Software Design Descriptions
 
