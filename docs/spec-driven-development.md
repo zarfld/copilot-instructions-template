@@ -245,6 +245,266 @@ Your spec ────┼─► lint.prompt.md (optimize spec)
                   - Standards compliance
 ```
 
+## 🎫 GitHub Issues + Markdown Specs: Dual Source of Truth
+
+This template uses **both GitHub Issues and Markdown specifications** as complementary sources of truth:
+
+### When to Use Issues vs. Specs
+
+| Use Case | GitHub Issues | Markdown Specs | Both |
+|----------|---------------|----------------|------|
+| **Requirements tracking** | ✅ Primary | ⚠️ Summary | ✅ |
+| **Traceability (REQ→TEST→CODE)** | ✅ Primary | ❌ | ✅ |
+| **Team collaboration & discussion** | ✅ | ❌ | - |
+| **Detailed implementation specs** | ⚠️ Brief | ✅ Detailed | ✅ |
+| **Code generation with Copilot** | ⚠️ Limited | ✅ Primary | ✅ |
+| **Audit trail** | ✅ Automatic | ⚠️ Manual | ✅ |
+| **CI/CD integration** | ✅ Native | ⚠️ Custom | ✅ |
+| **Customer-facing documentation** | ❌ | ✅ | - |
+| **Acceptance criteria** | ✅ | ✅ | ✅ |
+
+### The Unified Workflow
+
+```text
+GitHub Issues (Lightweight, Traceable)
+   ↓
+   ├─► REQ Issue: #2 "REQ-F-AUTH-001: User Login"
+   │   - Acceptance criteria
+   │   - Traceability: Traces to #1 (StR)
+   │   - Labels: type:requirement:functional
+   │
+   └─► Links to: 02-requirements/auth-spec.md
+              ↓
+Markdown Spec (Detailed, Implementation-Ready)
+   ↓
+   ├─► Detailed design, API contracts, error handling
+   ├─► Examples, edge cases, technical constraints
+   ├─► References GitHub Issue: "Implements: #2"
+   │
+   └─► Copilot compiles to:
+          ├─► Tests (Verifies: #2)
+          ├─► Code (Implements: #2)
+          └─► PR (Fixes: #2)
+```
+
+### Pattern: Issue as Index, Spec as Detail
+
+**GitHub Issue** (#2):
+
+```markdown
+## Title
+REQ-F-AUTH-001: User Login with Credentials
+
+## Description
+System shall allow users to log in with email and password.
+
+## Acceptance Criteria
+- [ ] User can enter email and password
+- [ ] System validates credentials
+- [ ] JWT token generated on success
+- [ ] Error message on failure
+
+## Detailed Specification
+See: `02-requirements/functional/auth-spec.md`
+
+## Traceability
+- **Traces to**: #1 (StR-001: User Authentication)
+- **Verified by**: #10 (TEST-AUTH-LOGIN-001)
+- **Implemented by**: #PR-15
+```
+
+**Markdown Spec** (`02-requirements/functional/auth-spec.md`):
+
+```markdown
+# Authentication Requirements Specification
+
+**Issue**: #2 (REQ-F-AUTH-001: User Login)
+
+## REQ-F-AUTH-001: User Login
+
+### Overview
+Users authenticate via email/password to access protected resources.
+
+### API Contract
+\`\`\`typescript
+POST /auth/login
+Request: { email: string, password: string }
+Response: { token: string, expiresIn: number }
+Errors: 401 (Invalid credentials), 429 (Rate limited)
+\`\`\`
+
+### Implementation Details
+- Password validation: bcrypt.compare()
+- JWT signing: HS256 algorithm
+- Token expiry: 24 hours
+- Rate limiting: 5 attempts/minute/IP
+
+### Error Handling
+| Error | HTTP Status | Message | Recovery |
+|-------|-------------|---------|----------|
+| Invalid email format | 400 | "Invalid email" | Re-enter |
+| Wrong password | 401 | "Invalid credentials" | Reset password |
+| Account locked | 403 | "Account locked" | Contact support |
+
+### Test Scenarios
+\`\`\`gherkin
+Scenario: Valid login
+  Given user exists with email "test@example.com"
+  When POST /auth/login with valid credentials
+  Then response is 200
+  And token is present
+  And token expires in 86400 seconds
+\`\`\`
+
+### Dependencies
+- User database (PostgreSQL)
+- bcrypt library (v5.x)
+- jsonwebtoken library (v9.x)
+
+### Traceability
+- **Implements**: #2 (REQ-F-AUTH-001)
+- **Traces to**: #1 (StR-001: User Authentication)
+- **Verified by**: #10 (TEST-AUTH-LOGIN-001)
+```
+
+### Workflow: Issues → Specs → Code
+
+```bash
+# Step 1: Create GitHub Issue
+gh issue create \
+  --title "REQ-F-AUTH-001: User Login" \
+  --label "type:requirement:functional" \
+  --body "## Acceptance Criteria
+- [ ] User can log in
+See: 02-requirements/functional/auth-spec.md"
+
+# Issue #2 created
+
+# Step 2: Create detailed Markdown spec
+cd 02-requirements/functional
+cp ../../spec-kit-templates/requirements-spec.md auth-spec.md
+
+# Edit auth-spec.md with full implementation details
+# Reference issue: "Implements: #2"
+
+# Step 3: Lint the spec (optimize for Copilot)
+# In VS Code Copilot Chat:
+/lint.prompt.md
+
+# Step 4: Compile spec to code
+# In VS Code Copilot Chat:
+/compile.prompt.md focus on REQ-F-AUTH-001
+
+# Copilot generates:
+# - tests/auth.test.ts (with "Verifies: #2")
+# - src/auth.ts (with "Implements: #2")
+
+# Step 5: Create PR linking to issue
+git add .
+git commit -m "feat: user login authentication
+
+Implements: #2 (REQ-F-AUTH-001)
+See: 02-requirements/functional/auth-spec.md"
+
+gh pr create \
+  --title "feat: User Login Authentication" \
+  --body "Fixes #2
+
+Generated from spec: 02-requirements/functional/auth-spec.md"
+
+# PR-15 created, auto-links to #2
+
+# Step 6: CI validates traceability
+# GitHub Actions checks:
+# ✅ Issue #2 exists
+# ✅ Spec references #2
+# ✅ Tests reference #2
+# ✅ Code references #2
+# ✅ PR references #2
+
+# Step 7: Merge closes issue automatically
+# PR merged → Issue #2 auto-closed (via "Fixes #2")
+```
+
+### Maintaining Consistency
+
+**Automatic validation** ensures issues and specs stay in sync:
+
+```python
+# scripts/validate-issue-spec-consistency.py
+import re
+from pathlib import Path
+
+def validate_consistency():
+    # 1. Find all "Implements: #N" in specs
+    spec_files = Path('02-requirements').rglob('*.md')
+    for spec in spec_files:
+        content = spec.read_text()
+        issue_refs = re.findall(r'Implements: #(\d+)', content)
+        
+        for issue_num in issue_refs:
+            # 2. Check issue exists
+            result = subprocess.run(['gh', 'issue', 'view', issue_num])
+            if result.returncode != 0:
+                print(f"❌ {spec}: References non-existent issue #{issue_num}")
+            
+            # 3. Check issue links back to spec
+            issue_body = subprocess.check_output(
+                ['gh', 'issue', 'view', issue_num, '--json', 'body']
+            )
+            if str(spec) not in issue_body:
+                print(f"⚠️ Issue #{issue_num} doesn't link to {spec}")
+
+validate_consistency()
+```
+
+**CI/CD integration**:
+
+```yaml
+# .github/workflows/validate-consistency.yml
+name: Validate Issue-Spec Consistency
+on: [pull_request]
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check issue-spec consistency
+        run: python scripts/validate-issue-spec-consistency.py
+      - name: Validate traceability
+        run: python scripts/validate-traceability.py
+```
+
+### Best Practices
+
+1. **Create issue FIRST, then spec**
+   - Issue is lightweight, fast to create
+   - Spec takes time, references issue
+
+2. **Use issue for tracking, spec for implementation**
+   - Discussions, progress, assignments → GitHub Issue
+   - API contracts, algorithms, edge cases → Markdown Spec
+
+3. **Bidirectional links required**
+   - Issue body: `See: 02-requirements/functional/auth-spec.md`
+   - Spec header: `Implements: #2 (REQ-F-AUTH-001)`
+
+4. **Keep acceptance criteria in sync**
+   - Issue has user-facing acceptance criteria
+   - Spec has detailed technical acceptance criteria
+   - Both must align
+
+5. **Update both when requirements change**
+   - Change issue (trigger notification, discussion)
+   - Update spec (implementation details)
+   - Recompile code from updated spec
+
+### Benefits
+
+- **GitHub Issues**: Fast, traceable, team-visible, CI-integrated
+- **Markdown Specs**: Detailed, Copilot-friendly, versioned, comprehensive
+- **Together**: Best of both worlds!
+
 ## 🛠️ Example: Complete Workflow
 
 ### Step 1: Create Specification
