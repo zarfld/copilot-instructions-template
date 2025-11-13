@@ -203,22 +203,220 @@ Each phase enforces relevant standards:
 - Track velocity
 ```
 
+## 🎫 GitHub Issues Workflow
+
+This template uses **GitHub Issues as the primary traceability mechanism** for all requirements, architecture decisions, and test cases. All artifacts are tracked as issues with bidirectional links.
+
+### Issue Types and Labels
+
+| Type | Label | Prefix | Description | Example |
+|------|-------|--------|-------------|---------|
+| **Stakeholder Requirement** | `type:stakeholder-requirement` | `StR-` | Business needs and context | `StR-001: User Authentication` |
+| **Functional Requirement** | `type:requirement:functional` | `REQ-F-` | System functional behavior | `REQ-F-AUTH-001: Login with credentials` |
+| **Non-Functional Requirement** | `type:requirement:non-functional` | `REQ-NF-` | Quality attributes | `REQ-NF-PERF-001: Response time < 200ms` |
+| **Architecture Decision** | `type:architecture:decision` | `ADR-` | Architectural choices | `ADR-SECU-001: Use JWT authentication` |
+| **Architecture Component** | `type:architecture:component` | `ARC-C-` | Component specifications | `ARC-C-AUTH-001: Authentication service` |
+| **Quality Scenario** | `type:architecture:quality-scenario` | `QA-SC-` | ATAM quality scenarios | `QA-SC-PERF-001: Peak load scenario` |
+| **Test Case** | `type:test` | `TEST-` | Verification specifications | `TEST-AUTH-LOGIN-001: Valid login test` |
+
+Additional labels:
+
+- **Phase**: `phase:01-stakeholder-requirements`, `phase:02-requirements`, etc.
+- **Priority**: `priority:critical`, `priority:high`, `priority:medium`, `priority:low`
+- **Test Type**: `test-type:unit`, `test-type:integration`, `test-type:e2e`, `test-type:acceptance`
+- **Status**: `status:draft`, `status:approved`, `status:implemented`, `status:verified`
+
+### Traceability Patterns
+
+All issues must include traceability links:
+
+```markdown
+## Traceability
+- **Traces to**: #123 (parent StR issue)
+- **Depends on**: #45, #67 (prerequisite requirements)
+- **Verified by**: #89, #90 (test issues)
+- **Implemented by**: #PR-15 (pull request)
+- **Refined by**: #234, #235 (child requirements)
+```
+
+### Issue Templates
+
+Issue templates are available in `.github/ISSUE_TEMPLATE/`:
+
+- `stakeholder-requirement.yml`
+- `functional-requirement.yml`
+- `non-functional-requirement.yml`
+- `architecture-decision.yml`
+- `architecture-component.yml`
+- `quality-scenario.yml`
+- `test-case.yml`
+
+### Workflow Examples
+
+#### 1. Create Stakeholder Requirement Issue
+
+```bash
+# Using GitHub CLI
+gh issue create \
+  --title "StR-001: User Authentication" \
+  --label "type:stakeholder-requirement,phase:01-stakeholder-requirements,priority:critical" \
+  --body "$(cat issue-body.md)"
+```
+
+#### 2. Create Functional Requirement from StR
+
+```markdown
+## Traceability
+- **Traces to**: #1 (StR-001: User Authentication)
+
+## Description
+System shall allow users to log in with username and password.
+
+## Acceptance Criteria
+- [ ] User can enter username and password
+- [ ] System validates credentials
+- [ ] User is redirected to dashboard on success
+- [ ] Error message displayed on failure
+```
+
+#### 3. Link Code to Issues
+
+```python
+"""
+User authentication service.
+
+Implements: #2 (REQ-F-AUTH-001: User Login)
+Architecture: #5 (ADR-SECU-001: JWT Authentication)
+Verified by: #10 (TEST-AUTH-LOGIN-001)
+
+See: https://github.com/org/repo/issues/2
+"""
+class AuthenticationService:
+    pass
+```
+
+#### 4. Link Tests to Requirements
+
+```python
+"""
+Test user login functionality.
+
+Verifies: #2 (REQ-F-AUTH-001: User Login)
+Test Type: Integration
+Priority: P0 (Critical)
+"""
+def test_user_login_success():
+    # Test implementation
+```
+
+#### 5. Link Pull Requests
+
+```markdown
+## Description
+Implements user authentication feature
+
+## Related Issues
+Fixes #2
+Implements #5
+Part of #1
+
+## Traceability
+- **Requirements**: #2 (REQ-F-AUTH-001)
+- **Design**: #5 (ADR-SECU-001)
+- **Tests**: #10 (TEST-AUTH-LOGIN-001)
+```
+
+### Python Automation Scripts
+
+Available in `scripts/`:
+
+- **`generate-traceability-matrix.py`** - Generate REQ↔TEST↔CODE matrix
+- **`trace_unlinked_requirements.py`** - Find requirements without tests
+- **`validate-traceability.py`** - Validate bidirectional links
+- **`scripts/generate-requirement-issues.py`** - Generate REQ issues from specs
+- **`scripts/generate-test-issues.py`** - Generate TEST issues from requirements
+- **`scripts/validate-issue-traceability.py`** - Validate GitHub Issues traceability
+
+Example usage:
+
+```bash
+# Find requirements without tests
+python scripts/trace_unlinked_requirements.py
+
+# Validate traceability
+python scripts/validate-traceability.py
+
+# Generate traceability matrix
+python scripts/generate-traceability-matrix.py --output-html
+```
+
+### CI/CD Integration
+
+GitHub Actions workflows validate traceability:
+
+```yaml
+# .github/workflows/validate-traceability.yml
+name: Validate Traceability
+on: [pull_request]
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate issue links
+        run: python scripts/validate-issue-traceability.py
+      - name: Check test coverage
+        run: python scripts/validate-trace-coverage.py
+      - name: Generate matrix
+        run: python scripts/generate-traceability-matrix.py
+```
+
+### Best Practices
+
+1. **Always create issues before code** - No code without linked issue
+2. **Use bidirectional links** - Parent issues list children, children reference parents
+3. **Link PRs to issues** - Use `Fixes #N`, `Implements #N`, `Part of #N`
+4. **Include issue references in code** - Docstrings, comments, commit messages
+5. **Validate traceability in CI** - Block merges if links are missing
+6. **Keep issues up-to-date** - Close when implemented and verified
+7. **Use labels consistently** - Enables automated queries and reports
+
+### Querying Issues
+
+```bash
+# List all functional requirements
+gh issue list --label "type:requirement:functional"
+
+# Find requirements without tests
+gh issue list --label "type:requirement:functional" --json number,title,labels \
+  | jq '.[] | select(.labels | map(.name) | contains(["status:verified"]) | not)'
+
+# Show traceability for requirement #2
+gh issue view 2 --json body | jq -r '.body' | grep -A 10 "## Traceability"
+
+# List all open architecture decisions
+gh issue list --label "type:architecture:decision" --state open
+```
+
 ## 🔍 Quality Assurance
 
 ### Automated Checks
 
 - **Standards compliance** checking via GitHub Actions
-- **Requirements traceability** validation
+- **Requirements traceability** validation (GitHub Issues API)
 - **Test coverage** enforcement (XP: >80%)
 - **Documentation completeness** checks
+- **Issue link validation** (bidirectional traceability)
 
 ### Review Gates
 
 Each phase includes:
+
 - ✅ Entry criteria checklist
 - ✅ Phase activities checklist
 - ✅ Exit criteria validation
 - ✅ Standards compliance review
+- ✅ Traceability validation (all requirements have tests)
 
 ## 📖 Documentation
 
@@ -246,6 +444,7 @@ Each phase includes:
 ## 🤝 Contributing
 
 This template is designed to be:
+
 - **Forked** for your organization
 - **Customized** to your processes
 - **Extended** with your practices
@@ -264,4 +463,6 @@ This template is designed to be:
 
 ---
 
-**Ready to build standards-compliant software with AI assistance? Start with Phase 01! 🚀**
+## 🚀 Get Started
+
+Ready to build standards-compliant software with AI assistance? Start with Phase 01!
