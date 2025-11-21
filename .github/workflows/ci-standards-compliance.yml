@@ -1,5 +1,26 @@
 name: CI - Standards Compliance & Quality Gates
 
+# 🏗️ COMPREHENSIVE CI/CD VALIDATION (10-15 min)
+# Full standards compliance validation with matrix testing across platforms
+#
+# 📋 Coverage:
+#   - GitHub Issues validation (requirements traceability)
+#   - Matrix testing: Windows/Linux/macOS × Debug/Release
+#   - Architecture compliance (ISO/IEC/IEEE 42010:2011)
+#   - Security scanning (Trivy, dependency audits)
+#   - Standards compliance reporting (ISO/IEC/IEEE 29148:2018, 12207:2017)
+#
+# 🔄 Workflow Strategy:
+#   1. traceability-check.yml: Fast traceability validation (2-3 min)
+#   2. This workflow: Complete CI/CD pipeline (10-15 min)
+#   
+#   On PRs, both workflows run in parallel:
+#   - Traceability check: Quick feedback with PR comment
+#   - This workflow: Full validation before merge
+#
+# ⚡ For fast traceability-only checks:
+#   → See .github/workflows/traceability-check.yml
+
 on:
   push:
     branches: [master, develop, "feature/**", "release/**"]
@@ -622,10 +643,7 @@ jobs:
           sarif_file: "trivy-results.sarif"
         continue-on-error: true
 
-  # Standards Compliance Report
   # Standards Compliance Summary Report
-  # Note: Separate traceability-check.yml provides lightweight PR/issue validation
-  # This workflow provides comprehensive CI/CD compliance validation
   compliance-report:
     needs:
       [

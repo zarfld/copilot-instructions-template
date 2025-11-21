@@ -1,17 +1,29 @@
 name: Traceability Validation
 
-# Lightweight traceability check triggered on PRs and issues
-# For comprehensive CI including tests and compliance, see ci-standards-compliance.yml
-# 
-# Purpose:
-#   - Fast feedback on PRs (comments with traceability summary)
-#   - Validates issue links when issues are created/edited
-#   - Complements full CI with targeted traceability checks
+# 🎯 LIGHTWEIGHT TRACEABILITY VALIDATION (2-3 min)
+# Complements ci-standards-compliance.yml with fast, focused traceability checks
 #
-# Triggers:
-#   - Pull requests (opened, synchronized, reopened)
-#   - Issues (opened, edited)
-#   - Manual dispatch
+# 📋 Purpose:
+#   - Fast feedback on PRs: Posts traceability summary comment
+#   - Issue validation: Checks traceability links when issues are created/edited
+#   - Early detection: Catches missing links before full CI runs
+#   - Reduced feedback loop: Quick validation without running tests
+#
+# 🔄 Workflow Strategy:
+#   1. This workflow: Fast traceability validation (on issue/PR events)
+#   2. ci-standards-compliance.yml: Full CI/CD with tests (on push/PR events)
+#   
+#   Both workflows run on PRs:
+#   - This workflow: Quick traceability check + PR comment
+#   - Full CI: Complete validation with matrix testing
+#
+# ⚡ Triggers:
+#   - Pull requests: opened, synchronized, reopened
+#   - Issues: opened, edited (validates links immediately)
+#   - Manual: workflow_dispatch
+#
+# 📊 For comprehensive CI/CD (tests, security, compliance):
+#   → See .github/workflows/ci-standards-compliance.yml
 
 on:
   pull_request:
