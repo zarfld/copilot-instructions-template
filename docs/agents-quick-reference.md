@@ -4,6 +4,7 @@
 
 ### Which agent should I use?
 
+**Lifecycle Phase Work:**
 ```
 ┌─ Defining requirements? → Requirements Analyst
 ├─ Designing architecture? → Architecture Strategist  
@@ -11,7 +12,17 @@
 └─ Need guidance? → Standards Compliance Advisor
 ```
 
+**Specialized Support Work:**
+```
+┌─ Need tests? → Testing Specialist
+├─ Need documentation? → Documentation Expert
+├─ Security concerns? → Security Analyst
+└─ General guidance? → Standards Compliance Advisor
+```
+
 ## 📋 Agents Overview
+
+### Lifecycle Phase Agents
 
 | Agent | Phase | Use When | Key Output |
 |-------|-------|----------|------------|
@@ -20,30 +31,54 @@
 | **Architecture Strategist** | 03 | Designing system structure | ADR, ARC-C, QA-SC issues, C4 diagrams |
 | **TDD Driver** | 05 | Writing code | Unit tests, production code, refactoring |
 
+### Specialized Support Agents
+
+| Agent | Focus | Use When | Key Output |
+|-------|-------|----------|------------|
+| **Testing Specialist** | Test quality & coverage | Need tests or coverage analysis | Unit/integration/e2e tests, coverage reports |
+| **Documentation Expert** | Technical writing | Need API docs, guides, or ADRs | API documentation, user guides, tutorials |
+| **Security Analyst** | Vulnerability detection | Security concerns or code review | Security findings, threat models, mitigations |
+
 ## 💬 Example Prompts
 
-### Requirements Analyst
-```
-"Generate a REQ-F issue for user logout, tracing to StR-001"
-"Write user story for password reset with Given-When-Then acceptance criteria"
-"Validate this requirement for ISO 29148 compliance: [paste requirement]"
-```
+### Lifecycle Phase Agents
 
-### Architecture Strategist
-```
-"Generate an ADR issue for database selection, considering PostgreSQL vs MongoDB"
-"Create an ARC-C issue for the authentication service with interfaces"
-"Generate a quality scenario for availability testing under peak load"
-"Create a C4 context diagram showing authentication service dependencies"
-```
+**Requirements Analyst:**
+- "Generate a REQ-F issue for user logout, tracing to StR-001"
+- "Write user story for password reset with Given-When-Then acceptance criteria"
+- "Validate this requirement for ISO 29148 compliance: [paste requirement]"
 
-### TDD Driver
-```
-"Generate a unit test for requirement #2 (User Login) following TDD"
-"Write minimal code to make this failing test pass: [paste test]"
-"Refactor this code to remove duplication while keeping tests green"
-"Generate an integration test for user login with database connection"
-```
+**Architecture Strategist:**
+- "Generate an ADR issue for database selection, considering PostgreSQL vs MongoDB"
+- "Create an ARC-C issue for the authentication service with interfaces"
+- "Generate a quality scenario for availability testing under peak load"
+- "Create a C4 context diagram showing authentication service dependencies"
+
+**TDD Driver:**
+- "Generate a unit test for requirement #2 (User Login) following TDD"
+- "Write minimal code to make this failing test pass: [paste test]"
+- "Refactor this code to remove duplication while keeping tests green"
+- "Generate an integration test for user login with database connection"
+
+### Specialized Support Agents
+
+**Testing Specialist:**
+- "Analyze coverage and generate tests for untested code paths"
+- "Review these tests and suggest improvements following AAA pattern"
+- "Generate parameterized tests for this function with edge cases"
+- "Create integration tests for the authentication service"
+
+**Documentation Expert:**
+- "Generate API documentation for AuthService with all public methods"
+- "Create a getting-started guide for new developers"
+- "Document this architecture decision with alternatives and rationale"
+- "Write JSDoc comments for this class with usage examples"
+
+**Security Analyst:**
+- "Scan this code for SQL injection vulnerabilities"
+- "Review authentication implementation for security issues"
+- "Generate threat model for user authentication using STRIDE"
+- "Check for hardcoded secrets and weak password hashing"
 
 ## 🔄 Typical Workflow
 
