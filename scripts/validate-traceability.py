@@ -8,12 +8,15 @@ import pathlib, re, sys
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 REPORTS = ROOT / 'reports'
-MATRIX = REPORTS / 'traceability-matrix.md'
-ORPHANS = REPORTS / 'orphans.md'
+MATRIX = REPORTS / 'github-traceability.md'
+ORPHANS = REPORTS / 'orphan-check.log'
 
-if not MATRIX.exists() or not ORPHANS.exists():
-    print('Traceability artifacts missing. Run generate-traceability-matrix.py first.', file=sys.stderr)
+if not MATRIX.exists():
+    print('Traceability matrix missing. Run github-traceability-report.py first.', file=sys.stderr)
     sys.exit(1)
+
+if not ORPHANS.exists():
+    print('Warning: Orphan check report missing (non-critical).', file=sys.stderr)
 
 matrix = MATRIX.read_text(encoding='utf-8').splitlines()
 issues = []

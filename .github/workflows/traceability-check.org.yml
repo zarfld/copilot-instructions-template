@@ -1,18 +1,5 @@
 name: Traceability Validation
 
-# Lightweight traceability check triggered on PRs and issues
-# For comprehensive CI including tests and compliance, see ci-standards-compliance.yml
-# 
-# Purpose:
-#   - Fast feedback on PRs (comments with traceability summary)
-#   - Validates issue links when issues are created/edited
-#   - Complements full CI with targeted traceability checks
-#
-# Triggers:
-#   - Pull requests (opened, synchronized, reopened)
-#   - Issues (opened, edited)
-#   - Manual dispatch
-
 on:
   pull_request:
     types: [opened, synchronize, reopened]
@@ -24,8 +11,8 @@ jobs:
   validate-traceability:
     runs-on: ubuntu-latest
     permissions:
-      contents: read
       issues: read
+      contents: read
       pull-requests: write
     
     steps:
@@ -45,11 +32,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          python scripts/github-orphan-check.py || {
-            echo "\u26a0\ufe0f Orphan check needs GitHub Issues to be created first"
-            echo "See docs/QUICK-START-github-issues.md for issue creation workflow"
-            exit 0
-          }
+          python scripts/github-orphan-check.py
         continue-on-error: true
         id: orphan-check
       
@@ -58,18 +41,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           mkdir -p reports
-          python scripts/github-traceability-report.py > reports/traceability.md || {
-            echo "# Traceability Report" > reports/traceability.md
-            echo "" >> reports/traceability.md
-            echo "## Status: GitHub Issues Setup Required" >> reports/traceability.md
-            echo "" >> reports/traceability.md
-            echo "Traceability tracking via GitHub Issues is configured but no issues exist yet." >> reports/traceability.md
-            echo "" >> reports/traceability.md
-            echo "Next Steps:" >> reports/traceability.md
-            echo "1. Create issues using templates in .github/ISSUE_TEMPLATE/" >> reports/traceability.md
-            echo "2. Link issues using 'Traces to: #N' syntax" >> reports/traceability.md
-            echo "3. See docs/QUICK-START-github-issues.md for guidance" >> reports/traceability.md
-          }
+          python scripts/github-traceability-report.py > reports/traceability.md
       
       - name: Upload traceability report
         uses: actions/upload-artifact@v4

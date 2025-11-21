@@ -1,83 +1,137 @@
 #!/usr/bin/env python3
-"""Trace Unlinked Requirements Helper
+"""Trace Unlinked Requirements Helper (GitHub Issues)
 
 Purpose:
-  Identify requirement (REQ-*) identifiers that currently have NO linkage to any
-  Architecture Decision Record (ADR-*) according to the same symmetric
-  (forward + backward) inference model used by build_trace_json.py.
+  Identify requirement issues (REQ-F-*, REQ-NF-*) that currently have NO linkage to any
+  test issues (TEST-*) according to the GitHub Issues traceability model.
 
 Usage:
+  export GITHUB_TOKEN=ghp_xxx
   python scripts/trace_unlinked_requirements.py [--json | --markdown]
 
 Behavior:
-  - Consumes build/traceability.json if present (preferred)
-  - Falls back to build/spec-index.json and reconstructs the minimal linkage
-    model (forward + backward) for ADR relationships only.
-  - Emits a human readable summary by default.
-  - With --json outputs machine readable JSON list of unlinked requirement IDs.
-  - With --markdown outputs a markdown table (ID | Source Path | Title).
+  - Queries GitHub Issues API for requirements and tests
+  - Checks for "Verifies: #N" or "Traces to: #N" bidirectional links
+  - Emits a human readable summary by default
+  - With --json outputs machine readable JSON list of unlinked requirement IDs
+  - With --markdown outputs a markdown table (Issue | Title | Labels)
 
 Exit Codes:
   0 success (will still be 0 even if all requirements are linked)
-  1 missing prerequisite files and cannot proceed
+  1 missing GITHUB_TOKEN or API error
 
-This script is intentionally read-only; it does not modify any specs. It is a
-pre-step before judiciously adding a single justified ADR linkage to raise ADR
-coverage without artificial inflation.
+Standards: ISO/IEC/IEEE 29148:2018 (Requirements Traceability)
 """
 from __future__ import annotations
-import json, argparse, sys
+import json, argparse, sys, os, re
 from pathlib import Path
 from typing import Dict, List
+import requests
+
+GITHUB_TOKEN = os.environ.get('GITHUB_TOKEN')
+REPO_OWNER = os.environ.get('GITHUB_REPOSITORY', 'zarfld/copilot-instructions-template').split('/')[0]
+REPO_NAME = os.environ.get('GITHUB_REPOSITORY', 'zarfld/copilot-instructions-template').split('/')[1]
+API_BASE = f'https://api.github.com/repos/{REPO_OWNER}/{REPO_NAME}'
 
 ROOT = Path(__file__).resolve().parents[1]
-BUILD = ROOT / 'build'
-TRACE_FILE = BUILD / 'traceability.json'
-INDEX_FILE = BUILD / 'spec-index.json'
 
 
-def load_trace_details() -> Dict[str, dict]:
-    if TRACE_FILE.exists():
-        data = json.loads(TRACE_FILE.read_text(encoding='utf-8'))
-        m = data.get('metrics', {}).get('requirement_to_ADR', {})
-        details = m.get('details') or {}
-        if details:
-            # details format: rid -> {forward_refs: [...], reverse_refs: [...]}
-            return details
-    # Fallback: reconstruct from spec-index.json
-    if not INDEX_FILE.exists():
-        raise FileNotFoundError("Neither traceability.json nor spec-index.json exists; run spec_parser + build_trace_json first.")
-    idx = json.loads(INDEX_FILE.read_text(encoding='utf-8'))
-    items = idx.get('items', [])
-    forward = {i['id']: i.get('references', []) for i in items}
-    # Build reverse map requirement <- ADR
-    adr_to_reqs = {}
-    for itm in items:
-        iid = itm['id']
-        if iid.startswith('ADR'):
-            for ref in itm.get('references', []):
-                if ref.startswith('REQ'):
-                    adr_to_reqs.setdefault(ref, set()).add(iid)
-    details: Dict[str, dict] = {}
-    for itm in items:
-        rid = itm['id']
-        if not rid.startswith('REQ'):
-            continue
-        fwd = [r for r in forward.get(rid, []) if r.startswith('ADR')]
-        rev = sorted(list(adr_to_reqs.get(rid, set())))
-        details[rid] = {'forward_refs': fwd, 'reverse_refs': rev}
+def get_headers() -> Dict[str, str]:
+    """Get API request headers with authentication."""
+    headers = {
+        'Accept': 'application/vnd.github+json',
+        'X-GitHub-Api-Version': '2022-11-28'
+    }
+    if GITHUB_TOKEN:
+        headers['Authorization'] = f'Bearer {GITHUB_TOKEN}'
+    return headers
+
+
+def fetch_issues_by_label(label: str) -> List[Dict]:
+    """Fetch all issues with given label."""
+    issues = []
+    page = 1
+    
+    while True:
+        response = requests.get(
+            f'{API_BASE}/issues',
+            headers=get_headers(),
+            params={
+                'state': 'all',
+                'labels': label,
+                'per_page': 100,
+                'page': page
+            }
+        )
+        
+        if response.status_code != 200:
+            print(f"Error fetching issues: {response.status_code}", file=sys.stderr)
+            return issues
+        
+        page_issues = response.json()
+        if not page_issues:
+            break
+        
+        issues.extend(page_issues)
+        page += 1
+    
+    return issues
+
+
+def extract_test_links(issue_body: str) -> List[int]:
+    """Extract test issue links (Verifies: #N or Verified by: #N)."""
+    if not issue_body:
+        return []
+    
+    verifies = re.findall(r'[Vv]erifies?:?\s*#(\d+)', issue_body)
+    verified_by = re.findall(r'[Vv]erified\s+by:?\s*#(\d+)', issue_body)
+    
+    return [int(n) for n in verifies + verified_by]
+
+
+def load_trace_details() -> Dict[int, dict]:
+    """Load requirement and test issues from GitHub API."""
+    if not GITHUB_TOKEN:
+        raise ValueError("GITHUB_TOKEN environment variable required")
+    
+    print(f"Fetching requirements from {REPO_OWNER}/{REPO_NAME}...", file=sys.stderr)
+    
+    # Fetch requirement issues
+    req_issues = []
+    for label in ['type:requirement:functional', 'type:requirement:non-functional']:
+        req_issues.extend(fetch_issues_by_label(label))
+    
+    # Fetch test issues
+    test_issues = fetch_issues_by_label('type:test-case')
+    
+    # Build mapping: test_issue_number -> list of requirement numbers it verifies
+    test_to_reqs = {}
+    for test in test_issues:
+        test_links = extract_test_links(test.get('body', ''))
+        test_to_reqs[test['number']] = test_links
+    
+    # Build details: req_number -> {forward_refs: tests it links to, reverse_refs: tests that link to it}
+    details: Dict[int, dict] = {}
+    for req in req_issues:
+        req_num = req['number']
+        
+        # Forward: requirements linking to tests (via "Verified by: #N")
+        fwd_tests = extract_test_links(req.get('body', ''))
+        
+        # Reverse: tests linking to this requirement (via "Verifies: #N")
+        rev_tests = [test_num for test_num, reqs in test_to_reqs.items() if req_num in reqs]
+        
+        details[req_num] = {
+            'forward_refs': fwd_tests,
+            'reverse_refs': rev_tests,
+            'title': req['title'],
+            'url': req['html_url'],
+            'labels': [l['name'] for l in req['labels']]
+        }
+    
+    print(f"Found {len(req_issues)} requirements, {len(test_issues)} tests", file=sys.stderr)
+    
     return details
-
-
-def enrich_with_source_metadata(req_ids: List[str]) -> Dict[str, dict]:
-    """Return mapping id -> {path, title} using spec-index.json metadata."""
-    meta = {}
-    if INDEX_FILE.exists():
-        idx = json.loads(INDEX_FILE.read_text(encoding='utf-8'))
-        for itm in idx.get('items', []):
-            if itm['id'] in req_ids:
-                meta[itm['id']] = {'path': itm.get('path'), 'title': itm.get('title')}
-    return meta
 
 
 def main(argv: List[str]) -> int:
@@ -89,42 +143,55 @@ def main(argv: List[str]) -> int:
 
     try:
         details = load_trace_details()
-    except FileNotFoundError as e:
+    except ValueError as e:
+        print(f"ERROR: {e}", file=sys.stderr)
+        return 1
+    except Exception as e:
         print(f"ERROR: {e}", file=sys.stderr)
         return 1
 
     unlinked = [rid for rid, d in details.items() if not d['forward_refs'] and not d['reverse_refs']]
     unlinked.sort()
-    meta = enrich_with_source_metadata(unlinked)
 
     if args.json:
         payload = []
         for rid in unlinked:
-            info = meta.get(rid, {})
-            payload.append({'id': rid, **info})
+            info = details[rid]
+            payload.append({
+                'issue': rid,
+                'title': info['title'],
+                'url': info['url'],
+                'labels': info['labels']
+            })
         print(json.dumps({'unlinked_requirements': payload, 'count': len(unlinked)}, indent=2))
         return 0
 
     if args.markdown:
-        print('| Requirement ID | Title | Source Path |')
-        print('|---------------|-------|-------------|')
+        print('| Issue # | Title | Labels |')
+        print('|---------|-------|--------|')
         for rid in unlinked:
-            info = meta.get(rid, {})
-            title = (info.get('title') or '').replace('|','\\|')
-            path = (info.get('path') or '').replace('|','\\|')
-            print(f'| {rid} | {title} | {path} |')
+            info = details[rid]
+            title = info['title'].replace('|','\\|')
+            labels_str = ', '.join(info['labels'][:2])
+            if len(info['labels']) > 2:
+                labels_str += f" +{len(info['labels']) - 2}"
+            print(f'| [#{rid}]({info["url"]}) | {title} | {labels_str} |')
         print(f"\nTotal unlinked requirements: {len(unlinked)}")
         return 0
 
     # Default human readable summary
-    print('Unlinked Requirements (no ADR forward or backward references found):')
+    print('Unlinked Requirements (no TEST issue forward or backward references found):')
     if not unlinked:
-        print('  (none)')
+        print('  ✅ All requirements have test coverage links')
     else:
         for rid in unlinked:
-            info = meta.get(rid, {})
-            print(f"  - {rid}  ({info.get('title','?')})  [{info.get('path','?')}]")
-    print(f"Count: {len(unlinked)}")
+            info = details[rid]
+            print(f"  ❌ Issue #{rid}: {info['title']}")
+            print(f"     URL: {info['url']}")
+    print(f"\nTotal: {len(unlinked)} requirement(s) without test links")
+    print(f"\n💡 Add traceability links using:")
+    print(f"   In requirement issue: '**Verified by**: #TEST_ISSUE_NUMBER'")
+    print(f"   In test issue: '**Verifies**: #REQUIREMENT_ISSUE_NUMBER'")
     return 0
 
 

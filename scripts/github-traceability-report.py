@@ -26,18 +26,33 @@ from collections import defaultdict
 
 GITHUB_TOKEN = os.environ.get('GITHUB_TOKEN')
 REPO_OWNER = 'zarfld'
-REPO_NAME = 'copilot-instructions-template'
+REPO_NAME = 'ESP_ClapMetronome'
 API_BASE = f'https://api.github.com/repos/{REPO_OWNER}/{REPO_NAME}'
 
 # Label categories for filtering
+# This project uses COLON-SEPARATED label schemes (verified via GitHub API):
+# 1. Type labels: type:stakeholder-requirement, type:requirement:functional, etc.
+# 2. Phase labels: phase:01-stakeholder-requirements, phase:02-requirements, phase:03-architecture, etc.
 REQUIREMENT_LABELS = [
-    'stakeholder-requirement',
-    'functional-requirement',
-    'non-functional',
-    'architecture-decision',
-    'architecture-component',
-    'quality-scenario',
-    'test-case'
+    # Type labels (colon-separated, verified in repository):
+    'type:stakeholder-requirement',
+    'type:requirement:functional',
+    'type:requirement:non-functional',
+    'type:architecture:decision',
+    'type:architecture:component',
+    'type:architecture:quality-scenario',
+    'type:test-plan',
+    'type:test-case',
+    # Phase labels (colon-separated after "phase", verified in repository):
+    'phase:01-stakeholder-requirements',
+    'phase:02-requirements',
+    'phase:03-architecture',
+    'phase:04-design',
+    'phase:05-implementation',
+    'phase:06-integration',
+    'phase:07-verification-validation',
+    'phase:08-transition',
+    'phase:09-operation-maintenance',
 ]
 
 def get_headers() -> Dict[str, str]:
@@ -131,23 +146,46 @@ def extract_links(issue_body: str) -> Dict[str, List[int]]:
         'refined_by': [int(n) for n in refined_by]
     }
 
-def get_requirement_type(labels: List[str]) -> str:
-    """Determine requirement type from labels.
+def get_requirement_type(title: str, labels: List[str]) -> str:
+    """Determine requirement type from issue title prefix and labels.
+    
+    This project uses title prefixes (StR-001, REQ-F-001, etc.) as the primary
+    identifier for requirement types, as seen in the issue templates.
     
     Args:
+        title: Issue title (e.g., "REQ-F-001: Audio Clap Detection")
         labels: List of label names
     
     Returns:
         Requirement type abbreviation (StR, REQ-F, etc.)
     """
+    # Extract type from title prefix (primary method)
+    import re
+    match = re.match(r'^(StR|REQ-F|REQ-NF|ADR|ARC-C|QA-SC|TEST|TEST-PLAN|DES-[A-Z])', title)
+    if match:
+        prefix = match.group(1)
+        # Normalize design prefixes
+        if prefix.startswith('DES-'):
+            return 'DESIGN'
+        return prefix
+    
+    # Fallback: check labels for type information
     label_map = {
-        'stakeholder-requirement': 'StR',
-        'functional-requirement': 'REQ-F',
-        'non-functional': 'REQ-NF',
-        'architecture-decision': 'ADR',
-        'architecture-component': 'ARC-C',
-        'quality-scenario': 'QA-SC',
-        'test-case': 'TEST'
+        # Type labels (colon-separated as they exist in GitHub)
+        'type:stakeholder-requirement': 'StR',
+        'type:requirement:functional': 'REQ-F',
+        'type:requirement:non-functional': 'REQ-NF',
+        'type:architecture:decision': 'ADR',
+        'type:architecture:component': 'ARC-C',
+        'type:architecture:quality-scenario': 'QA-SC',
+        'type:test-case': 'TEST',
+        'type:test-plan': 'TEST-PLAN',
+        # Phase labels (colon after "phase" as they exist in GitHub)
+        'phase:01-stakeholder-requirements': 'StR',
+        'phase:02-requirements': 'REQ',
+        'phase:03-architecture': 'ARCH',
+        'phase:04-design': 'DESIGN',
+        'phase:07-verification-validation': 'TEST',
     }
     
     for label in labels:
@@ -172,7 +210,7 @@ def generate_matrix():
     state_counts = defaultdict(int)
     for issue in issues:
         labels = [label['name'] for label in issue['labels']]
-        req_type = get_requirement_type(labels)
+        req_type = get_requirement_type(issue['title'], labels)
         type_counts[req_type] += 1
         state_counts[issue['state']] += 1
     
@@ -190,7 +228,7 @@ def generate_matrix():
     
     for issue in sorted(issues, key=lambda x: x['number']):
         labels = [label['name'] for label in issue['labels']]
-        req_type = get_requirement_type(labels)
+        req_type = get_requirement_type(issue['title'], labels)
         links = extract_links(issue.get('body', ''))
         
         # Format link lists
@@ -214,7 +252,7 @@ def generate_matrix():
     orphans = []
     for issue in issues:
         labels = [label['name'] for label in issue['labels']]
-        req_type = get_requirement_type(labels)
+        req_type = get_requirement_type(issue['title'], labels)
         links = extract_links(issue.get('body', ''))
         
         # StR issues should not have parent links
@@ -249,7 +287,7 @@ def generate_matrix():
     unverified = []
     for issue in issues:
         labels = [label['name'] for label in issue['labels']]
-        req_type = get_requirement_type(labels)
+        req_type = get_requirement_type(issue['title'], labels)
         
         if req_type in ['REQ-F', 'REQ-NF']:
             if issue['number'] not in verified_reqs:
