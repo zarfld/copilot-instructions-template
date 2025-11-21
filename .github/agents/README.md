@@ -116,6 +116,100 @@ This directory contains specialized GitHub Copilot agents configured for each ph
 
 ---
 
+## 🛠️ Specialized Support Agents
+
+### Testing Specialist
+**File**: [`testing-specialist.md`](./testing-specialist.md)  
+**Model**: `reasoning`  
+**Focus**: Test quality, coverage, and test generation  
+**Boundary**: Write-only to `tests/` directory
+
+**When to use**:
+- Analyzing test coverage gaps
+- Generating unit/integration/e2e tests
+- Improving test quality
+- Fixing flaky tests
+- Creating test data builders
+
+**Key capabilities**:
+- Analyze coverage reports and identify untested code
+- Generate tests with AAA pattern (Arrange-Act-Assert)
+- Create parameterized tests for multiple scenarios
+- Write test data builders and fixtures
+- Recommend test improvements
+- Target >80% coverage
+
+**Example prompts**:
+```
+"Analyze coverage and generate tests for untested code paths in AuthService"
+"Create parameterized tests for email validation with valid/invalid cases"
+"Generate integration test for user login with database interaction"
+```
+
+---
+
+### Documentation Expert
+**File**: [`documentation-expert.md`](./documentation-expert.md)  
+**Model**: `reasoning`  
+**Focus**: Technical writing, API docs, user guides  
+**Boundary**: Read-only `src/`, write-only `docs/`
+
+**When to use**:
+- Creating API documentation
+- Writing user guides and tutorials
+- Documenting architecture (ADRs, C4 diagrams)
+- Generating code comments (JSDoc/TSDoc)
+- Creating troubleshooting guides
+
+**Key capabilities**:
+- Generate API reference documentation
+- Write getting-started guides with examples
+- Create Architecture Decision Records (ADRs)
+- Document code with JSDoc/TSDoc/docstrings
+- Write troubleshooting guides
+- Create OpenAPI/Swagger specifications
+
+**Example prompts**:
+```
+"Generate API documentation for AuthService with all public methods"
+"Write a getting-started guide for the authentication package"
+"Create an ADR for JWT authentication with alternatives considered"
+"Add JSDoc comments to all public methods with examples"
+```
+
+---
+
+### Security Analyst
+**File**: [`security-analyst.md`](./security-analyst.md)  
+**Model**: `reasoning`  
+**Focus**: Vulnerability detection, security risk analysis  
+**Standards**: OWASP Top 10, CWE, CVE
+
+**When to use**:
+- Scanning code for vulnerabilities
+- Performing threat modeling (STRIDE)
+- Auditing dependencies for CVEs
+- Reviewing secure coding practices
+- Detecting hardcoded secrets
+
+**Key capabilities**:
+- Detect SQL injection, XSS, CSRF vulnerabilities
+- Identify hardcoded secrets (API keys, passwords)
+- Scan dependencies for known CVEs
+- Perform threat modeling (STRIDE framework)
+- Generate security findings with severity ratings
+- Recommend secure alternatives and mitigations
+
+**Example prompts**:
+```
+"Scan this code for SQL injection vulnerabilities"
+"Identify hardcoded secrets in this repository"
+"Perform threat modeling for the authentication service using STRIDE"
+"Review this code for OWASP Top 10 vulnerabilities"
+```
+
+---
+
 ## 🎯 Agent Selection Guide
 
 Use this decision tree to choose the right agent:
@@ -133,6 +227,12 @@ Use this decision tree to choose the right agent:
 │
 ├─ "Writing code"
 │  └─ Phase 05 → TDD Driver
+│
+├─ "Need tests" → Testing Specialist
+│
+├─ "Need documentation" → Documentation Expert
+│
+├─ "Security concerns" → Security Analyst
 │
 ├─ "Need help with all phases" → Standards Compliance Advisor
 │
@@ -168,12 +268,22 @@ Use this decision tree to choose the right agent:
 
 ## 📊 Agent Comparison
 
+### Lifecycle Phase Agents
+
 | Agent | Phase | Standards | Key Deliverables | Model |
 |-------|-------|-----------|------------------|-------|
 | **Standards Compliance Advisor** | All (01-09) | ISO 12207, 29148, 42010, IEEE 1016, 1012 | Phase guidance, traceability validation | `reasoning` |
 | **Requirements Analyst** | 01-02 | ISO/IEC/IEEE 29148:2018 | StR, REQ-F, REQ-NF issues, user stories | `reasoning` |
 | **Architecture Strategist** | 03 | ISO/IEC/IEEE 42010:2011 | ADR, ARC-C, QA-SC issues, C4 diagrams | `reasoning` |
 | **TDD Driver** | 05 | XP Practices (TDD, CI) | Unit tests, production code, refactoring | `reasoning` |
+
+### Specialized Support Agents
+
+| Agent | Focus Area | Boundary | Key Deliverables | Model |
+|-------|------------|----------|------------------|-------|
+| **Testing Specialist** | Test quality & coverage | Write-only `tests/` | Unit/integration/e2e tests, coverage reports | `reasoning` |
+| **Documentation Expert** | Technical writing | Read `src/`, write `docs/` | API docs, user guides, ADRs | `reasoning` |
+| **Security Analyst** | Vulnerability detection | Read-only code scan | Security findings, threat models | `reasoning` |
 
 ## 🛠️ Configuration
 
