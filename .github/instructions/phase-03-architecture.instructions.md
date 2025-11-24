@@ -257,26 +257,25 @@ is:issue label:architecture-decision label:security
 is:issue label:architecture-component
 ```
 
-### 📁 ALTERNATIVE: File-Based (YAML Front Matter Required)
+### 📝 Supplementary Documentation (Optional)
 
-If using file-based specifications:
+While **GitHub Issues (ADR, ARC-C, QA-SC) are the single source of truth** for architecture decisions and components, you may create supplementary files in `03-architecture/` for:
+- Detailed C4 diagrams (Context, Container, Component, Code)
+- Architecture viewpoint documentation
+- Reference architecture patterns
+- Cross-cutting concerns analysis
 
-**Schema**: `spec-kit-templates/schemas/architecture-spec.schema.json`
+**Critical Rule**: All supplementary files MUST reference the canonical GitHub Issue(s) using `#N` syntax.
 
-```yaml
----
-specType: architecture
-standard: 42010
-phase: 03-architecture
-version: 1.0.0
-author: [Your Name]
-date: 2025-MM-DD
-status: draft  # draft | review | approved | deprecated
-traceability:
----
+**Example**: A C4 diagram file should reference:
+```markdown
+# Authentication Service - Component Diagram
+
+**Architecture Component**: #79 (ARC-C-AUTH)
+**Architecture Decision**: #78 (ADR-SECU-001: JWT Authentication)
+
+[Diagram content...]
 ```
-
-**Note**: GitHub Issues is the recommended approach for architecture documentation.
 
 ## 📋 ISO/IEC/IEEE 42010:2011 Compliance
 

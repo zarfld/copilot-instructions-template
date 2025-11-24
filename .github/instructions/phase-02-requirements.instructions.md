@@ -18,34 +18,18 @@ applyTo: "02-requirements/**"
 
 ## 📋 Requirements Capture Method
 
-### Primary: GitHub Issues (No YAML Front Matter Needed)
+### GitHub Issues (Primary and Recommended)
 
-When using **GitHub Issues** for requirements tracking:
-- ✅ **No YAML front matter required** - metadata captured via issue fields, labels, and project columns
+**All requirements MUST be captured as GitHub Issues** using the Functional Requirement (REQ-F) or Non-Functional Requirement (REQ-NF) templates.
+
+**Benefits**:
+- ✅ No YAML front matter required - metadata captured via issue fields, labels, and project columns
 - ✅ Traceability via `#N` syntax in issue bodies
 - ✅ ISO/IEC/IEEE 29148:2018 compliance via issue templates
 - ✅ Automated validation via GitHub Actions
-
-### Alternative: File-Based (YAML Front Matter Required)
-
-If using **file-based markdown specifications**, follow YAML front matter schema:
-
-**Schema**: `spec-kit-templates/schemas/requirements-spec.schema.json`
-
-```yaml
----
-specType: requirements
-standard: 29148
-phase: 02-requirements
-version: 1.0.0
-author: [Your Name]
-date: 2025-MM-DD
-status: draft  # draft | review | approved | deprecated
-traceability:
----
-```
-
-**Note**: File-based approach is legacy. GitHub Issues is the recommended approach for new projects.
+- ✅ Real-time collaboration and discussion
+- ✅ Integration with pull requests and CI/CD
+- ✅ Searchable and filterable with labels and milestones
 
 ## 📋 ISO/IEC/IEEE 29148:2018 Compliance
 
@@ -289,71 +273,19 @@ python scripts/github-traceability-report.py --type requirements --output SyRS.m
 
 Produces ISO/IEC/IEEE 29148-compliant specification document from issues.
 
-### 📁 ALTERNATIVE: File-Based Documentation
+### 📝 Supplementary Documentation Files
 
-If GitHub Issues are not yet configured, use file-based documentation:
+While **GitHub Issues are the single source of truth**, you may create supplementary markdown files in `02-requirements/` folders for:
+- Detailed use case descriptions (reference issue #N)
+- Complex domain models and diagrams
+- Background research and analysis
+- Reference documentation
 
-### 1. System Requirements Specification (SyRS)
-**Location**: `system-requirements-specification.md`
+**Critical Rule**: All supplementary files MUST reference the canonical GitHub Issue(s) using `#N` syntax.
 
-```markdown
-# System Requirements Specification
-
-## 1. Introduction
-### 1.1 Purpose
-### 1.2 Scope
-### 1.3 Definitions, Acronyms, Abbreviations
-### 1.4 References
-### 1.5 Overview
-
-## 2. Functional Requirements
-### 2.1 [Feature Category 1]
-#### REQ-F-001: [Requirement Title]
-- **Trace to**: StR-XXX
-- **Description**: [What the system shall do]
-- **Priority**: Critical/High/Medium/Low
-- **Rationale**: [Why needed]
-- **Acceptance Criteria**:
-  - Given [precondition]
-  - When [action]
-  - Then [expected result]
-- **Dependencies**: REQ-XXX
-- **Assumptions**: [If any]
-
-## 3. Non-Functional Requirements
-### 3.1 Performance Requirements
-#### REQ-NF-001: [Performance Requirement]
-- **Trace to**: StR-XXX
-- **Metric**: [Measurable metric]
-- **Target**: [Specific value]
-- **Acceptance Test**: [How to verify]
-
-### 3.2 Security Requirements
-### 3.3 Usability Requirements
-### 3.4 Reliability Requirements
-### 3.5 Maintainability Requirements
-### 3.6 Portability Requirements
-### 3.7 Scalability Requirements
-
-## 4. System Interfaces
-### 4.1 User Interfaces
-### 4.2 Hardware Interfaces
-### 4.3 Software Interfaces
-### 4.4 Communication Interfaces
-
-## 5. Constraints
-### 5.1 Design Constraints
-### 5.2 Implementation Constraints
-### 5.3 Interface Constraints
-
-## 6. Traceability Matrix
-| System Req | Stakeholder Req | Priority | Status |
-|------------|----------------|----------|--------|
-| REQ-F-001  | StR-001        | High     | Draft  |
-```
-
-### 2. Use Cases
+### 1. Use Cases (Optional Supplements to Issues)
 **Location**: `use-cases/UC-XXX-[name].md`
+**References**: Must link to REQ-F issue(s)
 
 Follow "Writing Effective Use Cases" (Alistair Cockburn) format:
 

@@ -1,5 +1,16 @@
 # Spec-Driven Development with GitHub Copilot
 
+> **⚠️ DEPRECATED**: This document describes the **legacy file-based spec-driven workflow**.
+>
+> **Current Approach**: Use **GitHub Issues** as the single source of truth for specifications.
+> - Create StR, REQ-F, REQ-NF, ADR, ARC-C, and TEST issues
+> - Reference issues using `#N` syntax in code and documentation
+> - See: [GitHub Issues Workflow](improvement_ideas/using_github_issues_as_infrastructure_for_REQ_Tracability.md)
+>
+> This document is kept for historical reference only.
+
+---
+
 This template integrates **spec-driven development** as described in the [GitHub Blog post](https://github.blog/ai-and-ml/generative-ai/spec-driven-development-using-markdown-as-a-programming-language-when-building-with-ai/) by Tomas Vesely (@wham).
 
 ## 📝 Overview

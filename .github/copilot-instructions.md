@@ -397,24 +397,28 @@ Use structured questions:
 **Impact**: [Explain why these answers matter]
 ```
 
-## 📚 Spec-Driven Development
+## 📚 Issue-Driven Development
 
-Use markdown specifications as "programming language":
+Use GitHub Issues as the source of truth for requirements, architecture, and tests:
 
-1. **Requirements Spec** → Generates test cases
-2. **Design Spec** → Generates code structure
-3. **Test Spec** → Generates test implementations
-4. **API Spec** → Generates interface code
+1. **Stakeholder Requirement (StR) Issue** → Drives system requirements
+2. **Functional/Non-Functional Requirement (REQ-F/REQ-NF) Issues** → Generate test cases
+3. **Architecture Decision (ADR) Issues** → Drive design decisions
+4. **Architecture Component (ARC-C) Issues** → Generate code structure
+5. **Test Case (TEST) Issues** → Generate test implementations
 
-### Spec Template Usage
+### Workflow
 
-```bash
-# Use template from spec-kit-templates/
-cp spec-kit-templates/requirements-spec.md 02-requirements/functional/new-feature.md
-
-# Fill in specification
-# Generate code from spec using Copilot
+```markdown
+1. Create StR issue for business need (#1)
+2. Create REQ-F issues linked to StR (#2, #3)
+3. Create ADR and ARC-C issues for architecture (#5, #6)
+4. Implement with TDD (PR links to issues)
+5. Create TEST issues to verify requirements (#10, #11)
+6. Close issues when verified and deployed
 ```
+
+**All artifacts reference GitHub Issues using `#N` syntax for bidirectional traceability.**
 
 ## 🎯 Success Criteria
 

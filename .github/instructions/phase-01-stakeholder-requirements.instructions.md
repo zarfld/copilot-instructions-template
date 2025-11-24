@@ -168,34 +168,24 @@ Or via GitHub MCP:
 List all stakeholder requirements (label: stakeholder-requirement)
 ```
 
-### 📁 ALTERNATIVE: File-Based Documentation
+### 📝 Supplementary Documentation (Optional)
 
-If GitHub Issues are not yet configured, use file-based documentation:
+While **GitHub Issues are the single source of truth** for stakeholder requirements, you may create supplementary files in `01-stakeholder-requirements/` for:
+- Stakeholder register summary (must reference issues)
+- Business context diagrams and models
+- Background research and analysis
 
-### 1. Stakeholder Register
-**Location**: `stakeholders/stakeholder-register.md`
+**Critical Rule**: All supplementary files MUST reference the canonical GitHub Issue(s) using `#N` syntax.
 
+**Example Reference in File**:
 ```markdown
 # Stakeholder Register
 
-## Stakeholder Classes
-
-### [Class Name] (e.g., End Users, Operations Team, Executives)
-- **Description**: [Role description]
-- **Representatives**: [Names/Roles]
-- **Concerns**: [Key interests and concerns]
-- **Influence**: [High/Medium/Low]
-- **Interest Level**: [High/Medium/Low]
-- **Communication Needs**: [How and when to engage]
+See GitHub Issues for authoritative stakeholder requirements:
+- #1 (StR: Multi-language support)
+- #2 (StR: Mobile-first experience)
+- #3 (StR: GDPR compliance)
 ```
-
-### 2. Business Context Document
-**Location**: `business-context/business-context.md`
-
-Must include (per ISO/IEC/IEEE 29148):
-- Business opportunity or problem
-- Business goals and objectives
-- Success criteria and measures
 - Market analysis
 - Competitive landscape
 - Business constraints
@@ -220,51 +210,9 @@ This produces a markdown report structured per ISO/IEC/IEEE 29148:
 - Acceptance criteria summary
 - Status dashboard
 
-#### With File-Based Approach
-
-**Location**: `stakeholder-requirements-specification.md`
-
-Structure per ISO/IEC/IEEE 29148:
-
-```markdown
-# Stakeholder Requirements Specification
-
-## 1. Introduction
-### 1.1 Purpose
-### 1.2 Scope
-### 1.3 Definitions, Acronyms, Abbreviations
-### 1.4 References
-### 1.5 Overview
-
-## 2. Stakeholder Requirements
-### 2.1 [Requirement Category 1]
-#### StR-001: [Requirement Title]
-- **Source**: [Stakeholder class]
-- **Priority**: Critical/High/Medium/Low
-- **Rationale**: [Why this requirement exists]
-- **Acceptance Criteria**: [How to verify]
-- **Dependencies**: [Related requirements]
-- **Constraints**: [Limitations]
-
-### 2.2 [Requirement Category 2]
-...
-
-## 3. Business Context
-### 3.1 Business Opportunity
-### 3.2 Business Goals
-### 3.3 Success Criteria
-
-## 4. Assumptions and Constraints
-### 4.1 Assumptions
-### 4.2 Constraints
-### 4.3 Dependencies
-
-## 5. Acceptance Criteria
-```
-
 ### 4. Initial User Stories
 
-#### With GitHub Issues (Recommended)
+**All user stories MUST be captured as GitHub Issues**.
 
 User stories can be captured as **Stakeholder Requirement issues** with the user story format in the title:
 
@@ -282,22 +230,6 @@ Link epic stories by creating parent-child relationships:
 - **Epic**: #5 (Multi-Language Support Epic)
 - **Refined by**: #23, #24, #25 (child stories for specific languages)
 ```
-
-#### With File-Based Approach
-
-**Location**: `user-stories/`
-
-Create high-level epic stories:
-```markdown
-# Epic: [Epic Name]
-
-## User Story
-As a [stakeholder role]
-I want [goal]
-So that [business value]
-
-## Business Value
-[Why this matters - ROI, competitive advantage, etc.]
 
 ## Acceptance Criteria
 Given [context]
@@ -456,15 +388,6 @@ python scripts/github-traceability-report.py
 
 # Find orphaned requirements
 python scripts/github-orphan-check.py
-```
-
-### With File-Based Approach
-
-Establish forward traceability:
-```
-StR-XXX (Stakeholder Requirement)
-  ↓
-[Next Phase: System Requirements - REQ-XXX]
 ```
 
 ## 📚 Standards References

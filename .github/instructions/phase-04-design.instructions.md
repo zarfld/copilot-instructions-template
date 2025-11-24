@@ -87,35 +87,26 @@ class UserService {
 - Strategy Pattern for password hashing algorithms
 ```
 
-### 📁 ALTERNATIVE: File-Based (YAML Front Matter Required)
+### 📝 Supplementary Design Documentation (Optional)
 
-**Schema**: `spec-kit-templates/schemas/ieee-design-spec.schema.json`
+While **GitHub Issues (ARC-C components) are the single source of truth**, you may create detailed design files in `04-design/` for:
+- Detailed class diagrams and UML
+- Complex algorithms and pseudocode
+- Data structure specifications
+- Interface contracts and protocols
 
-```yaml
----
-title: "Component Design Specification Title"
-type: "design_specification"
-standard: "IEEE 1588-2019"
-phase: "04-design"
-component: "component-name"
-version: "1.0"
-date: "2025-MM-DD"
-author: "Your Name"
-status: "draft"
-compliance:
-  section: "Software Design Description"
-traceability:
----
+**Critical Rule**: All design files MUST reference the architecture component issue(s) using `#N` syntax.
+
+**Example Header for Design File**:
+```markdown
+# UserService - Detailed Design
+
+**Architecture Component**: #79 (ARC-C-AUTH: User Authentication Service)
+**Architecture Decisions**: #78 (ADR-SECU-001: JWT Authentication)
+**Requirements**: #45 (REQ-F-AUTH-001), #46 (REQ-NF-SECU-002)
+
+[Design content...]
 ```
-
-**Note**: Linking to GitHub Issues is recommended for seamless traceability.
-
-ENFORCEMENT:
-- Use "type: design_specification" NOT "specType: design" 
-- Version format is "X.Y" NOT semver "X.Y.Z"
-- Traceability IDs must match exact regex patterns
-- Reference authoritative schema file for any questions
-- Validation will FAIL if format deviates from schema
 
 ## 📋 IEEE 1016-2009 Compliance
 
