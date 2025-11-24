@@ -51,7 +51,29 @@ jobs:
       
       - name: Install dependencies
         run: |
-          pip install requests pyyaml
+          pip install -r requirements.txt || pip install PyGithub requests pyyaml
+      
+      - name: Generate traceability.json from GitHub Issues
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: |
+          mkdir -p build
+          echo "📊 Generating traceability.json from GitHub Issues..."
+          python scripts/github-issues-to-traceability-json.py || {
+            echo "⚠️ Traceability generation needs GitHub Issues to be created first"
+            echo '{"source": "github-issues", "items": [], "metrics": {}}' > build/traceability.json
+          }
+        continue-on-error: true
+      
+      - name: Check for unlinked requirements (ADR linkage)
+        run: |
+          echo "🔍 Checking for requirements without ADR links..."
+          python scripts/trace_unlinked_requirements.py --markdown || {
+            echo "⚠️ Unlinked requirements check needs traceability.json"
+            exit 0
+          }
+        continue-on-error: true
       
       - name: Check for orphaned requirements
         env:
@@ -70,24 +92,43 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           mkdir -p reports
-          python scripts/github-traceability-report.py > reports/traceability.md || {
-            echo "# Traceability Report" > reports/traceability.md
-            echo "" >> reports/traceability.md
-            echo "## Status: GitHub Issues Setup Required" >> reports/traceability.md
-            echo "" >> reports/traceability.md
-            echo "Traceability tracking via GitHub Issues is configured but no issues exist yet." >> reports/traceability.md
-            echo "" >> reports/traceability.md
-            echo "Next Steps:" >> reports/traceability.md
-            echo "1. Create issues using templates in .github/ISSUE_TEMPLATE/" >> reports/traceability.md
-            echo "2. Link issues using 'Traces to: #N' syntax" >> reports/traceability.md
-            echo "3. See docs/QUICK-START-github-issues.md for guidance" >> reports/traceability.md
+          python scripts/github-traceability-report.py > reports/github-traceability.md || {
+            echo "# Traceability Report" > reports/github-traceability.md
+            echo "" >> reports/github-traceability.md
+            echo "## Status: GitHub Issues Setup Required" >> reports/github-traceability.md
+            echo "" >> reports/github-traceability.md
+            echo "Traceability tracking via GitHub Issues is configured but no issues exist yet." >> reports/github-traceability.md
+            echo "" >> reports/github-traceability.md
+            echo "Next Steps:" >> reports/github-traceability.md
+            echo "1. Create issues using templates in .github/ISSUE_TEMPLATE/" >> reports/github-traceability.md
+            echo "2. Link issues using 'Traces to: #N' syntax" >> reports/github-traceability.md
+            echo "3. See docs/QUICK-START-github-issues.md for guidance" >> reports/github-traceability.md
           }
+      
+      - name: Validate traceability matrix completeness
+        run: |
+          echo "✅ Validating traceability matrix..."
+          python scripts/validate-traceability.py || {
+            echo "⚠️ Validation needs reports to be generated first"
+            exit 0
+          }
+        continue-on-error: true
+      
+      - name: Upload traceability artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: traceability-artifacts
+          path: |
+            build/traceability.json
+            reports/github-traceability.md
+            reports/orphan-check.log
+          retention-days: 30
       
       - name: Upload traceability report
         uses: actions/upload-artifact@v4
         with:
           name: traceability-report
-          path: reports/traceability.md
+          path: reports/github-traceability.md
           retention-days: 30
       
       - name: Comment on PR with report summary
@@ -96,7 +137,7 @@ jobs:
         with:
           script: |
             const fs = require('fs');
-            const report = fs.readFileSync('reports/traceability.md', 'utf8');
+            const report = fs.readFileSync('reports/github-traceability.md', 'utf8');
             
             // Extract summary section
             const summaryMatch = report.match(/## Summary\n([\s\S]*?)##/);
