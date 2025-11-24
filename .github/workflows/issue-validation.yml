@@ -14,11 +14,11 @@ jobs:
       contains(github.event.issue.labels.*.name, 'architecture-component') ||
       contains(github.event.issue.labels.*.name, 'quality-scenario') ||
       contains(github.event.issue.labels.*.name, 'test-case')
-    
+
     permissions:
       issues: write
       contents: read
-    
+
     steps:
       - name: Check parent link for requirements
         uses: actions/github-script@v7
@@ -27,39 +27,39 @@ jobs:
             const issue = context.payload.issue;
             const body = issue.body || '';
             const labels = issue.labels.map(l => l.name);
-            
+
             // Stakeholder requirements (StR) don't need parent links
             if (labels.includes('stakeholder-requirement')) {
               console.log('✅ StR issue - parent link not required');
               return;
             }
-            
+
             // Check for "Traces to: #N" pattern
             const parentLinkPattern = /[Tt]races?\s+to:?\s*#(\d+)/;
             const parentLink = body.match(parentLinkPattern);
-            
+
             if (!parentLink) {
               const errorMessage = `## ❌ Traceability Link Missing
-            
+
             This requirement must link to its parent issue.
-            
+
             ### Required Action
-            
+
             Add the following to your issue body:
-            
+
             \`\`\`markdown
             ## Traceability
             - **Traces to**: #N (parent issue)
             \`\`\`
-            
+
             ### Traceability Rules
-            
+
             - **REQ-F / REQ-NF** → Link to parent StR issue
             - **ADR** → Link to requirements it satisfies
             - **ARC-C** → Link to ADRs and requirements
             - **TEST** → Link to requirements being verified
             - **QA-SC** → Link to related requirements
-            
+
             **Standard**: ISO/IEC/IEEE 29148:2018 (Bidirectional Traceability)
             `;
               
@@ -101,7 +101,7 @@ jobs:
                 core.warning(`Parent issue #${parentIssueNumber} not found`);
               }
             }
-      
+
       - name: Check test requirement links
         if: contains(github.event.issue.labels.*.name, 'test-case')
         uses: actions/github-script@v7
@@ -109,16 +109,16 @@ jobs:
           script: |
             const issue = context.payload.issue;
             const body = issue.body || '';
-            
+
             // Check for "Verifies: #N" or "Verified Requirements: #N" pattern
             const verifyPattern = /[Vv]erif(?:ies|ied\s+[Rr]equirements?):?\s*#(\d+)/g;
             const verifiedIssues = [];
             let match;
-            
+
             while ((match = verifyPattern.exec(body)) !== null) {
               verifiedIssues.push(match[1]);
             }
-            
+
             if (verifiedIssues.length === 0) {
               const errorMessage = `## ❌ Test Requirements Missing
               
