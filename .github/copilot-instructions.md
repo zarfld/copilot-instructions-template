@@ -93,6 +93,7 @@ Before any implementation, design, or testing work:
 3. Complete **ALL required fields** (marked with red asterisk)
 4. Link to parent issues using `#N` syntax
 5. Submit → GitHub auto-assigns unique issue number
+6. **Update status when starting work** - See [GitHub Issue Workflow](../docs/github-issue-workflow.md) for status management
 
 ### Issue Linking Rules (Bidirectional Traceability)
 
@@ -438,6 +439,7 @@ A well-executed task should:
 - Standards checklists: `standards-compliance/checklists/`
 - Lifecycle guide: `docs/lifecycle-guide.md`
 - XP practices guide: `docs/xp-practices.md`
+- **GitHub Issue Workflow**: `docs/github-issue-workflow.md` - Status management and automation
 
 ---
 
