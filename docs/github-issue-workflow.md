@@ -518,8 +518,11 @@ GitHub Projects provides **built-in automation** to automatically add issues and
    - Set **Repository**: Your repository
    - Set **Filter**: `is:issue is:open` (adds all new open issues)
    - Click **Save and turn on workflow**
+   - ⚠️ **Note**: This only adds **future** issues, not existing ones
 
-4. **Enable Built-in Auto-Move Workflows**:
+4. **Import Existing Issues** (see [Importing Existing Issues](#importing-existing-issues) below)
+
+5. **Enable Built-in Auto-Move Workflows**:
    - **Item closed** → Move to "Done"
    - **Item reopened** → Move to "Backlog"
    - **Pull request merged** → Move linked issues to "Testing"
@@ -573,6 +576,85 @@ jobs:
 ```
 
 **Note**: For advanced automation, GitHub's built-in workflows are simpler and more reliable than custom Actions.
+
+### Importing Existing Issues
+
+The auto-add workflow only adds **new** issues created after it's enabled. To import existing issues, use one of these methods:
+
+#### Method 1: Bulk Add from Project (Recommended - Fastest)
+
+1. **Open your project** → Click **+** at bottom of any column
+2. **Click** "Add item from repository"
+3. **Select repository** from dropdown
+4. **Use filters** to find issues:
+   - `is:open` - All open issues
+   - `is:open label:bug` - Open bugs only
+   - `is:open assignee:@me` - Your issues
+   - `-label:duplicate` - Exclude duplicates
+5. **Select all issues** (checkbox at top) or individual issues
+6. **Click** "Add selected items"
+
+**Limits**: Can add up to 50 items at once (repeat if needed)
+
+#### Method 2: Bulk Add from Repository Issues Page
+
+1. **Navigate to repository** → **Issues** tab
+2. **Filter issues** using GitHub search:
+   - `is:open` - All open issues
+   - `is:open label:type:requirement` - All requirements
+   - `is:open no:project` - Issues not in any project
+3. **Select issues** (checkbox on left, or "Select all" at top)
+4. **Click** "Projects" button above issue list
+5. **Select your project** from dropdown
+
+**Limits**: Can select all issues on current page (up to 25 per page)
+
+#### Method 3: Add from Individual Issues
+
+For specific issues:
+
+1. **Open the issue** you want to add
+2. **Right sidebar** → Click "Projects"
+3. **Select your project** from dropdown
+4. **Populate custom fields** (optional)
+
+#### Method 4: Using Command Palette (Power Users)
+
+1. **Open project** → Press `Cmd+K` (Mac) or `Ctrl+K` (Windows)
+2. **Type** "Add items" → Press Enter
+3. **Select repository** and use filters
+4. **Select issues** → Click "Add selected items"
+
+#### Bulk Import Script (For 100+ Issues)
+
+For repositories with many issues, use GitHub CLI:
+
+```bash
+# Install GitHub CLI: https://cli.github.com/
+
+# Get your project ID
+gh project list --owner zarfld
+
+# List all project items (to verify)
+gh project item-list 1 --owner zarfld  # Replace 1 with your project number
+
+# Bulk add all open issues (requires project URL)
+gh issue list --repo zarfld/copilot-instructions-template --state open --limit 1000 --json number --jq '.[].number' | while read issue; do
+  gh project item-add 1 --owner zarfld --url "https://github.com/zarfld/copilot-instructions-template/issues/$issue"
+done
+```
+
+**Note**: Replace `zarfld` and `copilot-instructions-template` with your repository details.
+
+#### Verification
+
+After importing, verify issues were added:
+
+1. **Project view** → Check issue count at bottom
+2. **Group by Status** → Ensure issues appear in correct columns
+3. **Filter by repository** → Confirm all issues imported
+
+**Expected Behavior**: Issues with status labels automatically move to matching columns.
 
 ## ✅ Best Practices
 
