@@ -4,6 +4,39 @@
 
 **Standards**: ISO/IEC/IEEE 12207:2017 (Configuration Management), ISO/IEC/IEEE 29148:2018 (Requirements Management)
 
+## 🚀 Quick Start: Setting Up Your Workflow
+
+### What Can Be Automated vs. Manual Setup
+
+| Task | Can Be Automated? | How |
+|------|-------------------|-----|
+| **Create status labels** | ✅ Yes (via GitHub Actions) | Run workflow on first push |
+| **Create GitHub Project** | ❌ No (requires manual setup) | One-time UI configuration |
+| **Auto-add issues to project** | ✅ Yes (built-in) | Enable GitHub Projects auto-add workflow |
+| **Update issue status** | ✅ Yes (via MCP/Actions) | Copilot MCP tools + GitHub Actions |
+| **Move issues between columns** | ✅ Yes (built-in) | Automatic based on label changes |
+| **Close issues after CI** | ✅ Yes (via Actions) | GitHub Actions workflow |
+
+### Initial Setup Steps
+
+**One-Time Manual Setup** (5-10 minutes):
+
+1. **Create GitHub Project** (Manual - see [GitHub Projects Integration](#github-projects-integration))
+   - Create board with status columns
+   - Enable auto-add workflow for new issues
+   - Configure built-in automations
+
+**Automated Setup** (First CI run):
+
+2. **Status Labels** (Automated - via GitHub Actions)
+   - Labels are created automatically on first workflow run
+   - See [Label Creation Workflow](#label-creation-workflow)
+
+3. **Issue Status Updates** (Automated - via MCP/Actions)
+   - Copilot can update status via MCP tools
+   - GitHub Actions auto-updates on events
+   - See [Automated Status Updates](#automated-status-updates-via-github-actions)
+
 ## 📋 Issue Status Workflow
 
 ### Issue States and Lifecycle
@@ -160,6 +193,62 @@ mcp_io_github_git_add_issue_comment(
 ```
 
 ## 🔄 Automated Status Updates via GitHub Actions
+
+### Label Creation Workflow
+
+Create status labels automatically on first run. Add to `.github/workflows/setup-labels.yml`:
+
+```yaml
+name: Setup Status Labels
+
+on:
+  workflow_dispatch:  # Manual trigger
+  push:
+    branches: [master, main]
+    paths:
+      - '.github/workflows/setup-labels.yml'
+
+jobs:
+  create-labels:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    
+    steps:
+      - name: Create status labels
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const labels = [
+              { name: 'status:backlog', color: 'd4c5f9', description: 'Issue in backlog, not yet prioritized' },
+              { name: 'status:ready', color: '0e8a16', description: 'Ready for development' },
+              { name: 'status:in-progress', color: 'fbca04', description: 'Currently being worked on' },
+              { name: 'status:review', color: 'ff9800', description: 'In code review' },
+              { name: 'status:testing', color: '1d76db', description: 'In testing phase' },
+              { name: 'status:blocked', color: 'b60205', description: 'Blocked by dependency or issue' },
+              { name: 'status:completed', color: '0e8a16', description: 'Implementation complete and verified' },
+              { name: 'status:closed', color: '6e7781', description: 'Issue closed' },
+            ];
+            
+            for (const label of labels) {
+              try {
+                await github.rest.issues.createLabel({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  name: label.name,
+                  color: label.color,
+                  description: label.description
+                });
+                console.log(`✅ Created label: ${label.name}`);
+              } catch (error) {
+                if (error.status === 422) {
+                  console.log(`⏭️  Label already exists: ${label.name}`);
+                } else {
+                  console.error(`❌ Failed to create label ${label.name}:`, error.message);
+                }
+              }
+            }
+```
 
 ### Workflow: Auto-Update Issue Status
 
@@ -401,16 +490,89 @@ gh issue list --label "status:ready" --assignee "@me"
 
 ### GitHub Projects Integration
 
-Create a GitHub Project board with columns matching status labels:
+GitHub Projects provides **built-in automation** to automatically add issues and move them between columns based on status labels.
 
-- **Backlog** → `status:backlog`
-- **Ready** → `status:ready`
-- **In Progress** → `status:in-progress`
-- **Review** → `status:review`
-- **Testing** → `status:testing`
-- **Done** → `status:completed`
+#### Setting Up GitHub Projects (One-Time Manual Setup)
 
-Issues automatically move between columns when status labels change.
+**⚠️ Note**: GitHub Projects setup requires manual UI interaction (cannot be done via prompts/API currently).
+
+**Steps**:
+
+1. **Create Project**:
+   - Go to repository → **Projects** tab → **New project**
+   - Choose **Board** template
+   - Name: "Standards-Compliant Development"
+
+2. **Configure Columns** (matching status labels):
+   - **Backlog** → Filter: `status:backlog`
+   - **Ready** → Filter: `status:ready`
+   - **In Progress** → Filter: `status:in-progress`
+   - **Review** → Filter: `status:review`
+   - **Testing** → Filter: `status:testing`
+   - **Done** → Filter: `status:completed`
+
+3. **Enable Built-in Auto-Add Workflow**:
+   - Click **⋮** (menu) → **Workflows**
+   - Select **Auto-add to project**
+   - Click **Edit**
+   - Set **Repository**: Your repository
+   - Set **Filter**: `is:issue is:open` (adds all new open issues)
+   - Click **Save and turn on workflow**
+
+4. **Enable Built-in Auto-Move Workflows**:
+   - **Item closed** → Move to "Done"
+   - **Item reopened** → Move to "Backlog"
+   - **Pull request merged** → Move linked issues to "Testing"
+
+#### Automated Behavior (After Setup)
+
+Once configured, GitHub Projects **automatically**:
+
+✅ **New issues** → Added to project (via auto-add workflow)  
+✅ **Label changes** → Issues move between columns (e.g., add `status:in-progress` → moves to "In Progress")  
+✅ **Issue closed** → Moves to "Done"  
+✅ **Issue reopened** → Moves to "Backlog"  
+✅ **PR merged** → Linked issues move to "Testing"  
+
+#### GitHub Actions Integration (Optional Enhancement)
+
+Add custom automation via GitHub Actions (`.github/workflows/project-automation.yml`):
+
+```yaml
+name: GitHub Projects Automation
+
+on:
+  issues:
+    types: [opened, labeled, unlabeled, closed, reopened]
+  pull_request:
+    types: [opened, closed]
+
+jobs:
+  update-project-status:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      contents: read
+    
+    steps:
+      - name: Add issue to project
+        if: github.event_name == 'issues' && github.event.action == 'opened'
+        uses: actions/add-to-project@v0.5.0
+        with:
+          project-url: https://github.com/users/zarfld/projects/1  # Update with your project URL
+          github-token: ${{ secrets.PAT_TOKEN }}  # Requires PAT with project scope
+      
+      - name: Update project item status based on labels
+        if: github.event_name == 'issues' && (github.event.action == 'labeled' || github.event.action == 'unlabeled')
+        uses: actions/github-script@v7
+        with:
+          script: |
+            // This would require GraphQL API calls to update project item status
+            // GitHub's built-in workflows handle this automatically
+            console.log('Status updates handled by built-in project workflows');
+```
+
+**Note**: For advanced automation, GitHub's built-in workflows are simpler and more reliable than custom Actions.
 
 ## ✅ Best Practices
 
