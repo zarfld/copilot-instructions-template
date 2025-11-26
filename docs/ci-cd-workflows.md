@@ -369,6 +369,32 @@ env:
 - `GITHUB_TOKEN` - Automatically provided by GitHub Actions
   - Used for: GitHub Issues API, artifact uploads, PR comments
 
+### Repository Auto-Detection
+
+All scripts automatically detect the repository from environment variables:
+
+**In GitHub Actions** (automatic):
+```yaml
+env:
+  GITHUB_REPOSITORY: ${{ github.repository }}  # Auto-set to "owner/repo"
+```
+
+**For local testing** (manual):
+```bash
+# Option 1: Use GITHUB_REPOSITORY (recommended)
+export GITHUB_REPOSITORY=owner/repo
+
+# Option 2: Set REPO_OWNER and REPO_NAME separately
+export REPO_OWNER=zarfld
+export REPO_NAME=copilot-instructions-template
+
+# Then run scripts
+export GITHUB_TOKEN=ghp_xxx
+python scripts/github-traceability-report.py
+```
+
+**Fallback**: If no environment variables are set, defaults to `zarfld/copilot-instructions-template`
+
 ---
 
 ## Dependencies

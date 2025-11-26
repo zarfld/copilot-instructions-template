@@ -21,8 +21,15 @@ import requests
 from typing import Dict, List
 
 GITHUB_TOKEN = os.environ.get('GITHUB_TOKEN')
-REPO_OWNER = 'zarfld'
-REPO_NAME = 'ESP_ClapMetronome'
+# Auto-detect repository from GITHUB_REPOSITORY env var (set by GitHub Actions)
+# Format: "owner/repo" or fallback to manual REPO_OWNER/REPO_NAME
+GITHUB_REPOSITORY = os.environ.get('GITHUB_REPOSITORY', '')
+if GITHUB_REPOSITORY and '/' in GITHUB_REPOSITORY:
+    REPO_OWNER, REPO_NAME = GITHUB_REPOSITORY.split('/', 1)
+else:
+    REPO_OWNER = os.environ.get('REPO_OWNER', 'zarfld')
+    REPO_NAME = os.environ.get('REPO_NAME', 'copilot-instructions-template')
+
 API_BASE = f'https://api.github.com/repos/{REPO_OWNER}/{REPO_NAME}'
 
 REQUIREMENT_LABELS = [
@@ -148,7 +155,9 @@ if __name__ == '__main__':
     if not GITHUB_TOKEN:
         print("Error: GITHUB_TOKEN environment variable not set", file=sys.stderr)
         print("Usage: export GITHUB_TOKEN=ghp_xxx && python scripts/github-orphan-check.py", file=sys.stderr)
+        print("\nOptional: Set GITHUB_REPOSITORY=owner/repo or REPO_OWNER and REPO_NAME separately", file=sys.stderr)
         sys.exit(1)
     
+    print(f"Checking repository: {REPO_OWNER}/{REPO_NAME}\n", file=sys.stderr)
     exit_code = find_orphans()
     sys.exit(exit_code)
