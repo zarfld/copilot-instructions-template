@@ -284,10 +284,13 @@ class TraceabilityBuilder:
         """Build complete traceability data structure."""
         metrics = self.calculate_metrics()
         
+        # Auto-detect project name from environment
+        project_name = os.environ.get('GITHUB_REPOSITORY', 'zarfld/copilot-instructions-template').split('/')[-1]
+        
         return {
             'version': '1.0',
             'generated_at': '2025-11-21',
-            'project': 'ESP_ClapMetronome',
+            'project': project_name,
             'artifacts': self.artifacts,
             'links': dict(self.links),
             'metrics': metrics,
