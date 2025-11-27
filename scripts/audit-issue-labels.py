@@ -111,16 +111,32 @@ class GitHubIssueAuditor:
         
         # RULE 1: Must have at least one type label
         if not type_labels:
-            problems.append(LabelIssue(
-                issue_number=number,
-                issue_title=title,
-                severity='error',
-                rule='Missing Type Label',
-                message='Every issue must have at least one type:* label',
-                current_labels=labels,
-                suggested_action='Add appropriate type label (e.g., type:requirement:functional, type:architecture:decision, type:test)',
-                auto_fixable=False  # Requires human judgment
-            ))
+            # Try to infer type from title
+            inferred_type = self._infer_type_from_title(title)
+            
+            if inferred_type:
+                problems.append(LabelIssue(
+                    issue_number=number,
+                    issue_title=title,
+                    severity='warning',
+                    rule='Missing Type Label',
+                    message='Every issue must have at least one type:* label',
+                    current_labels=labels,
+                    suggested_action=f'Add inferred type: {inferred_type}',
+                    auto_fixable=True,
+                    fix_labels_add=[inferred_type]
+                ))
+            else:
+                problems.append(LabelIssue(
+                    issue_number=number,
+                    issue_title=title,
+                    severity='error',
+                    rule='Missing Type Label',
+                    message='Every issue must have at least one type:* label (cannot infer from title)',
+                    current_labels=labels,
+                    suggested_action='Add appropriate type label (e.g., type:requirement:functional, type:architecture:decision, type:test)',
+                    auto_fixable=False  # Requires human judgment
+                ))
         
         # RULE 2: Should have exactly one priority (except bugs/questions)
         if not (is_bug or is_question or is_docs):
@@ -240,6 +256,47 @@ class GitHubIssueAuditor:
                 ))
         
         return problems
+    
+    def _infer_type_from_title(self, title: str) -> str:
+        """Infer issue type from title patterns."""
+        title_upper = title.upper()
+        
+        # Requirement patterns
+        if 'REQ-F-' in title_upper or title_upper.startswith('REQ-F'):
+            return 'type:requirement:functional'
+        if 'REQ-NF-' in title_upper or title_upper.startswith('REQ-NF'):
+            return 'type:requirement:non-functional'
+        if 'STR-' in title_upper or title_upper.startswith('STR'):
+            return 'type:requirement:stakeholder'
+        
+        # Architecture patterns
+        if 'ADR-' in title_upper or title_upper.startswith('ADR'):
+            return 'type:architecture:decision'
+        if 'ARC-C-' in title_upper or 'ARCH-' in title_upper:
+            return 'type:architecture:component'
+        if 'QA-SC-' in title_upper or 'QUALITY-' in title_upper:
+            return 'type:architecture:quality-scenario'
+        
+        # Test patterns
+        if 'TEST-' in title_upper or title_upper.startswith('TEST'):
+            return 'type:test'
+        if any(word in title_upper for word in ['TEST CASE', 'TEST:', 'UNIT TEST', 'INTEGRATION TEST']):
+            return 'type:test'
+        
+        # Design patterns
+        if 'DESIGN-' in title_upper or 'DES-' in title_upper:
+            return 'type:design'
+        
+        # Implementation patterns
+        if 'IMPL-' in title_upper or title_upper.startswith('IMPLEMENT'):
+            return 'type:implementation'
+        
+        # Refactoring patterns
+        if any(word in title_upper for word in ['REFACTOR', 'REFACTORING', 'CLEANUP', 'TECH DEBT']):
+            return 'type:refactoring'
+        
+        # Cannot infer
+        return ''
     
     def _infer_priority(self, type_labels: List[str], title: str, body: str) -> str:
         """Infer priority from context."""
