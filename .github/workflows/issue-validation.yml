@@ -8,12 +8,13 @@ jobs:
   validate-requirement:
     runs-on: ubuntu-latest
     if: |
-      contains(github.event.issue.labels.*.name, 'functional-requirement') ||
-      contains(github.event.issue.labels.*.name, 'non-functional') ||
-      contains(github.event.issue.labels.*.name, 'architecture-decision') ||
-      contains(github.event.issue.labels.*.name, 'architecture-component') ||
-      contains(github.event.issue.labels.*.name, 'quality-scenario') ||
-      contains(github.event.issue.labels.*.name, 'test-case')
+      contains(github.event.issue.labels.*.name, 'type:requirement:stakeholder') ||
+      contains(github.event.issue.labels.*.name, 'type:requirement:functional') ||
+      contains(github.event.issue.labels.*.name, 'type:requirement:non-functional') ||
+      contains(github.event.issue.labels.*.name, 'type:architecture:decision') ||
+      contains(github.event.issue.labels.*.name, 'type:architecture:component') ||
+      contains(github.event.issue.labels.*.name, 'type:architecture:quality-scenario') ||
+      contains(github.event.issue.labels.*.name, 'type:test')
 
     permissions:
       issues: write
@@ -29,7 +30,7 @@ jobs:
             const labels = issue.labels.map(l => l.name);
 
             // Stakeholder requirements (StR) don't need parent links
-            if (labels.includes('stakeholder-requirement')) {
+            if (labels.includes('type:requirement:stakeholder')) {
               console.log('✅ StR issue - parent link not required');
               return;
             }
@@ -103,7 +104,7 @@ jobs:
             }
 
       - name: Check test requirement links
-        if: contains(github.event.issue.labels.*.name, 'test-case')
+        if: contains(github.event.issue.labels.*.name, 'type:test')
         uses: actions/github-script@v7
         with:
           script: |
