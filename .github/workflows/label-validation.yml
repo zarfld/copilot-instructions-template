@@ -376,13 +376,19 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          python scripts/audit-issue-labels.py --verbose
+          python scripts/audit-issue-labels.py \
+            --owner "${{ github.repository_owner }}" \
+            --repo "${{ github.event.repository.name }}" \
+            --verbose
       
       - name: Auto-fix issues
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          python scripts/audit-issue-labels.py --fix-auto
+          python scripts/audit-issue-labels.py \
+            --owner "${{ github.repository_owner }}" \
+            --repo "${{ github.event.repository.name }}" \
+            --fix-auto
       
       - name: Create summary report
         if: always()

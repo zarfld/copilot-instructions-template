@@ -405,7 +405,8 @@ def main():
         try:
             import subprocess
             remote_url = subprocess.check_output(['git', 'remote', 'get-url', 'origin'], text=True).strip()
-            match = re.search(r'github\.com[:/]([^/]+)/([^/.]+)', remote_url)
+            # Match GitHub URL and extract owner/repo (handle .git suffix and repo names with dots)
+            match = re.search(r'github\.com[:/]([^/]+)/(.+?)(?:\.git)?$', remote_url)
             if match:
                 owner = owner or match.group(1)
                 repo = repo or match.group(2)
