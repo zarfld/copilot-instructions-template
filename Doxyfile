@@ -1,15 +1,23 @@
-# Doxyfile for IEEE 1588-2019 PTP Library
-# Generated for Phase 08 - Transition (Documentation)
-# Standards Compliance: IEEE 1588-2019 Precision Time Protocol v2.1
+# Doxyfile Template for Standards-Compliant Projects
+# TEMPLATE: Customize this file for your project
+# Phase: 08-transition (Documentation)
+# Standards: ISO/IEC/IEEE 12207:2017 (Transition Process)
+#
+# INSTRUCTIONS:
+# 1. Replace PROJECT_NAME with your project name
+# 2. Update PROJECT_NUMBER with your version
+# 3. Customize PROJECT_BRIEF with your description
+# 4. Update INPUT paths to match your source structure
+# 5. Adjust STRIP_FROM_PATH to your project root
 
 #---------------------------------------------------------------------------
 # Project related configuration options
 #---------------------------------------------------------------------------
 
 DOXYFILE_ENCODING      = UTF-8
-PROJECT_NAME           = "IEEE 1588-2019 PTP Library"
-PROJECT_NUMBER         = 1.0.0-MVP
-PROJECT_BRIEF          = "Hardware-agnostic IEEE 1588-2019 PTPv2 implementation with deterministic design"
+PROJECT_NAME           = "Your Project Name"  # TEMPLATE: Change this
+PROJECT_NUMBER         = 0.1.0                # TEMPLATE: Update version
+PROJECT_BRIEF          = "Brief project description for documentation"  # TEMPLATE: Add description
 PROJECT_LOGO           = 
 OUTPUT_DIRECTORY       = docs/doxygen
 CREATE_SUBDIRS         = YES
@@ -31,9 +39,11 @@ ABBREVIATE_BRIEF       = "The $name class" \
 ALWAYS_DETAILED_SEC    = NO
 INLINE_INHERITED_MEMB  = NO
 FULL_PATH_NAMES        = YES
-STRIP_FROM_PATH        = d:\Repos\IEEE_1588_2019\include \
-                         d:\Repos\IEEE_1588_2019\src
-STRIP_FROM_INC_PATH    = d:\Repos\IEEE_1588_2019\include
+# TEMPLATE: Update these paths to match your project structure
+# Use relative paths or project root path
+STRIP_FROM_PATH        = include \
+                         src
+STRIP_FROM_INC_PATH    = include
 SHORT_NAMES            = NO
 JAVADOC_AUTOBRIEF      = YES
 JAVADOC_BANNER         = NO

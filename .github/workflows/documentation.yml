@@ -1,25 +1,39 @@
 name: Documentation
 
+# TEMPLATE: Customize for your project's documentation needs
+# This workflow supports Doxygen (C/C++), but can be adapted for:
+# - MkDocs (Python/Markdown)
+# - Sphinx (Python)
+# - JSDoc (JavaScript/TypeScript)
+# - Javadoc (Java)
+# - GoDoc (Go)
+
 on:
     push:
         branches:
             - main
+            - master  # TEMPLATE: Adjust to your default branch
             - develop
         paths:
-            - "include/**"
-            - "src/**"
-            - "05-implementation/**"
-            - "08-transition/**"
-            - "Doxyfile"
-            - "scripts/generate-doxygen.py"
+            # TEMPLATE: Customize paths for your project structure
+            - "include/**"           # C/C++ headers
+            - "src/**"               # Source code
+            - "05-implementation/**" # Implementation documentation
+            - "08-transition/**"     # User documentation
+            - "docs/**"              # Documentation source files
+            - "Doxyfile"             # Doxygen configuration
+            - "mkdocs.yml"           # MkDocs configuration (if used)
+            - "scripts/generate-*.py"
             - ".github/workflows/documentation.yml"
     pull_request:
         branches:
             - main
+            - master
             - develop
         paths:
             - "include/**"
             - "src/**"
+            - "docs/**"
             - "Doxyfile"
     workflow_dispatch: # Allow manual trigger
 
@@ -101,17 +115,18 @@ jobs:
             - name: Create custom index redirect
               run: |
                   # Create root index.html that redirects to Doxygen index
+                  # TEMPLATE: Customize title and description for your project
                   cat > docs/doxygen/html/redirect.html << 'EOF'
                   <!DOCTYPE html>
                   <html>
                   <head>
                     <meta charset="utf-8">
-                    <title>IEEE 1588-2019 PTP Library Documentation</title>
+                    <title>Project Documentation</title>
                     <meta http-equiv="refresh" content="0; url=./index.html">
                     <link rel="canonical" href="./index.html">
                   </head>
                   <body>
-                    <p>Redirecting to <a href="./index.html">IEEE 1588-2019 PTP Library Documentation</a>...</p>
+                    <p>Redirecting to <a href="./index.html">Project API Documentation</a>...</p>
                   </body>
                   </html>
                   EOF

@@ -1,8 +1,21 @@
 #!/usr/bin/env python3
 """
-Generate Doxygen documentation for IEEE 1588-2019 PTP Library
+Generate Doxygen Documentation - Template Script
+
+TEMPLATE: This script can be used for any project using Doxygen.
+Customize the paths and project-specific settings as needed.
+
 Phase: 08-transition (Documentation)
 Standards: ISO/IEC/IEEE 12207:2017 (Transition Process)
+
+Usage:
+    python scripts/generate-doxygen.py [--check] [--clean] [--coverage]
+    
+Options:
+    --check     Check prerequisites only (Doxygen, Graphviz)
+    --clean     Remove previous documentation before generating
+    --coverage  Generate documentation coverage report
+    --doxyfile  Specify custom Doxyfile path (default: Doxyfile)
 """
 
 import os
