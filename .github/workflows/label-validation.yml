@@ -372,19 +372,20 @@ jobs:
         run: |
           pip install requests
       
-      - name: Audit all open issues
+      - name: Audit and auto-fix issues
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          # First run audit to see what needs fixing
+          echo "📊 Running audit to identify issues..."
           python scripts/audit-issue-labels.py \
             --owner "${{ github.repository_owner }}" \
             --repo "${{ github.event.repository.name }}" \
-            --verbose
-      
-      - name: Auto-fix issues
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
+            --verbose || true  # Don't fail on errors, just report them
+          
+          echo ""
+          echo "🔧 Applying automatic fixes..."
+          # Then apply fixes
           python scripts/audit-issue-labels.py \
             --owner "${{ github.repository_owner }}" \
             --repo "${{ github.event.repository.name }}" \

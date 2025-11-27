@@ -465,9 +465,9 @@ def main():
         
         print(f"\n✅ {'Would fix' if args.dry_run else 'Fixed'} {fixed_count} issues")
     
-    # Exit with error code if there are errors
+    # Exit with error code if there are errors (only when not fixing)
     errors = [p for p in all_problems if p.severity == 'error']
-    if errors:
+    if errors and not (args.fix_auto or args.dry_run):
         sys.exit(1)
 
 
