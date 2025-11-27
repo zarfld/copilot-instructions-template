@@ -1,11 +1,16 @@
 name: Label Validation
 
 on:
+  workflow_dispatch:  # Allow manual trigger
+  schedule:
+    - cron: '0 2 * * 1'  # Run every Monday at 2 AM UTC to audit all issues
   issues:
     types: [opened, edited, reopened, labeled, unlabeled]
 
 jobs:
+  # Real-time validation on issue events
   validate-labels:
+    if: github.event_name != 'schedule'  # Skip on scheduled runs
     runs-on: ubuntu-latest
     permissions:
       issues: write
@@ -345,3 +350,52 @@ jobs:
             } else if (suggestions.length > 0) {
               console.log('💡 Applied suggestions automatically');
             }
+  
+  # Scheduled audit of all existing issues
+  audit-all-issues:
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      contents: read
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      
+      - name: Install dependencies
+        run: |
+          pip install requests
+      
+      - name: Audit all open issues
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          python scripts/audit-issue-labels.py --verbose
+      
+      - name: Auto-fix issues
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          python scripts/audit-issue-labels.py --fix-auto
+      
+      - name: Create summary report
+        if: always()
+        run: |
+          echo "## 📊 Weekly Label Audit Report" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Completed scheduled audit of all repository issues." >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Audit Time**: $(date -u '+%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Actions Taken" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Validated all open issues" >> $GITHUB_STEP_SUMMARY
+          echo "- 🔧 Auto-fixed safe labeling issues" >> $GITHUB_STEP_SUMMARY
+          echo "- 📝 Posted validation reports on issues with errors/warnings" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Next scheduled audit**: Next Monday at 2 AM UTC" >> $GITHUB_STEP_SUMMARY
