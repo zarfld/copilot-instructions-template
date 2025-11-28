@@ -15,19 +15,23 @@ The Ubiquitous Language is a shared vocabulary used by all team members (develop
 - ✅ Documentation
 - ✅ Conversations with domain experts
 
+**DDD Integration**: This glossary drives Model-Driven Design - when terms change here, code must be refactored to match. The domain model in code should be a direct reflection of the language captured here.
+
 ## 📚 Glossary Format
 
 Each term entry must include:
 
 | Field | Description |
-|-------|-------------|
+|-------|-----------|
 | **Term** | The canonical name used everywhere |
 | **Context** | Bounded Context(s) where term applies |
 | **Definition** | Clear, concise meaning from domain expert perspective |
+| **Type** | DDD Pattern: Entity, Value Object, Aggregate, Service, Event |
 | **Synonyms** | Alternative names (avoid using these) |
 | **Relationships** | Related terms, parent concepts |
 | **Examples** | Real-world usage examples |
 | **Rules** | Business rules or constraints |
+| **Code Mapping** | Class/interface names in implementation |
 | **Traceability** | Link to requirements/issues |
 
 ---
@@ -38,15 +42,22 @@ Each term entry must include:
 
 **Context**: Banking, Finance  
 **Definition**: A record of financial transactions for a customer, including balance and transaction history.  
-**Type**: Entity (has identity)  
-**Synonyms**: Bank Account, Financial Account  
+**Type**: Entity (has identity and lifecycle)  
+**Synonyms**: Bank Account, Financial Account (avoid using)  
 **Relationships**:
-- Parent: Customer
-- Related: Transaction, Balance
+- Parent: Customer (Entity)
+- Composed of: AccountNumber (Value Object), Balance (Value Object)
+- Related: Transaction (Entity), OverdraftLimit (Value Object)
+**Examples**:
+- Checking account with $1,500 balance
+- Savings account with 2.5% interest rate
+- Business account with $10,000 overdraft limit
 **Business Rules**:
 - Account balance cannot go below overdraft limit
-- Each account has unique account number
+- Each account has unique account number (immutable)
 - Account status can be: Active, Suspended, Closed
+- Only active accounts can process transactions
+**Code Mapping**: `Account` class, `AccountRepository`, `AccountService`  
 **Traceability**: #REQ-F-ACCOUNT-001, #REQ-NF-SECURITY-003  
 **Examples**:
 - Checking account with $1,500 balance
