@@ -16,6 +16,7 @@ applyTo: "07-verification-validation/**"
 4. Ensure requirements traceability
 5. Perform acceptance testing with customer
 6. Document test results and defects
+7. **Report test results with courage and honesty** - See [Critical Self-Reflection Guide](../../docs/critical-self-reflection-honest-reporting.md)
 
 ## 📋 Test Case Documentation Approach
 
@@ -1001,10 +1002,157 @@ Key steps:
 ✅ **Defect analysis complete** with root cause classification and lessons learned  
 ✅ **(Optional) RDT passed** if required (Reliability Demonstration Test with statistical confidence)  
 
+## 📊 Honest Test Result Reporting
+
+### Critical Principle: Report Truth, Not Hope
+
+**XP Value - Courage**: "Tell the truth straight out, whether the data is **good or bad**."
+
+#### Test Report Template
+
+```markdown
+## Test Report - [Iteration/Build ID]
+
+### Summary
+- **Total Tests**: 1,245
+- **Passing**: 1,198 ✅ (96.2%)
+- **Failing**: 47 ❌ (3.8%)
+- **Trend**: Failing tests increased from 12 (1%) last week 🚨
+
+### Failed Tests by Category
+| Category | Count | Priority | Root Cause |
+|----------|-------|----------|------------|
+| Integration (API) | 25 | 🚨 High | Third-party API changed format |
+| Unit (OrderProcessor) | 15 | 🔴 High | Refactoring introduced regression |
+| E2E (Checkout flow) | 5 | 🟡 Medium | Flaky tests (timing issues) |
+| UI (Layout) | 2 | 🟢 Low | CSS regression |
+
+### Action Plan
+- **Today**: Fix API adapter (2 hours) → Unblock 25 tests
+- **Tomorrow**: Fix OrderProcessor regression (4 hours)
+- **Next Sprint**: Stabilize flaky E2E tests (technical debt)
+
+**Status**: 🔴 RED (failure rate >3% threshold)  
+**Blocking Release**: Yes (critical failures)  
+**Owner**: Dev Team (All)  
+**Next Update**: End of day Friday
+```
+
+#### Honest Status vs. Wishful Thinking
+
+| ❌ Dishonest Reporting | ✅ Honest Reporting |
+|-------------------------|----------------------|
+| "90% of tests pass" | "47 tests failing, including 25 critical API tests" |
+| "Almost ready to ship" | "Blocked by API integration issues; ETA 2 days" |
+| "Minor issues only" | "15 unit test failures due to regression (high priority)" |
+| "We're catching up" | "Test failures trending up; need corrective action" |
+
+### Early Warning System
+
+**Report immediately when**:
+- Test failure rate >3% (threshold breach)
+- Critical tests fail (P0/P1 priority)
+- Trend shows increasing failures (week-over-week)
+- Flaky tests impact CI reliability
+- Coverage drops below 80%
+
+**Notification Protocol**:
+```markdown
+## Test Status Alert 🚨
+
+**Date**: 2025-11-28 14:30 UTC  
+**To**: Team Lead, Product Owner
+
+**Problem**: Integration test failures blocking deployment
+
+**Impact**:
+- Cannot deploy to staging
+- Release delayed by estimated 2 days
+- 25 API tests failing (20% of integration suite)
+
+**Root Cause**: Third-party weather API changed response format without notice
+
+**Options**:
+1. Fix adapter immediately (2 days) → Delay release to Monday
+2. Rollback to old API version (4 hours) → On-time release, but vendor forces upgrade in 2 months
+3. Ship without weather feature (1 day) → Reduced scope, on-time release
+
+**Recommendation**: Option 1 (fix adapter properly)
+
+**Why telling you NOW**: Gives max reaction time for stakeholder communication
+
+**Promise**: Daily updates at 5pm until resolved
+```
+
+### Five Whys for Test Failures
+
+When tests fail, dig to root cause:
+
+**Example**:
+```markdown
+## Root Cause Analysis: Authentication Tests Failing
+
+**Symptom**: 15 authentication tests failing since Tuesday
+
+**Five Whys**:
+1. **Why** are auth tests failing?  
+   → JWT token validation returns 401 Unauthorized.
+
+2. **Why** is token validation failing?  
+   → Token signature is invalid.
+
+3. **Why** is signature invalid?  
+   → Secret key changed in environment config.
+
+4. **Why** did secret key change?  
+   → DevOps rotated keys as part of security policy.
+
+5. **Why** didn't we know about key rotation?  
+   → No notification process for environment changes.
+
+**Root Cause**: Lack of communication between DevOps and Dev teams
+
+**Systemic Solution** (team problem, not individual blame):
+- [ ] Add key rotation to change management process
+- [ ] Notify dev team 24 hours before environment changes
+- [ ] Add automated test for key expiration (warn 7 days before)
+```
+
+### Velocity-Based Prediction
+
+**Use actual test completion velocity to predict release readiness**:
+
+```markdown
+## Test Execution Progress
+
+| Week | Tests Executed | Tests Remaining | Velocity (tests/week) |
+|------|----------------|-----------------|----------------------|
+| 1    | 150            | 850             | 150                  |
+| 2    | 200            | 650             | 175 (avg: 162)       |
+| 3    | 180            | 470             | 176 (avg: 176)       |
+| 4    | ?              | ?               | ?                    |
+
+**Prediction** (based on actual velocity):
+- Average velocity: 176 tests/week
+- Remaining: 470 tests
+- **Estimated completion**: 2.7 weeks (not 2 weeks as planned)
+
+**Options**:
+1. Continue at current pace → Release delayed by 1 week
+2. Increase test automation → Accelerate velocity (risky if rushed)
+3. Reduce test scope → Remove low-priority tests (review with stakeholders)
+
+**Honest Recommendation**: Option 1 (realistic timeline based on data)
+```
+
 ## 🎯 Next Phase
 
 **Phase 08: Transition (Deployment)** (`08-transition/`)
 
 ---
 
-**Remember**: Verification checks correctness. Validation checks fitness for purpose. Both are essential! Customer involvement in acceptance testing is mandatory (XP practice).
+**Remember**: 
+- **Verification checks correctness. Validation checks fitness for purpose. Both are essential!**
+- **Customer involvement in acceptance testing is mandatory (XP practice).**
+- **Report test results with courage and honesty - bad news delivered early gives stakeholders maximum reaction time.**
+- **See [Critical Self-Reflection and Honest Reporting Guide](../../docs/critical-self-reflection-honest-reporting.md) for detailed practices.**
