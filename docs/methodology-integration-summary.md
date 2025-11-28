@@ -6,7 +6,7 @@
 
 ## 🎯 Complete Framework Overview
 
-This template integrates **five complementary methodologies** to create a comprehensive software development framework:
+This template integrates **six complementary methodologies** to create a comprehensive software development framework:
 
 | Methodology | Focus | Key Practices | Documentation |
 |-------------|-------|---------------|---------------|
@@ -15,6 +15,7 @@ This template integrates **five complementary methodologies** to create a compre
 | **Test-Driven Development (TDD)** | Empirical validation | Red-Green-Refactor, spike solutions, assertions | `docs/tdd-empirical-proof.md` |
 | **Domain-Driven Design (DDD)** | Model-driven design | Ubiquitous Language, Bounded Context, tactical patterns | `docs/ddd-implementation-guide.md` |
 | **Real-Time Systems** | Temporal correctness | Measurable constraints, terse ISRs, empirical timing | `docs/real-time-systems-guide.md` |
+| **Reverse Engineering** | Knowledge recovery | Architecture recovery, domain modeling, validation | `docs/reverse-engineering-guide.md` |
 
 ## 🔗 How Methodologies Integrate
 
@@ -148,6 +149,94 @@ class EmergencyStopButton {  // Domain Entity (DDD)
 - Temporal constraints documented in Ubiquitous Language
 - Priority classes map to domain criticality
 - Real-time tests verify domain safety properties
+
+### Reverse Engineering + TDD: Test-Driven Understanding
+
+**Reverse Engineering** recovers design knowledge from code, while **TDD** proves understanding through tests.
+
+**Example**:
+```typescript
+// 1. Analyze legacy code behavior
+function legacyTaxCalculation(amount: number, customer: any): number {
+  // Complex logic, unclear intent
+  if (customer.flags && customer.flags.includes('EXEMPT')) {
+    return 0;
+  }
+  return amount * 0.08;  // Hardcoded rate?
+}
+
+// 2. Write tests expressing hypothesized behavior
+describe('Legacy Tax Calculation (Reverse Engineered)', () => {
+  it('should return zero for tax-exempt customers', () => {
+    const customer = { flags: ['EXEMPT'] };
+    expect(legacyTaxCalculation(100, customer)).toBe(0);
+  });
+  
+  it('should apply 8% tax for regular customers', () => {
+    const customer = { flags: [] };
+    expect(legacyTaxCalculation(100, customer)).toBe(8);
+  });
+});
+
+// 3. Run tests to validate understanding
+// 4. Refactor with confidence (tests as safety net)
+class TaxCalculator {  // Refactored with explicit intent
+  calculate(amount: Money, customer: Customer): Money {
+    if (customer.isTaxExempt()) {
+      return Money.zero();
+    }
+    return amount.multiply(0.08);
+  }
+}
+```
+
+**Integration Points**:
+- Tests validate recovered requirements
+- Refactoring reveals hidden domain concepts
+- Knowledge crunching fills documentation gaps
+- Comparison testing proves behavior equivalence
+
+### Reverse Engineering + DDD: Domain Model Recovery
+
+**Reverse Engineering** extracts domain concepts from code, while **DDD** provides modeling vocabulary.
+
+**Example**:
+```markdown
+## Knowledge Crunching Session (Legacy System)
+
+**Code Fragment**:
+```typescript
+// What domain concepts are hidden here?
+function processOrder(customerId, items) {
+  let total = items.reduce((sum, item) => sum + item.price * item.qty, 0);
+  
+  if (vipCustomers.includes(customerId)) {
+    total *= 0.9;  // VIP discount
+  }
+  
+  return total * 1.08;  // Tax
+}
+```
+
+**Recovered Domain Concepts**:
+- **Customer** (Entity): Identity = customerId
+- **CustomerTier** (Value Object): VIP vs. Regular
+- **LineItem** (Value Object): Product + Quantity + Price
+- **DiscountPolicy** (Domain Service): Tier-based discounts
+- **TaxCalculation** (Domain Service): Location-based tax
+- **Order** (Aggregate Root): Manages items, discounts, tax
+
+**Ubiquitous Language Updated**:
+- "VIP customer" → CustomerTier.VIP
+- "Process order" → Order.calculateTotal()
+- "Apply discount" → DiscountPolicy.calculate()
+```
+
+**Integration Points**:
+- Hidden concepts become explicit domain types
+- Ubiquitous Language extracted from legacy code
+- Bounded Contexts identified from module boundaries
+- Tactical patterns applied during refactoring
 
 ## 📊 Methodology Application by Phase
 
