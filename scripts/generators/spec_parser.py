@@ -32,6 +32,14 @@ OUTPUT_FILE = BUILD_DIR / 'spec-index.json'
 ID_PATTERN = re.compile(r'^(?P<id>(StR|REQ|ARC|ADR|QA|TEST)-(?:[A-Z]{4}-)?[A-Z0-9][A-Z0-9\-]*)\b')
 # Capture full identifiers with optional 4-char category prefix
 # Examples: REQ-AUTH-F-001, StR-CORE-001, ADR-INFRA-001, TEST-LOGIN-001
+
+# Pattern to detect markdown heading definitions (## REQ-F-001: Title)
+# Enhancement: 2025-12-02 - Distinguish canonical definitions from references
+HEADING_DEF_PATTERN = re.compile(
+    r'^#+\s+((?:StR|REQ|ARC|ADR|QA|TEST)-(?:[A-Z]{4}-)?[A-Z0-9][A-Z0-9\-]*)',
+    re.MULTILINE
+)
+
 REF_PATTERN = re.compile(r'\b(?:StR|REQ|ARC|ADR|QA|TEST)-(?:[A-Z]{4}-)?[A-Z0-9][A-Z0-9\-]*\b')
 
 SCAN_DIRS = [
@@ -43,18 +51,22 @@ SCAN_DIRS = [
 # may appear. We parse these more leniently (no front matter expected) to enrich traceability.
 CODE_TEST_DIRS = [
     ROOT / '05-implementation' / 'tests',
+    ROOT / 'tests',  # Support root-level test directories
 ]
 
 FRONT_MATTER_RE = re.compile(r'^---\n(.*?)\n---\n', re.DOTALL)
 
 # Files / paths to ignore (instructional, templates, meta guidance) – we do not want
 # placeholder IDs here (e.g. REQ-F-XXX) polluting traceability metrics.
+# Enhancement 2025-12-02: Added spec-kit-templates/ and /templates/ to exclude template examples
 IGNORE_PATTERNS = [
     '.github/copilot-instructions.md',
     'ADR-template.md',
     'user-story-template.md',
     'architecture-spec.md',  # template root
     'requirements-spec.md',  # template root
+    'spec-kit-templates/',   # Exclude all template examples
+    '/templates/',           # Exclude any templates folders
 ]
 
 def is_ignored(path: Path) -> bool:
@@ -77,12 +89,37 @@ def extract_front_matter(text: str) -> Dict[str, Any]:
 
 
 def parse_file(path: Path) -> List[Dict[str, Any]]:
+    """Parse a markdown file and extract all spec IDs with source type classification.
+    
+    Enhancement 2025-12-02: Distinguish definitions (canonical) from references (citations)
+    - Definitions: YAML front matter 'id:', markdown headings (## REQ-F-001)
+    - References: All other occurrences (tables, traceability sections, inline mentions)
+    """
     text = path.read_text(encoding='utf-8', errors='ignore')
     fm = extract_front_matter(text)
     items: List[Dict[str, Any]] = []
+    definitions_found = set()  # Track canonical definitions
+    
+    # Extract from front matter 'id:' field (canonical definition)
     primary_id = fm.get('id')
     if primary_id:
-        items.append(build_item(primary_id, fm.get('title') or path.stem, path, text))
+        items.append(build_item(primary_id, fm.get('title') or path.stem, path, text, 'definition'))
+        definitions_found.add(primary_id)
+    
+    # Extract from markdown headings (## REQ-F-001: canonical definitions)
+    for match in HEADING_DEF_PATTERN.finditer(text):
+        id_ = match.group(1)
+        if id_ not in definitions_found:
+            # Extract heading title
+            line_start = text.rfind('\n', 0, match.start()) + 1
+            line_end = text.find('\n', match.end())
+            line = text[line_start:line_end] if line_end != -1 else text[line_start:]
+            remainder = line.split(id_, 1)[1].strip(' -:,') if id_ in line else path.stem
+            title = remainder or path.stem
+            items.append(build_item(id_, title, path, text, 'definition'))
+            definitions_found.add(id_)
+    
+    # Scan body for additional ID references (not already classified as definitions)
     for raw_line in text.splitlines():
         line = raw_line.strip('# ').strip()
         m = ID_PATTERN.match(line)
@@ -91,8 +128,8 @@ def parse_file(path: Path) -> List[Dict[str, Any]]:
         # Extract all valid IDs present in the line (comma separated etc.)
         ids_in_line = [tok for tok in REF_PATTERN.findall(line)]
         for idx, id_ in enumerate(ids_in_line):
-            if primary_id and id_ == primary_id:
-                continue
+            if id_ in definitions_found:
+                continue  # Skip: already captured as definition
             if any(i['id'] == id_ for i in items):
                 continue
             # Title: remainder of line after this id if first, else just path stem
@@ -101,17 +138,25 @@ def parse_file(path: Path) -> List[Dict[str, Any]]:
                 title = remainder or path.stem
             else:
                 title = path.stem
-            items.append(build_item(id_, title, path, text))
+            items.append(build_item(id_, title, path, text, 'reference'))
     return items
 
 
-def build_item(id_: str, title: str, path: Path, full_text: str) -> Dict[str, Any]:
+def build_item(id_: str, title: str, path: Path, full_text: str, source_type: str = 'reference') -> Dict[str, Any]:
+    """Build spec item with source type classification.
+    
+    Args:
+        source_type: 'definition' (canonical) or 'reference' (citation)
+    
+    Enhancement: 2025-12-02 - Distinguish definitions from references
+    """
     refs = sorted({r for r in REF_PATTERN.findall(full_text) if r != id_})
     sha = hashlib.sha1(full_text.encode('utf-8')).hexdigest()[:8]
     return {
         'id': id_,
         'title': title,
         'path': str(path.relative_to(ROOT)),
+        'sourceType': source_type,
         'references': refs,
         'hash': sha,
     }
@@ -155,29 +200,42 @@ def main() -> int:
                         'id': tid,
                         'title': src.stem,
                         'path': str(src.relative_to(ROOT)),
+                        'sourceType': 'definition',  # Test IDs in source code are definitions
                         'references': req_refs,
                         'hash': hashlib.sha1((tid+text).encode('utf-8')).hexdigest()[:8],
                     })
-    # De-duplicate by ID keeping first occurrence while tracking duplicates
+    # De-duplicate by ID keeping first occurrence
+    # Enhancement 2025-12-02: Only flag multiple *definitions* as duplicates (references are expected)
     seen = {}
     dedup: List[Dict[str, Any]] = []
-    duplicates: Dict[str, int] = {}
+    duplicate_definition_ids: Dict[str, int] = {}
+    
     for item in all_items:
         iid = item['id']
+        source_type = item.get('sourceType', 'reference')
+        
         if iid in seen:
-            duplicates[iid] = duplicates.get(iid, 1) + 1
+            # Only flag if both occurrences are definitions
+            if source_type == 'definition' and seen[iid] == 'definition':
+                duplicate_definition_ids[iid] = duplicate_definition_ids.get(iid, 1) + 1
             continue
-        seen[iid] = 1
+        seen[iid] = source_type
         dedup.append(item)
-    if duplicates:
-        print("⚠️ Duplicate ID(s) detected (keeping first occurrence):", file=sys.stderr)
-        for k, count in duplicates.items():
-            print(f"  - {k} (occurrences: {count+0})", file=sys.stderr)
+    
+    if duplicate_definition_ids:
+        print("⚠️ Duplicate definition(s) detected (keeping first):", file=sys.stderr)
+        for k, count in duplicate_definition_ids.items():
+            print(f"  - {k} (definitions: {count+1})", file=sys.stderr)
+    
     OUTPUT_FILE.write_text(
-        json.dumps({'items': dedup, 'duplicateIds': list(duplicates.keys()), 'ignoredPatterns': IGNORE_PATTERNS}, indent=2),
+        json.dumps({
+            'items': dedup,
+            'duplicateDefinitionIds': list(duplicate_definition_ids.keys()),
+            'ignoredPatterns': IGNORE_PATTERNS
+        }, indent=2),
         encoding='utf-8'
     )
-    print(f"Wrote {OUTPUT_FILE} with {len(dedup)} unique items (duplicates: {len(duplicates)}) (ignored patterns active)")
+    print(f"Wrote {OUTPUT_FILE} with {len(dedup)} unique items (duplicate definitions: {len(duplicate_definition_ids)})")
     return 0
 
 if __name__ == '__main__':

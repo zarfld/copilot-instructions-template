@@ -144,19 +144,22 @@ def discover_targets(explicit: list[str]) -> list[pathlib.Path]:
         candidates.extend(ROOT.glob(pattern))
     
     # Exclude legacy artifact files (now using GitHub Issues for requirements/traceability)
+    # Enhancement 2025-12-02: Added migration artifacts and generic session logs
     exclude_patterns = [
+        # Migration artifacts
+        'GITHUB-ISSUE-BODIES-COMPLETE.md',
+        # Phase completion summaries
         'ARCHITECTURE-PHASE-03-OUTPUT.md',
         'ARCHITECTURE-SUMMARY.md',
-        'GITHUB-ISSUE-BODIES-COMPLETE.md',
         'PHASE-04-COMPLETION-SUMMARY.md',
+        'PHASE-04-TO-05-TRANSITION-COMPLETE.md',
+        'PHASE-05-KICKOFF.md',
+        # Development logs and reports
         'phase-04-traceability-matrix.md',
         'tdd-plan-phase-05.md',
         'DAY-01-AFTERNOON-SUMMARY.md',
         'implementation-log.md',
-        'PHASE-04-TO-05-TRANSITION-COMPLETE.md',
-        'PHASE-05-KICKOFF.md',
         'TDD-CYCLE-',  # Match all TDD cycle logs
-        'WAVE-',  # Match all wave completion logs
     ]
     
     return [c for c in candidates 
