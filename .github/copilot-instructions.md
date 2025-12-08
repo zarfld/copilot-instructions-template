@@ -209,6 +209,51 @@ Before any implementation, design, or testing work:
 
 ### Issue Linking Rules (Bidirectional Traceability)
 
+#### ⚠️ EXACT SYNTAX REQUIRED (CI Validation)
+
+**CI validates traceability links using strict regex patterns. Use EXACT syntax below:**
+
+**Parent Link Syntax** (REQUIRED for all non-StR issues):
+```markdown
+## Traceability
+- **Traces to**: #123 (parent StR issue)
+```
+
+**Regex Pattern (CI)**: `/[Tt]races?\s+to:?\s*#(\d+)/`
+
+**Accepted Variations** (case-insensitive, flexible spacing):
+- ✅ `- **Traces to**: #123` (preferred)
+- ✅ `- **Trace to**: #123`
+- ✅ `Traces to #123`
+- ✅ `Trace to: #123`
+
+**Common MISTAKES (will FAIL CI)**:
+- ❌ `Links to: #123` (wrong verb)
+- ❌ `Traced to: #123` (wrong tense)
+- ❌ `Parent: #123` (missing "Traces to")
+- ❌ `Implements: #123` (wrong relationship type)
+- ❌ Missing `#` before number
+- ❌ Missing issue number entirely
+
+**Test Verification Syntax** (REQUIRED for TEST issues):
+```markdown
+## Traceability
+- **Verifies**: #45 (requirement being tested)
+```
+
+**Regex Pattern (CI)**: `/[Vv]erif(?:ies|ied\s+[Rr]equirements?):?\s*#(\d+)/g`
+
+**Accepted Variations**:
+- ✅ `- **Verifies**: #45, #67` (multiple requirements)
+- ✅ `- **Verified Requirements**: #45`
+
+**Common MISTAKES (will FAIL CI)**:
+- ❌ `Tests: #45` (wrong verb)
+- ❌ `Validates: #45` (wrong verb)
+- ❌ `Covers: #45` (wrong verb)
+
+---
+
 **Upward Traceability** (Child → Parent):
 ```markdown
 ## Traceability
@@ -225,11 +270,12 @@ Before any implementation, design, or testing work:
 ```
 
 **Required Links**:
-- REQ-F/REQ-NF **MUST** trace to parent StR issue
-- ADR **MUST** link to requirements it satisfies
-- ARC-C **MUST** link to ADRs and requirements
-- TEST **MUST** link to requirements being verified
-- All PRs **MUST** link to implementing issue(s)
+- REQ-F/REQ-NF **MUST** trace to parent StR issue using `Traces to: #N`
+- ADR **MUST** link to requirements it satisfies using `Traces to: #N`
+- ARC-C **MUST** link to ADRs and requirements using `Traces to: #N`
+- TEST **MUST** link to requirements being verified using `Verifies: #N`
+- All PRs **MUST** link to implementing issue(s) using `Fixes #N` or `Implements #N`
+- StR (Stakeholder Requirements) are EXEMPT from parent link requirement (they are root-level)
 
 ### Issue Reference Syntax
 

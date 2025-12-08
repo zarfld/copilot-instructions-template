@@ -11,12 +11,34 @@ body:
         Document significant architecture decisions that impact system structure, behavior, or quality attributes.
         Follows ISO/IEC/IEEE 42010:2011 and ADR best practices.
 
-  - type: input
-    id: req_links
+  - type: markdown
     attributes:
-      label: "Requirements Links"
-      description: "Link to requirements this decision addresses (e.g., #123, #124)"
-      placeholder: "#123, #124"
+      value: |
+        ## 🔗 Traceability (REQUIRED)
+        
+        ⚠️ **CI Validation**: Use exact syntax `- **Traces to**: #N` or CI will fail.
+        
+        **Accepted formats**:
+        - ✅ `- **Traces to**: #123` (preferred)
+        - ✅ `- **Trace to**: #123`
+        - ✅ `Traces to #123`
+        
+        **Common mistakes (will fail CI)**:
+        - ❌ `Addresses: #123` (wrong verb)
+        - ❌ `Requirements: #123` (missing "Traces to")
+
+  - type: textarea
+    id: traceability
+    attributes:
+      label: "Requirements & Parent Links"
+      description: "Link to requirements this decision addresses"
+      placeholder: |
+        ## Traceability
+        - **Traces to**: #23 (REQ-F-AUTH-001: User Login)
+        - **Traces to**: #45 (REQ-NF-SECU-002: Session Security)
+      value: |
+        ## Traceability
+        - **Traces to**: #
     validations:
       required: true
 
