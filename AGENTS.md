@@ -313,6 +313,146 @@ Every PR MUST:
 - **YAGNI** (You Aren't Gonna Need It) → Don't build speculative features
 - **No Shortcuts** → Don't skip essential engineering for current features
 
+---
+
+## Complementary Engineering Philosophies
+
+These principles build upon and reinforce the three core philosophies:
+
+### 1. "Make it work, make it right, make it fast"
+
+**Sequence**: Correctness → Design → Optimization
+
+**Application**:
+- **Make it work**: First get a minimal vertical slice working end-to-end; prove feasibility
+- **Make it right**: Clean up design, extract abstractions, add tests; remove duplication
+- **Make it fast**: Only then profile and optimize hotspots; avoid premature optimizations
+
+**Reinforces**: "Slow is fast" (deliberate sequence), "No shortcuts" (don't skip "make it right")
+
+---
+
+### 2. "Simplicity over cleverness"
+
+**Essence**: Simple and boring beats clever and fragile
+
+**Application**:
+- Prefer straightforward algorithms and designs over "smart" tricks
+- Choose standard patterns and libraries unless there is a clear reason not to
+- If a solution is hard to explain in 2-3 minutes, it might be too clever
+
+**Reinforces**: "No shortcuts" (maintainability), "Slow is fast" (simpler = fewer bugs)
+
+---
+
+### 3. "Small, incremental change"
+
+**Essence**: Big-bang changes are fragile; small steps are safe and fast
+
+**Application**:
+- Small PRs/commits with a single clear purpose
+- Refactor in slices instead of massive rewrites
+- Deploy frequently with small deltas → simpler rollbacks and debugging
+
+**Reinforces**: "Slow is fast" (fast feedback loops), XP Continuous Integration
+
+---
+
+### 4. "Explicit is better than implicit"
+
+**Essence**: Make behavior and dependencies visible
+
+**Application**:
+- Clear function signatures instead of hidden globals
+- Explicit configuration instead of "magic" defaults
+- Clear types and contracts instead of relying on convention
+
+**Reinforces**: "No excuses" (debuggability), "No shortcuts" (clarity over cleverness)
+
+---
+
+### 5. "Feedback is a first-class asset"
+
+**Essence**: Treat every form of feedback as a primary tool, not a nuisance
+
+**Application**:
+- Tests, linters, logs, metrics, profilers = feedback loops
+- User bug reports and complaints are input to improve robustness and UX
+- Code reviews are a feedback mechanism, not a formality
+
+**Reinforces**: "Slow is fast" (rapid feedback), "No shortcuts" (don't disable alarms)
+
+---
+
+### 6. "You build it, you run it"
+
+**Essence**: Responsibility for code extends into production
+
+**Application**:
+- Developers involved in monitoring, alerting, and on-call (where appropriate)
+- Design decisions consider operability: logs, metrics, traceability
+- Don't throw code "over the fence" to ops/support
+
+**Reinforces**: "No excuses" (ownership), "No shortcuts" (operational concerns upfront)
+
+---
+
+### 7. "If it hurts, do it more often (and automate)"
+
+**Essence**: Painful tasks signal missing automation or process design
+
+**Application**:
+- If releases are painful, release more frequently and automate
+- If merging is painful, integrate more often and refine branching strategy
+- If testing is painful, improve test tools and testability
+
+**Reinforces**: "Slow is fast" (invest in tooling), XP Continuous Integration
+
+---
+
+### 8. "Prefer boring technology for critical paths"
+
+**Essence**: Stability and predictability beat novelty for core systems
+
+**Application**:
+- For critical infrastructure (drivers, timing, finance, production systems), prefer:
+  - Well-known languages
+  - Mature frameworks
+  - Battle-tested libraries
+- Use experimental or cutting-edge tech at the edges, not in the core
+
+**Reinforces**: "No shortcuts" (don't buy "fast" development with unknown risks)
+
+---
+
+### 9. "Strong opinions, weakly held"
+
+**Essence**: Be decisive, but change your mind when confronted with better evidence
+
+**Application**:
+- Have a default way to do things (coding style, architecture preferences)
+- When data or convincing arguments show a better way, adapt quickly
+- Avoid dogmatism ("we *always* do X") in favor of reasoned standards
+
+**Reinforces**: XP values (courage to change, feedback-driven), "Slow is fast" (learning)
+
+---
+
+### 10. "Leave the campsite cleaner than you found it" (Boy Scout Rule)
+
+**Essence**: Always make the codebase slightly better as you touch it
+
+**Application**:
+- When you work in a file:
+  - Fix a small smell
+  - Update a misleading comment
+  - Add or improve a test
+- Don't wait for a "big refactor" that may never be scheduled
+
+**Reinforces**: "No shortcuts" (incremental improvement), prevents technical debt compound interest
+
+---
+
 ## XP Practices Integration
 
 ### Test-Driven Development (Phase 05)
@@ -365,29 +505,32 @@ Refactor → Improve design while keeping tests green (go slow: clean now, fast 
 ## Boundaries and Constraints
 
 ### Always Do (Embrace "Slow is Fast" + "No Excuses" + "No Shortcuts")
-- ✅ Ask clarifying questions when requirements are unclear (go slow: understand first; no excuses: communication over assumptions; no shortcuts: clarity over speed)
-- ✅ Write tests before implementation (TDD) (go slow: define behavior, save debugging time; no excuses: quality is your responsibility; no shortcuts: cover critical paths)
-- ✅ Handle errors defensively (no excuses: check files exist, handle network failures, validate inputs; no shortcuts: handle failures as normal cases)
+- ✅ Ask clarifying questions when requirements are unclear (go slow: understand first; no excuses: communication over assumptions; no shortcuts: clarity over speed; explicit over implicit)
+- ✅ Write tests before implementation (TDD) (go slow: define behavior, save debugging time; no excuses: quality is your responsibility; no shortcuts: cover critical paths; make it work, make it right, make it fast)
+- ✅ Handle errors defensively (no excuses: check files exist, handle network failures, validate inputs; no shortcuts: handle failures as normal cases; explicit over implicit)
 - ✅ Wrap unstable dependencies (no excuses: library bugs are your problem to isolate; no shortcuts: sandboxing prevents cascading failures)
-- ✅ Communicate blockers early (no excuses: surprises are failures; propose options, not just problems; no shortcuts: transparency over comfortable silence)
+- ✅ Communicate blockers early (no excuses: surprises are failures; propose options, not just problems; no shortcuts: transparency over comfortable silence; feedback as asset)
 - ✅ Maintain requirements traceability via GitHub Issues (go slow: track now, trace easily later; no excuses: ownership of scope; no shortcuts: essential for compliance)
-- ✅ Create GitHub Issue before starting any work (go slow: plan, avoid rework; no shortcuts: deliberate boundaries over ad-hoc development)
+- ✅ Create GitHub Issue before starting any work (go slow: plan, avoid rework; no shortcuts: deliberate boundaries over ad-hoc development; small incremental change)
 - ✅ Follow phase-specific copilot instructions (`.github/instructions/phase-NN-*.instructions.md`)
-- ✅ Document architecture decisions (ADRs) (go slow: write rationale, faster onboarding; no shortcuts: document non-obvious invariants)
-- ✅ Include acceptance criteria in user stories (go slow: define done, avoid scope creep; no shortcuts: measurable criteria over vague goals)
-- ✅ Run all tests before committing code (go slow: catch bugs early, cheaper fixes; no excuses: your code, your stability; no shortcuts: reliability costs upfront)
-- ✅ Update documentation when code changes (go slow: maintain clarity, reduce confusion; no shortcuts: current docs over outdated maps)
-- ✅ Leave code better than you found it (no excuses: incremental improvement over "refactor later"; no shortcuts: Boy Scout rule)
-- ✅ Report mistakes immediately and focus on mitigation (no excuses: own failures, fix fast; no shortcuts: transparency prevents worse crises)
+- ✅ Document architecture decisions (ADRs) (go slow: write rationale, faster onboarding; no shortcuts: document non-obvious invariants; explicit over implicit)
+- ✅ Include acceptance criteria in user stories (go slow: define done, avoid scope creep; no shortcuts: measurable criteria over vague goals; explicit over implicit)
+- ✅ Run all tests before committing code (go slow: catch bugs early, cheaper fixes; no excuses: your code, your stability; no shortcuts: reliability costs upfront; feedback as asset)
+- ✅ Update documentation when code changes (go slow: maintain clarity, reduce confusion; no shortcuts: current docs over outdated maps; explicit over implicit)
+- ✅ Leave code better than you found it (no excuses: incremental improvement over "refactor later"; no shortcuts: Boy Scout rule; campsite cleaner)
+- ✅ Report mistakes immediately and focus on mitigation (no excuses: own failures, fix fast; no shortcuts: transparency prevents worse crises; feedback as asset)
 - ✅ Validate exit criteria before phase transition (go slow: quality gates prevent costly rework; no shortcuts: essential gates over rushed transitions)
-- ✅ Define minimal but clear boundaries (no shortcuts: separate concerns even in small steps; avoid temporary hacks)
-- ✅ Write small testable units (no shortcuts: prefer testable over giant functions you're afraid to touch)
+- ✅ Define minimal but clear boundaries (no shortcuts: separate concerns even in small steps; avoid temporary hacks; explicit over implicit)
+- ✅ Write small testable units (no shortcuts: prefer testable over giant functions you're afraid to touch; simplicity over cleverness; small incremental change)
 - ✅ Use timeouts, retries, and fallbacks (no shortcuts: resilience patterns prevent outages)
-- ✅ Validate and sanitize all external input (no shortcuts: security is essential, not optional)
-- ✅ Measure before optimizing (no shortcuts: profiler data over hunches)
-- ✅ Name things clearly (no shortcuts: readability for future you)
-- ✅ Keep PRs small and reviewable (no shortcuts: minutes now to avoid hours of confusion later)
-- ✅ Address code review feedback (no shortcuts: use reviews to improve shared understanding)
+- ✅ Validate and sanitize all external input (no shortcuts: security is essential, not optional; explicit over implicit)
+- ✅ Measure before optimizing (no shortcuts: profiler data over hunches; make it work, make it right, make it fast)
+- ✅ Name things clearly (no shortcuts: readability for future you; explicit over implicit; simplicity over cleverness)
+- ✅ Keep PRs small and reviewable (no shortcuts: minutes now to avoid hours of confusion later; small incremental change)
+- ✅ Address code review feedback (no shortcuts: use reviews to improve shared understanding; feedback as asset; strong opinions weakly held)
+- ✅ Automate painful processes (if it hurts, do it more often and automate; go slow: invest in tooling)
+- ✅ Use boring technology for critical paths (prefer boring tech; no shortcuts: stability over novelty for core systems)
+- ✅ Design for operability (you build it, you run it; no excuses: operational concerns upfront)
 
 ### Ask First
 - ⚠️ Before proceeding with ambiguous requirements
@@ -397,30 +540,34 @@ Refactor → Improve design while keeping tests green (go slow: clean now, fast 
 - ⚠️ Before introducing new dependencies or technologies
 
 ### Never Do (False Speed = Real Slowness; Excuses = Avoided Responsibility; Shortcuts = Long-Term Pain)
-- ❌ Proceed with ambiguous requirements (rushing = massive rework later)
-- ❌ Assume files exist / network is fine / inputs are valid (no excuses: check and handle failures; no shortcuts: handle as normal cases)
-- ❌ Blame tools when behavior fails (no excuses: wrap it, retry it, replace it)
-- ❌ Say "users are stupid" (no excuses: improve UX, validation, error messages)
-- ❌ Use "no time for tests" as excuse (no excuses: cover critical paths minimum; no shortcuts: reliability costs upfront)
-- ❌ Promise "we'll refactor later" without doing it (no excuses: incremental improvement now; no shortcuts: Boy Scout rule)
-- ❌ Hide problems until they explode (no excuses: communicate early, propose options; no shortcuts: transparency over comfort)
-- ❌ Start implementation without creating/linking GitHub issue (no tracking = lost context; no shortcuts: deliberate boundaries)
+- ❌ Proceed with ambiguous requirements (rushing = massive rework later; implicit assumptions = chaos)
+- ❌ Assume files exist / network is fine / inputs are valid (no excuses: check and handle failures; no shortcuts: handle as normal cases; explicit validation)
+- ❌ Blame tools when behavior fails (no excuses: wrap it, retry it, replace it; you build it, you run it)
+- ❌ Say "users are stupid" (no excuses: improve UX, validation, error messages; feedback as asset)
+- ❌ Use "no time for tests" as excuse (no excuses: cover critical paths minimum; no shortcuts: reliability costs upfront; make it work, make it right, make it fast)
+- ❌ Promise "we'll refactor later" without doing it (no excuses: incremental improvement now; no shortcuts: Boy Scout rule; campsite cleaner)
+- ❌ Hide problems until they explode (no excuses: communicate early, propose options; no shortcuts: transparency over comfort; feedback as asset)
+- ❌ Start implementation without creating/linking GitHub issue (no tracking = lost context; no shortcuts: deliberate boundaries; small incremental change)
 - ❌ Write code without tests (fast now = debugging hell later; no shortcuts: cover critical paths)
-- ❌ Create PR without `Fixes #N` or `Implements #N` link (broken traceability = compliance failures)
-- ❌ Write tests without linking to requirement issue (orphaned tests = wasted effort)
-- ❌ Make architecture decisions without ADR issue (undocumented = repeated debates; no shortcuts: document rationale)
-- ❌ Skip documentation updates (outdated docs = onboarding nightmare; no shortcuts: maintain current map)
+- ❌ Create PR without `Fixes #N` or `Implements #N` link (broken traceability = compliance failures; explicit over implicit)
+- ❌ Write tests without linking to requirement issue (orphaned tests = wasted effort; explicit over implicit)
+- ❌ Make architecture decisions without ADR issue (undocumented = repeated debates; no shortcuts: document rationale; explicit over implicit)
+- ❌ Skip documentation updates (outdated docs = onboarding nightmare; no shortcuts: maintain current map; explicit over implicit)
 - ❌ Ignore standards compliance (shortcuts = audit failures)
-- ❌ Break existing tests (ignoring red = cascading bugs)
+- ❌ Break existing tests (ignoring red = cascading bugs; feedback as asset)
 - ❌ Commit untested code ("works on my machine" = production fires)
-- ❌ Create circular dependencies (tight coupling = maintenance hell; no shortcuts: clear boundaries)
+- ❌ Create circular dependencies (tight coupling = maintenance hell; no shortcuts: clear boundaries; simplicity over cleverness)
 - ❌ Create orphaned requirements (no parent/child links = unvalidated work)
 - ❌ Blame individuals when things break (no excuses: systemic fixes over scapegoats)
-- ❌ Merge without code review (no shortcuts: quality erosion from urgency)
-- ❌ Ignore return codes or exceptions (no shortcuts: small glitch vs. outage)
-- ❌ Skip input validation (no shortcuts: security is essential)
-- ❌ Use cryptic names (no shortcuts: readability for future you)
-- ❌ Premature optimization without measurement (no shortcuts: measure → analyze → optimize)
+- ❌ Merge without code review (no shortcuts: quality erosion from urgency; feedback as asset)
+- ❌ Ignore return codes or exceptions (no shortcuts: small glitch vs. outage; explicit over implicit)
+- ❌ Skip input validation (no shortcuts: security is essential; explicit over implicit)
+- ❌ Use cryptic names (no shortcuts: readability for future you; explicit over implicit; simplicity over cleverness)
+- ❌ Premature optimization without measurement (no shortcuts: measure → analyze → optimize; make it work, make it right, make it fast)
+- ❌ Giant PRs with mixed concerns (no shortcuts: reviewable changes save time; small incremental change)
+- ❌ Use experimental tech for critical paths (prefer boring technology; no shortcuts: stability for core systems)
+- ❌ Ignore painful processes (if it hurts, automate it; go slow: invest in tooling)
+- ❌ Refuse to change mind when evidence contradicts (strong opinions weakly held; feedback as asset)
 - ❌ Giant PRs with mixed concerns (no shortcuts: reviewable changes save time)
 
 ## Decision Trees
