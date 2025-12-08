@@ -159,7 +159,7 @@ Every PR MUST:
 3. Pass all CI checks including traceability validation
 4. Have at least one approved review
 
-## Core Philosophy: "Slow is Fast" + "No Excuses" + "No Shortcuts"
+## Core Philosophy: "Slow is Fast" + "No Excuses" + "No Shortcuts" + "Clarify First"
 
 ### "Slow is Fast": Deliberate Development
 
@@ -312,6 +312,59 @@ Every PR MUST:
 **Key Distinction**:
 - **YAGNI** (You Aren't Gonna Need It) → Don't build speculative features
 - **No Shortcuts** → Don't skip essential engineering for current features
+
+---
+
+### "Clarify First – Never Code on Guesses"
+
+> **Requirements are part of your job, not "somebody else's problem". Misinterpretations are defects, not excuses.**
+
+**Essence**: Vague requirements = bugs waiting to happen. Clarifying requirements is engineering work, not overhead.
+
+**In Requirements Engineering**:
+- Vague requirement? → Surface it, don't ignore it
+- Contradictory specs? → Don't pick one silently; escalate
+- Unsure what user needs? → Don't guess; ask with concrete examples
+- **Result**: Spend 30 minutes clarifying now vs. days reworking later
+
+**Clarification Test** (Before Implementing Anything):
+> If you cannot explain the requirement back in 2–3 sentences with clear examples, you don't understand it well enough to implement it.
+
+**Treat Misinterpretations as Process Bugs**:
+- Every mismatch between implemented vs. needed → Fix code + improve capture process
+- Root causes:
+  - Vague wording → Require concrete examples + acceptance criteria
+  - Hidden assumptions → Make explicit, reference previous patterns
+  - Spoken-only decisions → Must be logged before implementation
+  - Ambiguous domain terms → Maintain glossary (ubiquitous language)
+- **Result**: Don't blame people; harden system against misinterpretation
+
+**What "Clarify First" Does NOT Mean**:
+❌ Analysis paralysis / endless refinement  
+❌ Refusing to start until 100% perfect spec  
+❌ Treating stakeholders as adversaries  
+❌ Ignoring emergent understanding  
+
+**What "Clarify First" DOES Mean**:
+✅ No implementation without written acceptance criteria  
+✅ Restate requirements in your own words ("So what you want is...")  
+✅ Look for edge cases upfront, not after implementation  
+✅ Capture clarifications somewhere persistent (ticket, spec, comment)  
+✅ Follow requirements – AND challenge them when they don't make sense  
+✅ Respect the spec, but question inconsistencies, safety issues, incompleteness  
+
+**Concrete Practices**:
+- **Specification by Example**: Every requirement has Given-When-Then examples
+- **Executable Specs**: Tests are living requirements; if tests fail, either code or spec is wrong
+- **Frequent Demos**: Thin slices shown early reveal mental model mismatches
+- **Traceability**: Every PR/commit references requirement; each requirement links to design/tests/code
+
+**Heuristic**: If you're implementing based on assumptions rather than confirmed understanding, you're introducing technical debt disguised as progress.
+
+**Reinforces**:
+- "Slow is fast" (30 minutes clarifying now saves days of rework)
+- "No excuses" (vague spec explains problem but doesn't absolve team from fixing process)
+- "No shortcuts" (don't implement half-baked features just because text exists)
 
 ---
 
@@ -504,8 +557,8 @@ Refactor → Improve design while keeping tests green (go slow: clean now, fast 
 
 ## Boundaries and Constraints
 
-### Always Do (Embrace "Slow is Fast" + "No Excuses" + "No Shortcuts")
-- ✅ Ask clarifying questions when requirements are unclear (go slow: understand first; no excuses: communication over assumptions; no shortcuts: clarity over speed; explicit over implicit)
+### Always Do (Embrace "Slow is Fast" + "No Excuses" + "No Shortcuts" + "Clarify First")
+- ✅ Ask clarifying questions when requirements are unclear (go slow: understand first; no excuses: communication over assumptions; no shortcuts: clarity over speed; clarify first: vague requirements are bugs; explicit over implicit)
 - ✅ Write tests before implementation (TDD) (go slow: define behavior, save debugging time; no excuses: quality is your responsibility; no shortcuts: cover critical paths; make it work, make it right, make it fast)
 - ✅ Handle errors defensively (no excuses: check files exist, handle network failures, validate inputs; no shortcuts: handle failures as normal cases; explicit over implicit)
 - ✅ Wrap unstable dependencies (no excuses: library bugs are your problem to isolate; no shortcuts: sandboxing prevents cascading failures)
@@ -514,7 +567,11 @@ Refactor → Improve design while keeping tests green (go slow: clean now, fast 
 - ✅ Create GitHub Issue before starting any work (go slow: plan, avoid rework; no shortcuts: deliberate boundaries over ad-hoc development; small incremental change)
 - ✅ Follow phase-specific copilot instructions (`.github/instructions/phase-NN-*.instructions.md`)
 - ✅ Document architecture decisions (ADRs) (go slow: write rationale, faster onboarding; no shortcuts: document non-obvious invariants; explicit over implicit)
-- ✅ Include acceptance criteria in user stories (go slow: define done, avoid scope creep; no shortcuts: measurable criteria over vague goals; explicit over implicit)
+- ✅ Include acceptance criteria in user stories (go slow: define done, avoid scope creep; no shortcuts: measurable criteria over vague goals; clarify first: concrete examples prevent misinterpretation; explicit over implicit)
+- ✅ Restate requirements in your own words before implementing (clarify first: 2-3 sentences with examples; if can't explain it, don't understand it; feedback as asset)
+- ✅ Capture clarifications in persistent artifacts (clarify first: ticket comments, spec updates, ADR notes; spoken decisions must be logged)
+- ✅ Look for edge cases upfront, not after implementation (clarify first: vague specs hide edge cases; go slow: discover now vs. debug later)
+- ✅ Challenge requirements when they don't make sense (clarify first: respect spec but question inconsistencies; no excuses: don't hide behind vague text)
 - ✅ Run all tests before committing code (go slow: catch bugs early, cheaper fixes; no excuses: your code, your stability; no shortcuts: reliability costs upfront; feedback as asset)
 - ✅ Update documentation when code changes (go slow: maintain clarity, reduce confusion; no shortcuts: current docs over outdated maps; explicit over implicit)
 - ✅ Leave code better than you found it (no excuses: incremental improvement over "refactor later"; no shortcuts: Boy Scout rule; campsite cleaner)
@@ -539,8 +596,8 @@ Refactor → Improve design while keeping tests green (go slow: clean now, fast 
 - ⚠️ Before modifying baselined artifacts without approval
 - ⚠️ Before introducing new dependencies or technologies
 
-### Never Do (False Speed = Real Slowness; Excuses = Avoided Responsibility; Shortcuts = Long-Term Pain)
-- ❌ Proceed with ambiguous requirements (rushing = massive rework later; implicit assumptions = chaos)
+### Never Do (False Speed = Real Slowness; Excuses = Avoided Responsibility; Shortcuts = Long-Term Pain; Guesses = Hidden Bugs)
+- ❌ Proceed with ambiguous requirements (rushing = massive rework later; clarify first: vague requirements are defects; implicit assumptions = chaos)
 - ❌ Assume files exist / network is fine / inputs are valid (no excuses: check and handle failures; no shortcuts: handle as normal cases; explicit validation)
 - ❌ Blame tools when behavior fails (no excuses: wrap it, retry it, replace it; you build it, you run it)
 - ❌ Say "users are stupid" (no excuses: improve UX, validation, error messages; feedback as asset)
@@ -549,6 +606,10 @@ Refactor → Improve design while keeping tests green (go slow: clean now, fast 
 - ❌ Hide problems until they explode (no excuses: communicate early, propose options; no shortcuts: transparency over comfort; feedback as asset)
 - ❌ Start implementation without creating/linking GitHub issue (no tracking = lost context; no shortcuts: deliberate boundaries; small incremental change)
 - ❌ Write code without tests (fast now = debugging hell later; no shortcuts: cover critical paths)
+- ❌ Implement based on assumptions rather than confirmed understanding (clarify first: assumptions are technical debt disguised as progress)
+- ❌ Ignore contradictory specs hoping they'll resolve themselves (clarify first: don't pick one silently, escalate conflicts)
+- ❌ Start implementation without concrete examples (clarify first: Given-When-Then prevents misinterpretation)
+- ❌ Accept "as usual" or "like last time" without explicit reference (clarify first: hidden assumptions cause mismatches)
 - ❌ Create PR without `Fixes #N` or `Implements #N` link (broken traceability = compliance failures; explicit over implicit)
 - ❌ Write tests without linking to requirement issue (orphaned tests = wasted effort; explicit over implicit)
 - ❌ Make architecture decisions without ADR issue (undocumented = repeated debates; no shortcuts: document rationale; explicit over implicit)
@@ -568,7 +629,6 @@ Refactor → Improve design while keeping tests green (go slow: clean now, fast 
 - ❌ Use experimental tech for critical paths (prefer boring technology; no shortcuts: stability for core systems)
 - ❌ Ignore painful processes (if it hurts, automate it; go slow: invest in tooling)
 - ❌ Refuse to change mind when evidence contradicts (strong opinions weakly held; feedback as asset)
-- ❌ Giant PRs with mixed concerns (no shortcuts: reviewable changes save time)
 
 ## Decision Trees
 
