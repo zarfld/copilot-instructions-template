@@ -349,6 +349,44 @@ These principles build upon and reinforce the three core philosophies:
 
 ---
 
+### 11. "Reuse before reinvent" + "One source of truth" + "Curate, don't accumulate"
+
+**Essence**: Prefer existing solutions, eliminate duplication, keep codebase clean
+
+**11a. Reuse Before Reinvent**:
+- Before writing new code, check if codebase or mature libraries already have it
+- Wrap or extend existing components instead of forking casually
+- Align with standard implementations and idioms
+- **Result**: Less code, fewer bugs, less maintenance; more time for domain problems
+
+**11b. One Source of Truth** (No Redundant Implementations):
+- Each concept has single authoritative implementation or definition
+- Shared constants/types instead of duplicated literals (enums, error codes, register definitions)
+- Centralized business rules (one module, used everywhere)
+- When duplicated logic found → Extract to shared function/module, replace all copies
+- **Result**: Rule changes in one place; compiler/tests propagate
+
+**11c. Curate, Don't Accumulate** (Keep Repo Clean):
+- Repository is curated product, not dumping ground
+- Dead code is removed, not commented out
+- Obsolete paths deprecated then deleted
+- Experiments either graduate to structured location (`experiments/`) or are archived
+- Regular cleanup: Remove unused functions/files, consolidate helpers, delete old experiments
+- **Result**: Clear structure, no `old/`, `backup/`, `tmp/` folders; no `xyz_old.c`, `xyz_new.c`, `xyz_refactor.c`
+
+**Trade-offs and Guardrails**:
+- Third-party dependencies: Check licensing, maintenance, quality, API stability
+- Don't pull huge framework for tiny feature
+- Internal reuse: Don't force-fit where requirements truly differ
+- If generalizing, keep API simple; avoid over-generalizing
+
+**Reinforces**: 
+- "No shortcuts" (eliminate duplication properly, don't leave tech debt)
+- "Boy Scout rule" (cleanup as you go)
+- "Simplicity over cleverness" (one clear solution beats many fragmented ones)
+
+---
+
 ## 🎯 Primary Objectives
 
 1. **Enforce Standards Compliance** - Ensure all work adheres to IEEE/ISO/IEC standards
@@ -799,6 +837,9 @@ applyTo:
 ✅ Use Five Whys to find root causes (often people problems) (go slow: deep analysis)  
 ✅ Focus on team problems (not individual blame) (go slow: systemic solutions; no excuses: own your part, not others')  
 ✅ Leave code better than you found it (no excuses: incremental improvement over "refactor later"; no shortcuts: Boy Scout rule; campsite cleaner)  
+✅ Check for existing solutions before writing new code (reuse before reinvent; one source of truth; no shortcuts: less code = fewer bugs)  
+✅ Extract duplicated logic to shared functions (one source of truth; no shortcuts: single authoritative implementation)  
+✅ Remove dead code and obsolete paths (curate don't accumulate; campsite cleaner; no shortcuts: clean repo over dumping ground)  
 ✅ Report mistakes immediately and focus on mitigation (no excuses: admit quickly, fix fast; no shortcuts: transparency prevents worse crises; feedback as asset)  
 ✅ Define minimal but clear boundaries (no shortcuts: separate concerns even in small steps; avoid temporary hacks; explicit over implicit)  
 ✅ Write small testable units (no shortcuts: prefer testable over giant functions you're afraid to touch; simplicity over cleverness; small incremental change)  
@@ -826,6 +867,10 @@ applyTo:
 ❌ Assume code works without proof ("I'm pretty sure this will work") (assumptions = production fires)  
 ❌ Build speculative features ("We might need this later") (YAGNI violation = wasted effort)  
 ❌ Copy-paste code without understanding and testing (fast copy = slow maintenance)  
+❌ Reinvent existing solutions without checking codebase or libraries (reuse before reinvent; wasted effort on solved problems)  
+❌ Leave duplicated logic in multiple places (one source of truth; maintenance nightmare when rules change)  
+❌ Keep dead code or commented-out blocks (curate don't accumulate; cluttered codebase hides intent)  
+❌ Create 'UtilityX2', 'NewFoo', 'Foo_v2_final' variants (curate don't accumulate; fragmentation over consolidation)  
 ❌ Implement based on assumptions rather than confirmed understanding (clarify first: assumptions are technical debt disguised as progress)  
 ❌ Ignore contradictory specs hoping they'll resolve themselves (clarify first: don't pick one silently, escalate conflicts)  
 ❌ Trust documentation without empirical verification (docs lie, code runs)  
