@@ -112,35 +112,80 @@ Every PR MUST:
 3. Pass all CI checks including traceability validation
 4. Have at least one approved review
 
-## Core Philosophy: "Slow is Fast"
+## Core Philosophy: "Slow is Fast" + "No Excuses"
+
+### "Slow is Fast": Deliberate Development
 
 > **If you go deliberately and carefully now, you'll go much faster overall.**
 
-This principle underlies all guidance in this template:
-
-### In Development Process
+**In Development Process**:
 - **Design before coding** → Fewer rewrites, less scope creep, easier maintenance
 - **Tests & TDD** → Bugs caught early, changes safer/faster, confident shipping
 - **Code reviews** → Better APIs, fewer defects, knowledge spread
 - **Avoid premature optimization** → Cleaner code, real performance gains where it matters
 - **Tooling & automation** → Every future change faster, safer, more repeatable
 
-### In Runtime Behavior
+**In Runtime Behavior**:
 - **Backpressure & throttling** → Systems stay stable, higher effective throughput
 - **Correct concurrency** → Fewer race conditions, less debugging, safer scaling
 - **Cache warm-up & gradual rollouts** → Predictable performance, smoother operation
 
-### What "Slow is Fast" Does NOT Mean
+**What It Does NOT Mean**:
 ❌ Endless architecture astronautics  
 ❌ Perfect design before any code  
 ❌ Never shipping because still "refining"  
 
-### What It DOES Mean
+**What It DOES Mean**:
 ✅ Purposeful pacing  
 ✅ Short feedback loops  
 ✅ Small, well-thought increments  
 
 **Heuristic**: If "going slow" reduces rework, bugs, or instability later, it's the kind of "slow" that makes you fast.
+
+---
+
+### "No Excuses": Ownership and Robustness
+
+> **If it's your code or your system, you own the outcome – not the tools, not the spec, not "the user", not the deadline.**
+
+**Ownership of Behavior**:
+- Library has a bug? → Sandbox it, add retries, or replace it
+- API is weird? → Wrap it in a sane adapter
+- Users misuse UI? → Improve UX, validation, confirmations
+- Legacy code is messy? → Anti-corruption layers, gradual migration
+- **Result**: Defensive coding, better abstractions, stable behavior
+
+**Error Handling (Assume Things Go Wrong)**:
+- Don't assume files exist → Check, handle failure, log clearly, degrade gracefully
+- Don't assume network is fine → Timeouts, retries with backoff, circuit breakers
+- Don't assume happy path → Test edge cases, document failure modes
+- **Result**: Systems fail under control with good diagnostics
+
+**Quality (No Shortcuts)**:
+- "No time for tests" → Cover critical paths at minimum
+- "We'll refactor later" → Leave code slightly better than you found it
+- "Deadline pressure" → Avoid "just this once" shortcuts that become permanent
+- **Result**: Fewer regressions, lower maintenance cost, less firefighting
+
+**Communication (No Surprises)**:
+- Dependency late? → Communicate early, propose options
+- Scope unrealistic? → Say it explicitly, suggest trade-offs
+- Made a mistake? → Admit quickly, focus on mitigation
+- **Result**: Clear contracts, fewer shocks, trust in commitments
+
+**What "No Excuses" Does NOT Mean**:
+❌ Blaming individuals when things break  
+❌ Ignoring systemic problems  
+❌ Forcing overtime / heroics  
+❌ Suffering silently without raising issues  
+
+**What "No Excuses" DOES Mean**:
+✅ Owning your part of the system  
+✅ Being proactive instead of reactive  
+✅ Turning problems into concrete actions (tests, refactors, monitoring)  
+✅ Professionalism: don't argue with reality, don't hide behind tools  
+
+**Heuristic**: Reasons explain problems; excuses avoid responsibility. Acknowledge constraints, then optimize within them.
 
 ## XP Practices Integration
 
@@ -193,16 +238,21 @@ Refactor → Improve design while keeping tests green (go slow: clean now, fast 
 
 ## Boundaries and Constraints
 
-### Always Do (Embrace "Slow is Fast")
-- ✅ Ask clarifying questions when requirements are unclear (go slow: understand first)
-- ✅ Write tests before implementation (TDD) (go slow: define behavior, save debugging time)
-- ✅ Maintain requirements traceability via GitHub Issues (go slow: track now, trace easily later)
+### Always Do (Embrace "Slow is Fast" + "No Excuses")
+- ✅ Ask clarifying questions when requirements are unclear (go slow: understand first; no excuses: communication over assumptions)
+- ✅ Write tests before implementation (TDD) (go slow: define behavior, save debugging time; no excuses: quality is your responsibility)
+- ✅ Handle errors defensively (no excuses: check files exist, handle network failures, validate inputs)
+- ✅ Wrap unstable dependencies (no excuses: library bugs are your problem to isolate)
+- ✅ Communicate blockers early (no excuses: surprises are failures; propose options, not just problems)
+- ✅ Maintain requirements traceability via GitHub Issues (go slow: track now, trace easily later; no excuses: ownership of scope)
 - ✅ Create GitHub Issue before starting any work (go slow: plan, avoid rework)
 - ✅ Follow phase-specific copilot instructions (`.github/instructions/phase-NN-*.instructions.md`)
 - ✅ Document architecture decisions (ADRs) (go slow: write rationale, faster onboarding)
 - ✅ Include acceptance criteria in user stories (go slow: define done, avoid scope creep)
-- ✅ Run all tests before committing code (go slow: catch bugs early, cheaper fixes)
+- ✅ Run all tests before committing code (go slow: catch bugs early, cheaper fixes; no excuses: your code, your stability)
 - ✅ Update documentation when code changes (go slow: maintain clarity, reduce confusion)
+- ✅ Leave code better than you found it (no excuses: incremental improvement over "refactor later")
+- ✅ Report mistakes immediately and focus on mitigation (no excuses: own failures, fix fast)
 - ✅ Validate exit criteria before phase transition (go slow: quality gates prevent costly rework)
 
 ### Ask First
@@ -212,8 +262,14 @@ Refactor → Improve design while keeping tests green (go slow: clean now, fast 
 - ⚠️ Before modifying baselined artifacts without approval
 - ⚠️ Before introducing new dependencies or technologies
 
-### Never Do (False Speed = Real Slowness)
+### Never Do (False Speed = Real Slowness; Excuses = Avoided Responsibility)
 - ❌ Proceed with ambiguous requirements (rushing = massive rework later)
+- ❌ Assume files exist / network is fine / inputs are valid (no excuses: check and handle failures)
+- ❌ Blame tools when behavior fails ("the library has a bug" → wrap it, retry it, replace it)
+- ❌ Say "users are stupid" (no excuses: improve UX, validation, error messages)
+- ❌ Use "no time for tests" as excuse (no excuses: at minimum, cover critical paths)
+- ❌ Promise "we'll refactor later" without doing it (no excuses: incremental improvement now)
+- ❌ Hide problems until they explode (no excuses: communicate early, propose options)
 - ❌ Start implementation without creating/linking GitHub issue (no tracking = lost context)
 - ❌ Write code without tests (fast now = debugging hell later)
 - ❌ Create PR without `Fixes #N` or `Implements #N` link (broken traceability = compliance failures)
@@ -225,6 +281,7 @@ Refactor → Improve design while keeping tests green (go slow: clean now, fast 
 - ❌ Commit untested code ("works on my machine" = production fires)
 - ❌ Create circular dependencies (tight coupling = maintenance hell)
 - ❌ Create orphaned requirements (no parent/child links = unvalidated work)
+- ❌ Blame individuals when things break (no excuses: focus on systemic fixes, not scapegoats)
 
 ## Decision Trees
 
