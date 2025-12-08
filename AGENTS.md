@@ -159,7 +159,7 @@ Every PR MUST:
 3. Pass all CI checks including traceability validation
 4. Have at least one approved review
 
-## Core Philosophy: "Slow is Fast" + "No Excuses"
+## Core Philosophy: "Slow is Fast" + "No Excuses" + "No Shortcuts"
 
 ### "Slow is Fast": Deliberate Development
 
@@ -234,6 +234,85 @@ Every PR MUST:
 
 **Heuristic**: Reasons explain problems; excuses avoid responsibility. Acknowledge constraints, then optimize within them.
 
+---
+
+### "No Shortcuts": Refusing to Trade Long-Term Health for Short-Term Gain
+
+> **Don't sacrifice the system's long-term health for a tiny short-term win. Simplify and optimize, but never skip the essentials: correctness, clarity, tests, security.**
+
+**Design & Architecture (No Shortcuts)**:
+- One service/class now → "We'll refactor later" → Never happens; every change hurts
+- Hardcoded values → "Configs are overkill" → Changes require code deploys
+- No interfaces → "We'll define them later" → Tight coupling, risky refactors
+- **No shortcuts**: Define minimal but clear boundaries; separate concerns even in small steps; avoid "temporary" hacks that become permanent
+- **Result**: Even small designs are deliberate and leave room to evolve
+
+**Tests & Correctness (No Shortcuts)**:
+- "This is trivial, no test needed" → Hidden regressions, fear of change
+- "Tests after the demo" → Never written; bugs discovered in production
+- Copy/paste blocks → "What could go wrong?" → Multiple versions to maintain
+- **No shortcuts**: Cover critical paths and edge cases; write tests when fixing bugs; prefer small testable units
+- **Result**: Reliability costs time upfront, saves multiples later
+
+**Error Handling & Resilience (No Shortcuts)**:
+- Ignoring return codes → "It won't fail" → No idea what happened in production
+- No timeouts/retries → Single point of failure cascades
+- Missing or noisy logging → Cannot diagnose failures
+- **No shortcuts**: Handle failures as normal cases; useful error messages with context; timeouts, retries, backoff, fallbacks
+- **Result**: Small glitch self-heals vs. full-scale outage
+
+**Security & Validation (No Shortcuts)**:
+- "Internal only, no auth needed" → Internal services can be abused
+- "Trust the client" → Injection attacks, data corruption
+- Secrets in code → "Just for convenience" → Security incident
+- **No shortcuts**: Validate and sanitize external input; treat internal services as potentially hostile; proper secret management, least privilege
+- **Result**: Security shortcuts are cheap today, catastrophic tomorrow
+
+**Performance & Optimization (No Shortcuts)**:
+- Premature optimization → "We must be fast now" → Complex, unmaintainable code
+- No measurement → "I think this is slow" → Optimizing wrong thing
+- **No shortcuts**: First write simple, clear code; measure with profiler; optimize true hot spots; document why optimizations exist
+- **Result**: Don't shortcut the measure → analyze → optimize cycle
+
+**Documentation & Naming (No Shortcuts)**:
+- No README/docs → "We know what it does" → Slow onboarding, forgotten context
+- Cryptic names → Future you doesn't understand it
+- No change log → Breaking changes surprise users
+- **No shortcuts**: Name things clearly; document non-obvious invariants/assumptions; maintain minimal but current README/architecture notes
+- **Result**: Leave future you and others a usable map
+
+**Code Review & Collaboration (No Shortcuts)**:
+- Merge without review → "It's urgent" → Quality erosion
+- Giant PRs → Mixed concerns, impossible to review properly
+- Ignore feedback → "It works, move on" → Trust erosion
+- **No shortcuts**: Small changes reviewable properly; address feedback or explain reasoning; use reviews to improve code and shared understanding
+- **Result**: Invest minutes now to avoid hours of confusion later
+
+**Refactoring & Technical Debt (No Shortcuts)**:
+- "Add another if" → "Clean later" → Snowballing complexity
+- Duplicate logic → "Faster than extracting" → Multiple versions drift
+- Leave broken abstractions → "Not my problem" → Every feature takes longer
+- **No shortcuts**: Boy Scout rule (leave code better than found); pay back technical debt regularly; when touching fragile area, stabilize it (tests + refactor)
+- **Result**: Prevent compound interest on technical debt
+
+**What "No Shortcuts" Does NOT Mean**:
+❌ Overengineering everything  
+❌ Adding layers "just in case"  
+❌ Blocking delivery until everything is "perfect"  
+❌ Gold-plating features  
+
+**What "No Shortcuts" DOES Mean**:
+✅ Do the **essential** engineering work for the problem at hand  
+✅ Don't knowingly skip things that will hurt you soon (tests, error handling, minimal design, basic docs)  
+✅ Simplify by **reducing complexity**, not by ignoring necessary work  
+✅ Distinguish between YAGNI (speculation) and needed work (correctness, maintainability)  
+
+**Heuristic**: Am I avoiding work that makes the system safer, clearer, easier to change in the **near future**? If yes, that's probably a shortcut I shouldn't take.
+
+**Key Distinction**:
+- **YAGNI** (You Aren't Gonna Need It) → Don't build speculative features
+- **No Shortcuts** → Don't skip essential engineering for current features
+
 ## XP Practices Integration
 
 ### Test-Driven Development (Phase 05)
@@ -285,22 +364,30 @@ Refactor → Improve design while keeping tests green (go slow: clean now, fast 
 
 ## Boundaries and Constraints
 
-### Always Do (Embrace "Slow is Fast" + "No Excuses")
-- ✅ Ask clarifying questions when requirements are unclear (go slow: understand first; no excuses: communication over assumptions)
-- ✅ Write tests before implementation (TDD) (go slow: define behavior, save debugging time; no excuses: quality is your responsibility)
-- ✅ Handle errors defensively (no excuses: check files exist, handle network failures, validate inputs)
-- ✅ Wrap unstable dependencies (no excuses: library bugs are your problem to isolate)
-- ✅ Communicate blockers early (no excuses: surprises are failures; propose options, not just problems)
-- ✅ Maintain requirements traceability via GitHub Issues (go slow: track now, trace easily later; no excuses: ownership of scope)
-- ✅ Create GitHub Issue before starting any work (go slow: plan, avoid rework)
+### Always Do (Embrace "Slow is Fast" + "No Excuses" + "No Shortcuts")
+- ✅ Ask clarifying questions when requirements are unclear (go slow: understand first; no excuses: communication over assumptions; no shortcuts: clarity over speed)
+- ✅ Write tests before implementation (TDD) (go slow: define behavior, save debugging time; no excuses: quality is your responsibility; no shortcuts: cover critical paths)
+- ✅ Handle errors defensively (no excuses: check files exist, handle network failures, validate inputs; no shortcuts: handle failures as normal cases)
+- ✅ Wrap unstable dependencies (no excuses: library bugs are your problem to isolate; no shortcuts: sandboxing prevents cascading failures)
+- ✅ Communicate blockers early (no excuses: surprises are failures; propose options, not just problems; no shortcuts: transparency over comfortable silence)
+- ✅ Maintain requirements traceability via GitHub Issues (go slow: track now, trace easily later; no excuses: ownership of scope; no shortcuts: essential for compliance)
+- ✅ Create GitHub Issue before starting any work (go slow: plan, avoid rework; no shortcuts: deliberate boundaries over ad-hoc development)
 - ✅ Follow phase-specific copilot instructions (`.github/instructions/phase-NN-*.instructions.md`)
-- ✅ Document architecture decisions (ADRs) (go slow: write rationale, faster onboarding)
-- ✅ Include acceptance criteria in user stories (go slow: define done, avoid scope creep)
-- ✅ Run all tests before committing code (go slow: catch bugs early, cheaper fixes; no excuses: your code, your stability)
-- ✅ Update documentation when code changes (go slow: maintain clarity, reduce confusion)
-- ✅ Leave code better than you found it (no excuses: incremental improvement over "refactor later")
-- ✅ Report mistakes immediately and focus on mitigation (no excuses: own failures, fix fast)
-- ✅ Validate exit criteria before phase transition (go slow: quality gates prevent costly rework)
+- ✅ Document architecture decisions (ADRs) (go slow: write rationale, faster onboarding; no shortcuts: document non-obvious invariants)
+- ✅ Include acceptance criteria in user stories (go slow: define done, avoid scope creep; no shortcuts: measurable criteria over vague goals)
+- ✅ Run all tests before committing code (go slow: catch bugs early, cheaper fixes; no excuses: your code, your stability; no shortcuts: reliability costs upfront)
+- ✅ Update documentation when code changes (go slow: maintain clarity, reduce confusion; no shortcuts: current docs over outdated maps)
+- ✅ Leave code better than you found it (no excuses: incremental improvement over "refactor later"; no shortcuts: Boy Scout rule)
+- ✅ Report mistakes immediately and focus on mitigation (no excuses: own failures, fix fast; no shortcuts: transparency prevents worse crises)
+- ✅ Validate exit criteria before phase transition (go slow: quality gates prevent costly rework; no shortcuts: essential gates over rushed transitions)
+- ✅ Define minimal but clear boundaries (no shortcuts: separate concerns even in small steps; avoid temporary hacks)
+- ✅ Write small testable units (no shortcuts: prefer testable over giant functions you're afraid to touch)
+- ✅ Use timeouts, retries, and fallbacks (no shortcuts: resilience patterns prevent outages)
+- ✅ Validate and sanitize all external input (no shortcuts: security is essential, not optional)
+- ✅ Measure before optimizing (no shortcuts: profiler data over hunches)
+- ✅ Name things clearly (no shortcuts: readability for future you)
+- ✅ Keep PRs small and reviewable (no shortcuts: minutes now to avoid hours of confusion later)
+- ✅ Address code review feedback (no shortcuts: use reviews to improve shared understanding)
 
 ### Ask First
 - ⚠️ Before proceeding with ambiguous requirements
@@ -309,26 +396,32 @@ Refactor → Improve design while keeping tests green (go slow: clean now, fast 
 - ⚠️ Before modifying baselined artifacts without approval
 - ⚠️ Before introducing new dependencies or technologies
 
-### Never Do (False Speed = Real Slowness; Excuses = Avoided Responsibility)
+### Never Do (False Speed = Real Slowness; Excuses = Avoided Responsibility; Shortcuts = Long-Term Pain)
 - ❌ Proceed with ambiguous requirements (rushing = massive rework later)
-- ❌ Assume files exist / network is fine / inputs are valid (no excuses: check and handle failures)
-- ❌ Blame tools when behavior fails ("the library has a bug" → wrap it, retry it, replace it)
+- ❌ Assume files exist / network is fine / inputs are valid (no excuses: check and handle failures; no shortcuts: handle as normal cases)
+- ❌ Blame tools when behavior fails (no excuses: wrap it, retry it, replace it)
 - ❌ Say "users are stupid" (no excuses: improve UX, validation, error messages)
-- ❌ Use "no time for tests" as excuse (no excuses: at minimum, cover critical paths)
-- ❌ Promise "we'll refactor later" without doing it (no excuses: incremental improvement now)
-- ❌ Hide problems until they explode (no excuses: communicate early, propose options)
-- ❌ Start implementation without creating/linking GitHub issue (no tracking = lost context)
-- ❌ Write code without tests (fast now = debugging hell later)
+- ❌ Use "no time for tests" as excuse (no excuses: cover critical paths minimum; no shortcuts: reliability costs upfront)
+- ❌ Promise "we'll refactor later" without doing it (no excuses: incremental improvement now; no shortcuts: Boy Scout rule)
+- ❌ Hide problems until they explode (no excuses: communicate early, propose options; no shortcuts: transparency over comfort)
+- ❌ Start implementation without creating/linking GitHub issue (no tracking = lost context; no shortcuts: deliberate boundaries)
+- ❌ Write code without tests (fast now = debugging hell later; no shortcuts: cover critical paths)
 - ❌ Create PR without `Fixes #N` or `Implements #N` link (broken traceability = compliance failures)
 - ❌ Write tests without linking to requirement issue (orphaned tests = wasted effort)
-- ❌ Make architecture decisions without ADR issue (undocumented = repeated debates)
-- ❌ Skip documentation updates (outdated docs = onboarding nightmare)
+- ❌ Make architecture decisions without ADR issue (undocumented = repeated debates; no shortcuts: document rationale)
+- ❌ Skip documentation updates (outdated docs = onboarding nightmare; no shortcuts: maintain current map)
 - ❌ Ignore standards compliance (shortcuts = audit failures)
 - ❌ Break existing tests (ignoring red = cascading bugs)
 - ❌ Commit untested code ("works on my machine" = production fires)
-- ❌ Create circular dependencies (tight coupling = maintenance hell)
+- ❌ Create circular dependencies (tight coupling = maintenance hell; no shortcuts: clear boundaries)
 - ❌ Create orphaned requirements (no parent/child links = unvalidated work)
-- ❌ Blame individuals when things break (no excuses: focus on systemic fixes, not scapegoats)
+- ❌ Blame individuals when things break (no excuses: systemic fixes over scapegoats)
+- ❌ Merge without code review (no shortcuts: quality erosion from urgency)
+- ❌ Ignore return codes or exceptions (no shortcuts: small glitch vs. outage)
+- ❌ Skip input validation (no shortcuts: security is essential)
+- ❌ Use cryptic names (no shortcuts: readability for future you)
+- ❌ Premature optimization without measurement (no shortcuts: measure → analyze → optimize)
+- ❌ Giant PRs with mixed concerns (no shortcuts: reviewable changes save time)
 
 ## Decision Trees
 
