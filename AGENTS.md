@@ -112,25 +112,61 @@ Every PR MUST:
 3. Pass all CI checks including traceability validation
 4. Have at least one approved review
 
+## Core Philosophy: "Slow is Fast"
+
+> **If you go deliberately and carefully now, you'll go much faster overall.**
+
+This principle underlies all guidance in this template:
+
+### In Development Process
+- **Design before coding** → Fewer rewrites, less scope creep, easier maintenance
+- **Tests & TDD** → Bugs caught early, changes safer/faster, confident shipping
+- **Code reviews** → Better APIs, fewer defects, knowledge spread
+- **Avoid premature optimization** → Cleaner code, real performance gains where it matters
+- **Tooling & automation** → Every future change faster, safer, more repeatable
+
+### In Runtime Behavior
+- **Backpressure & throttling** → Systems stay stable, higher effective throughput
+- **Correct concurrency** → Fewer race conditions, less debugging, safer scaling
+- **Cache warm-up & gradual rollouts** → Predictable performance, smoother operation
+
+### What "Slow is Fast" Does NOT Mean
+❌ Endless architecture astronautics  
+❌ Perfect design before any code  
+❌ Never shipping because still "refining"  
+
+### What It DOES Mean
+✅ Purposeful pacing  
+✅ Short feedback loops  
+✅ Small, well-thought increments  
+
+**Heuristic**: If "going slow" reduces rework, bugs, or instability later, it's the kind of "slow" that makes you fast.
+
 ## XP Practices Integration
 
 ### Test-Driven Development (Phase 05)
 ```
-Red → Write failing test
-Green → Write minimal code to pass
-Refactor → Improve design while keeping tests green
+Red → Write failing test (go slow: clarify behavior)
+Green → Write minimal code to pass (go slow: simplest solution)
+Refactor → Improve design while keeping tests green (go slow: clean now, fast later)
 ```
 
+**"Slow is fast" in TDD**: Write tests first = lose 10 minutes now, save hours debugging later.
+
 ### Continuous Integration (Phase 06)
-- Integrate code multiple times daily
-- Run all tests before integration
-- Fix broken builds immediately
+- Integrate code multiple times daily (small, safe increments)
+- Run all tests before integration (catch issues early = cheaper fixes)
+- Fix broken builds immediately (prevent cascading delays)
+
+**"Slow is fast" in CI**: Automated testing slows initial setup, accelerates all future changes.
 
 ### Simple Design Principles
 - Pass all tests
-- Reveal intention clearly
+- Reveal intention clearly (optimize for reading, not writing)
 - No duplication (DRY)
 - Minimal classes and methods
+
+**"Slow is fast" in design**: Clear, simple code now = faster maintenance forever.
 
 ## Quality Standards and Evaluation
 
@@ -157,17 +193,17 @@ Refactor → Improve design while keeping tests green
 
 ## Boundaries and Constraints
 
-### Always Do
-- ✅ Ask clarifying questions when requirements are unclear
-- ✅ Write tests before implementation (TDD)
-- ✅ Maintain requirements traceability via GitHub Issues
-- ✅ Create GitHub Issue before starting any work
+### Always Do (Embrace "Slow is Fast")
+- ✅ Ask clarifying questions when requirements are unclear (go slow: understand first)
+- ✅ Write tests before implementation (TDD) (go slow: define behavior, save debugging time)
+- ✅ Maintain requirements traceability via GitHub Issues (go slow: track now, trace easily later)
+- ✅ Create GitHub Issue before starting any work (go slow: plan, avoid rework)
 - ✅ Follow phase-specific copilot instructions (`.github/instructions/phase-NN-*.instructions.md`)
-- ✅ Document architecture decisions (ADRs)
-- ✅ Include acceptance criteria in user stories
-- ✅ Run all tests before committing code
-- ✅ Update documentation when code changes
-- ✅ Validate exit criteria before phase transition
+- ✅ Document architecture decisions (ADRs) (go slow: write rationale, faster onboarding)
+- ✅ Include acceptance criteria in user stories (go slow: define done, avoid scope creep)
+- ✅ Run all tests before committing code (go slow: catch bugs early, cheaper fixes)
+- ✅ Update documentation when code changes (go slow: maintain clarity, reduce confusion)
+- ✅ Validate exit criteria before phase transition (go slow: quality gates prevent costly rework)
 
 ### Ask First
 - ⚠️ Before proceeding with ambiguous requirements
@@ -176,19 +212,19 @@ Refactor → Improve design while keeping tests green
 - ⚠️ Before modifying baselined artifacts without approval
 - ⚠️ Before introducing new dependencies or technologies
 
-### Never Do
-- ❌ Proceed with ambiguous requirements
-- ❌ Start implementation without creating/linking GitHub issue
-- ❌ Write code without tests
-- ❌ Create PR without `Fixes #N` or `Implements #N` link
-- ❌ Write tests without linking to requirement issue
-- ❌ Make architecture decisions without ADR issue
-- ❌ Skip documentation updates
-- ❌ Ignore standards compliance
-- ❌ Break existing tests
-- ❌ Commit untested code
-- ❌ Create circular dependencies
-- ❌ Create orphaned requirements (no parent/child links)
+### Never Do (False Speed = Real Slowness)
+- ❌ Proceed with ambiguous requirements (rushing = massive rework later)
+- ❌ Start implementation without creating/linking GitHub issue (no tracking = lost context)
+- ❌ Write code without tests (fast now = debugging hell later)
+- ❌ Create PR without `Fixes #N` or `Implements #N` link (broken traceability = compliance failures)
+- ❌ Write tests without linking to requirement issue (orphaned tests = wasted effort)
+- ❌ Make architecture decisions without ADR issue (undocumented = repeated debates)
+- ❌ Skip documentation updates (outdated docs = onboarding nightmare)
+- ❌ Ignore standards compliance (shortcuts = audit failures)
+- ❌ Break existing tests (ignoring red = cascading bugs)
+- ❌ Commit untested code ("works on my machine" = production fires)
+- ❌ Create circular dependencies (tight coupling = maintenance hell)
+- ❌ Create orphaned requirements (no parent/child links = unvalidated work)
 
 ## Decision Trees
 
