@@ -799,7 +799,7 @@ All documentation must follow:
 
 ```
 applyTo:
-- "**/*.*" 
+- "**" 
 ```
 
 ## 🚨 Critical Rules
