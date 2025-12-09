@@ -93,6 +93,11 @@ So that [benefit/value]
    
 5. **Submit** → GitHub auto-assigns unique issue number (e.g., #1, #2)
 
+6. **Set Status in GitHub Project** (see [Status Management Guide](../../docs/github-issue-status-management.md#1️⃣-stakeholder-requirements-str)):
+   - **Initial Status**: "Draft"
+   - **Progression**: Draft → Analyzed → Validated → Baselined → Refined
+   - **Close When**: Baselined and refined into system requirements (child REQ issues created)
+
 #### Traceability via GitHub Issues
 
 Stakeholder requirements have **no parent** (they are root requirements):
@@ -167,6 +172,51 @@ Or via GitHub MCP:
 ```
 List all stakeholder requirements (label: stakeholder-requirement)
 ```
+
+#### Status Management Workflow
+
+**ISO/IEC/IEEE 12207:2017 Configuration Status Accounting** requires tracking status throughout lifecycle. See [GitHub Issue Status Management Guide](../../docs/github-issue-status-management.md#1️⃣-stakeholder-requirements-str) for detailed workflow.
+
+**Quick Reference - StR Status States**:
+
+| Status | Definition | When to Apply |
+|--------|------------|---------------|
+| **Draft** | Initial capture of stakeholder need | Issue created |
+| **Analyzed** | Need analyzed for feasibility, criticality, risk | All fields complete, feasibility confirmed |
+| **Validated** | Stakeholders confirm this represents their need | Stakeholder sign-off obtained |
+| **Baselined** | Formally approved and under configuration control | Included in approved baseline |
+| **Refined** | Transformed into system requirements (Phase 02) | Child REQ issues created and linked |
+
+**Updating Status** (add comment to issue):
+```markdown
+## Status Update (2025-12-09)
+**Previous Status**: Draft
+**New Status**: Analyzed
+**Rationale**: Completed feasibility study, identified high criticality
+**Risk Assessment**: Medium technical risk (third-party API dependency)
+**Next Steps**: Schedule validation session with stakeholders (2025-12-12)
+```
+
+**Closing StR Issue** (when refined):
+```markdown
+## Closure (2025-12-15)
+**Status**: Refined → Close
+**Baseline**: Release 1.0 Stakeholder Requirements Baseline (approved 2025-12-12)
+**Refined By**: 
+- #45 (REQ-F-AUTH-001: User login functionality)
+- #46 (REQ-NF-SECU-002: Session security requirements)
+**Validated By**: Maria Schmidt (EU CSM), Yuki Tanaka (APAC Sales)
+**Configuration Control**: SRB-2025-001
+```
+
+**Best Practices**:
+- ✅ Set status to "Draft" immediately upon creation
+- ✅ Update status with each significant change (with rationale)
+- ✅ Document evidence for status transitions (meeting notes, approvals)
+- ✅ Close only when baselined AND refined (child REQ issues exist)
+- ✅ Keep issue open while requirement is active in system
+- ❌ Never skip "Analyzed" or "Validated" states
+- ❌ Don't close without documenting traceability to child requirements
 
 ### 📝 Supplementary Documentation (Optional)
 
