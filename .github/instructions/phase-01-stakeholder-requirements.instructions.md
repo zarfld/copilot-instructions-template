@@ -103,7 +103,7 @@ So that [benefit/value]
 Stakeholder requirements have **no parent** (they are root requirements):
 ```markdown
 ## Traceability
-- **Traces to**: N/A (root stakeholder requirement)
+- Traces to:  N/A (root stakeholder requirement)
 - **Refined by**: #45, #46, #47 (system requirements in Phase 02)
 - **Implemented by**: #PR-12 (pull request)
 - **Verified by**: #89 (test case)
@@ -112,7 +112,7 @@ Stakeholder requirements have **no parent** (they are root requirements):
 Child requirements link back using `#N` syntax:
 ```markdown
 ## Traceability
-- **Traces to**: #1 (parent stakeholder requirement)
+- Traces to:  #1 (parent stakeholder requirement)
 ```
 
 #### Example: Creating StR Issue via UI
@@ -419,7 +419,7 @@ Issue #89 (Test Case - TEST in Phase 07)
 **In Issue Bodies**:
 ```markdown
 ## Traceability
-- **Traces to**: N/A (root requirement)
+- Traces to:  N/A (root requirement)
 - **Refined by**: #45, #46, #47
 - **Implemented by**: #PR-12
 - **Verified by**: #89

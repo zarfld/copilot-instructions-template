@@ -77,7 +77,7 @@ applyTo: "03-architecture/**"
 
 **Requirements Addressed**:
 ```markdown
-**Traces to**:
+Traces to: 
 - #45 (REQ-F-AUTH-001: User Login)
 - #46 (REQ-NF-SECU-002: Session Security)
 - #2 (StR: Secure, scalable authentication)
@@ -248,7 +248,7 @@ After submission → Issue #79 created
 Architecture artifacts trace to requirements:
 ```markdown
 ## Traceability
-- **Traces to**: #45, #46, #2 (requirements)
+- Traces to:  #45, #46, #2 (requirements)
 - **Depends on**: #80 (other ADRs)
 - **Implemented by**: #PR-30 (pull request)
 - **Components**: #79, #81 (architecture components using this decision)

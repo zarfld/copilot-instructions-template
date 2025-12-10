@@ -201,7 +201,7 @@ Status Options:
 **Creating REQ Issue**:
 1. Navigate to Issues → New Issue
 2. Select "Functional Requirement (REQ-F)" or "Non-Functional Requirement (REQ-NF)" template
-3. **Traces to**: Link parent StR issue using `#N`
+3. Traces to:  Link parent StR issue using `#N`
 4. Apply labels: `type:requirement:functional`, `phase-02`
 5. **Set Status**: "Specified" (in GitHub Project)
 
@@ -294,7 +294,7 @@ Status Options:
 **Creating ADR Issue**:
 1. Navigate to Issues → New Issue
 2. Select "Architecture Decision (ADR)" template
-3. **Traces to**: Link requirements using `#N`
+3. Traces to:  Link requirements using `#N`
 4. Apply labels: `type:architecture:decision`, `phase-03`
 5. **Set Status**: "Proposed" (in GitHub Project)
 
@@ -392,7 +392,7 @@ Status Options:
 **Creating ADC Issue**:
 1. Navigate to Issues → New Issue
 2. Select "Architecture Component (ARC-C)" template
-3. **Traces to**: Link ADR and REQ issues using `#N`
+3. Traces to:  Link ADR and REQ issues using `#N`
 4. Apply labels: `type:architecture:component`, `phase-03`
 5. **Set Status**: "Specified" (in GitHub Project)
 

@@ -138,7 +138,7 @@ Acceptance Criteria:
 
 **Parent Stakeholder Requirement**:
 ```markdown
-**Traces to**: #1 (StR: Improve product discovery experience)
+Traces to:  #1 (StR: Improve product discovery experience)
 ```
 
 **Requirement Description**:
@@ -190,7 +190,7 @@ After submission → Issue #45 created
 
 **Parent Stakeholder Requirement**:
 ```markdown
-**Traces to**: #2 (StR: Fast, responsive user experience)
+Traces to:  #2 (StR: Fast, responsive user experience)
 ```
 
 **Quality Attribute Category**: Performance
@@ -235,7 +235,7 @@ After submission → Issue #46 created
 Requirements trace to parent stakeholder requirements:
 ```markdown
 ## Traceability
-- **Traces to**: #1, #2 (parent StR issues)
+- Traces to:  #1, #2 (parent StR issues)
 - **Depends on**: #12, #15 (prerequisite requirements)
 - **Refined by**: #78, #79 (child design decisions in Phase 03)
 - **Implemented by**: #PR-25 (pull request)

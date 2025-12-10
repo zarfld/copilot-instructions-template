@@ -298,7 +298,7 @@ gh label create "integrity-4" --color "006B75" --description "Integrity Level 4 
 **Syntax in Issue Body**:
 ```markdown
 ## Traceability
-- **Traces to**: #123 (parent StR issue)
+- Traces to:  #123 (parent StR issue)
 - **Depends on**: #45, #67 (prerequisite requirements)
 - **Verified by**: #89 (test issue)
 ```
@@ -702,7 +702,7 @@ jobs:
 In issue body:
 ```markdown
 ## Traceability
-- **Traces to**: #123
+- Traces to:  #123
 - **Depends on**: #45, #67
 ```
 
