@@ -17,10 +17,10 @@ body:
       value: |
         ## 🔗 Traceability (REQUIRED)
         
-        ⚠️ **CI Validation**: Use exact syntax `- **Traces to**: #N` or CI will fail.
+        ⚠️ **CI Validation**: Use exact syntax `- Traces to:  #N` or CI will fail.
         
         **Accepted formats**:
-        - ✅ `- **Traces to**: #123` (preferred)
+        - ✅ `- Traces to:  #123` (preferred)
         - ✅ `- **Trace to**: #123`
         
         **Common mistakes (will fail CI)**:
@@ -34,10 +34,10 @@ body:
       description: "Link to non-functional requirements this scenario validates"
       placeholder: |
         ## Traceability
-        - **Traces to**: #45 (REQ-NF-PERF-001: API Response Time <100ms)
+        - Traces to:  #45 (REQ-NF-PERF-001: API Response Time <100ms)
       value: |
         ## Traceability
-        - **Traces to**: #
+        - Traces to:  #
     validations:
       required: true
 

@@ -16,10 +16,10 @@ body:
       value: |
         ## 🔗 Traceability (REQUIRED)
         
-        ⚠️ **CI Validation**: Use exact syntax `- **Traces to**: #N` or CI will fail.
+        ⚠️ **CI Validation**: Use exact syntax `- Traces to:  #N` or CI will fail.
         
         **Accepted formats**:
-        - ✅ `- **Traces to**: #123` (preferred)
+        - ✅ `- Traces to:  #123` (preferred)
         - ✅ `- **Trace to**: #123`
         - ✅ `Traces to #123`
         
@@ -35,12 +35,12 @@ body:
       description: "Link to parent ADRs and requirements this component implements"
       placeholder: |
         ## Traceability
-        - **Traces to**: #15 (ADR-AUTH-001: JWT Authentication)
-        - **Traces to**: #23 (REQ-F-AUTH-002: User Login)
+        - Traces to:  #15 (ADR-AUTH-001: JWT Authentication)
+        - Traces to:  #23 (REQ-F-AUTH-002: User Login)
         - **Depends on**: #45 (ARC-C-DATA-001: PostgreSQL Database)
       value: |
         ## Traceability
-        - **Traces to**: #
+        - Traces to:  #
     validations:
       required: true
 

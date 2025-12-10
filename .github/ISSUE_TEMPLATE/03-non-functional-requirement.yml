@@ -16,16 +16,18 @@ body:
       value: |
         ## 🔗 Traceability (REQUIRED)
         
-        ⚠️ **CI Validation**: Use exact syntax `- **Traces to**: #N` or CI will fail.
+        ⚠️ **CI Validation**: Use exact syntax `- Traces to:  #N` or CI will fail.
         
         **Accepted formats**:
-        - ✅ `- **Traces to**: #123` (preferred)
-        - ✅ `- **Trace to**: #123`
+        - ✅ `- Traces to:  #123` (preferred)
+
         
         **Common mistakes (will fail CI)**:
         - ❌ `Links to: #123` (wrong verb)
         - ❌ `Parent: #123` (missing "Traces to")
-
+        - ❌ `- **Trace to**: #123`
+        - ❌ `**Trace to**: #123`
+        
   - type: textarea
     id: traceability
     attributes:
@@ -33,10 +35,10 @@ body:
       description: "Link to parent StR issue this requirement traces to"
       placeholder: |
         ## Traceability
-        - **Traces to**: #123 (StR-PERF-001: System Performance)
+        - Traces to:  #123 (StR-PERF-001: System Performance)
       value: |
         ## Traceability
-        - **Traces to**: #
+        - Traces to:  #
     validations:
       required: true
 
