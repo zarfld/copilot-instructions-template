@@ -232,7 +232,7 @@ All issues must include traceability links:
 
 ```markdown
 ## Traceability
-- **Traces to**: #123 (parent StR issue)
+- Traces to:  #123 (parent StR issue)
 - **Depends on**: #45, #67 (prerequisite requirements)
 - **Verified by**: #89, #90 (test issues)
 - **Implemented by**: #PR-15 (pull request)
@@ -267,7 +267,7 @@ gh issue create \
 
 ```markdown
 ## Traceability
-- **Traces to**: #1 (StR-001: User Authentication)
+- Traces to:  #1 (StR-001: User Authentication)
 
 ## Description
 System shall allow users to log in with username and password.
