@@ -1,7 +1,7 @@
 name: Quality Attribute Scenario (QA-SC)
 description: Define a quality attribute scenario for architecture evaluation (ATAM)
 title: "[QA-SC] "
-labels: ["quality-scenario", "phase-03"]
+labels: ["type:architecture:quality-scenario", "phase:03-architecture"]
 body:
   - type: markdown
     attributes:

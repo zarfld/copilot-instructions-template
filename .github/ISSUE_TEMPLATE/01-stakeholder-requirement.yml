@@ -1,7 +1,7 @@
 name: Stakeholder Requirement (StR)
 description: Define a business need or stakeholder requirement following ISO/IEC/IEEE 29148:2018
 title: "[StR] "
-labels: ["stakeholder-requirement", "phase-01"]
+labels: ["type:stakeholder-requirement", "phase:01-stakeholder-requirements"]
 body:
   - type: markdown
     attributes:

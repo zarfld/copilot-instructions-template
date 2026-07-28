@@ -1,7 +1,7 @@
 name: Architecture Decision Record (ADR)
 description: Document an architecture decision following ADR format and ISO/IEC/IEEE 42010:2011
 title: "[ADR] "
-labels: ["architecture-decision", "phase-03"]
+labels: ["type:architecture:decision", "phase:03-architecture"]
 body:
   - type: markdown
     attributes:

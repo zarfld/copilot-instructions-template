@@ -1,7 +1,7 @@
 name: Architecture Component (ARC-C)
 description: Define a system component with interfaces and responsibilities
 title: "[ARC-C] "
-labels: ["architecture-component", "phase-03"]
+labels: ["type:architecture:component", "phase:03-architecture"]
 body:
   - type: markdown
     attributes:

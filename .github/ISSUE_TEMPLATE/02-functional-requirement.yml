@@ -1,7 +1,7 @@
 name: Functional Requirement (REQ-F)
 description: Define a system functional requirement following ISO/IEC/IEEE 29148:2018
 title: "[REQ-F] "
-labels: ["functional-requirement", "phase-02"]
+labels: ["type:requirement:functional", "phase:02-requirements"]
 body:
   - type: markdown
     attributes:

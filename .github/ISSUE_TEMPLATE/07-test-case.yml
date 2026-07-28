@@ -1,7 +1,7 @@
 name: Test Case (TEST)
 description: Define a test case that verifies requirements
 title: "[TEST] "
-labels: ["test-case", "phase-07"]
+labels: ["type:test-case", "phase:07-verification-validation"]
 body:
   - type: markdown
     attributes:

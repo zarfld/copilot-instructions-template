@@ -1,7 +1,7 @@
 name: Non-Functional Requirement (REQ-NF)
 description: Define a quality attribute requirement (performance, security, usability, etc.)
 title: "[REQ-NF] "
-labels: ["non-functional", "phase-02"]
+labels: ["type:requirement:non-functional", "phase:02-requirements"]
 body:
   - type: markdown
     attributes:
