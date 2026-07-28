@@ -1038,6 +1038,62 @@ TEST-UNIT-XXX (Unit Tests)
 - **Refactoring** - Martin Fowler
 - **XP Explained** - Kent Beck
 
+## 🔬 Hardware-Dependent TDD: HIL-Derived Fixtures
+
+Use this workflow when implementation requires knowledge of **real hardware behavior** (device protocols, MIDI SysEx, serial responses, network packets, etc.).
+
+### Core rule
+
+> **Do not invent mocks from documentation alone.** Run a focused HIL probe first, capture the real response, then use that capture as the fixture source for CI tests.
+
+CI must never require live hardware, a fixed IP address, a physical UC Surface, or physical network state.
+
+### HIL Workflow (7 steps)
+
+**Step 1** — Create or identify the REQ and TEST issues for the behavior under test.
+
+**Step 2** — Create a **PROBE issue** (`[PROBE]` template) for the unknown behavior. Fill in device model, serial, firmware version, and the command/key path being probed.
+
+**Step 3** — Run the HIL probe against real hardware. Capture:
+- Device model, serial number, firmware version
+- Command / probe name and control/key path
+- Raw response / state dump (exact bytes, JSON, or text)
+- Fixture file path (commit to `tests/fixtures/hil/<device>/`)
+- Confidence level (High / Medium / Low / Tentative)
+
+**Step 4** — Write a **failing** CI test using the captured fixture:
+```python
+# @verifies #89 TEST-CTRL-STATUS-001
+# Fixture source: PROBE #67, tests/fixtures/hil/yamaha_ql5/channel_status_ch1.json
+def test_channel_status_query_response():
+    fixture = load_fixture("yamaha_ql5/channel_status_ch1.json")
+    result = parse_status_response(fixture["raw_bytes"])
+    assert result.channel == 1
+    assert result.fader_level == 127
+```
+
+**Step 5** — Implement the **smallest code change** that makes the test pass.
+
+**Step 6** — Verify CI passes without hardware. Normal CI must not contact any device.
+
+**Step 7** — Update the PROBE issue with the link to the CI test issue (`- Verified by: #N`).
+
+### File naming rules
+
+| File type | Pattern | CI inclusion |
+|---|---|---|
+| HIL probe / evidence test | `*.hil.test.*` | ❌ Excluded from default CI |
+| Fixture-backed CI test | `*.test.*` (no `.hil.`) | ✅ Included in default CI |
+| Captured fixture | `tests/fixtures/hil/<device>/*.json` | N/A — data only |
+
+### What HIL evidence proves and does NOT prove
+
+- ✅ Proves: the exact command/response pair on the specific device+firmware combination tested
+- ❌ Does NOT prove: behavior on other channels, firmware versions, load conditions, or other device variants
+- ❌ A fixture-backed CI test does NOT create new HIL evidence by itself
+
+---
+
 ## 🎯 Next Phase
 
 Once this phase is complete, proceed to:
