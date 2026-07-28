@@ -260,41 +260,62 @@ class GitHubIssueAuditor:
     def _infer_type_from_title(self, title: str) -> str:
         """Infer issue type from title patterns."""
         title_upper = title.upper()
-        
+        # Strip leading bracket prefix e.g. [REQ-F] or [StR]
+        import re as _re
+        bare = _re.sub(r'^\[([^\]]+)\]\s*', '', title).upper()
+
         # Requirement patterns
-        if 'REQ-F-' in title_upper or title_upper.startswith('REQ-F'):
+        if bare.startswith('REQ-F') or 'REQ-F-' in title_upper:
             return 'type:requirement:functional'
-        if 'REQ-NF-' in title_upper or title_upper.startswith('REQ-NF'):
+        if bare.startswith('REQ-NF') or 'REQ-NF-' in title_upper:
             return 'type:requirement:non-functional'
-        if 'STR-' in title_upper or title_upper.startswith('STR'):
-            return 'type:requirement:stakeholder'
-        
+        if bare.startswith('STR') or 'STR-' in title_upper:
+            return 'type:stakeholder-requirement'
+
         # Architecture patterns
-        if 'ADR-' in title_upper or title_upper.startswith('ADR'):
+        if bare.startswith('ADR') or 'ADR-' in title_upper:
             return 'type:architecture:decision'
-        if 'ARC-C-' in title_upper or 'ARCH-' in title_upper:
+        if bare.startswith('ARC-C') or 'ARC-C-' in title_upper or 'ARCH-' in title_upper:
             return 'type:architecture:component'
-        if 'QA-SC-' in title_upper or 'QUALITY-' in title_upper:
+        if bare.startswith('QA-SC') or 'QA-SC-' in title_upper or 'QUALITY-' in title_upper:
             return 'type:architecture:quality-scenario'
-        
+
         # Test patterns
-        if 'TEST-' in title_upper or title_upper.startswith('TEST'):
-            return 'type:test'
-        if any(word in title_upper for word in ['TEST CASE', 'TEST:', 'UNIT TEST', 'INTEGRATION TEST']):
-            return 'type:test'
-        
+        if bare.startswith('TEST-PLAN') or 'TEST-PLAN-' in title_upper:
+            return 'type:test-plan'
+        if bare.startswith('TEST') or 'TEST-' in title_upper:
+            return 'type:test-case'
+        if any(word in title_upper for word in ['TEST CASE', 'UNIT TEST', 'INTEGRATION TEST']):
+            return 'type:test-case'
+
+        # Implementation patterns
+        if bare.startswith('IMP') or 'IMP-' in title_upper or 'IMPL-' in title_upper or title_upper.startswith('IMPLEMENT'):
+            return 'type:implementation'
+
+        # Probe / HIL patterns
+        if bare.startswith('PROBE') or 'PROBE-' in title_upper or 'HIL-' in title_upper:
+            return 'type:probe'
+
+        # Documentation patterns
+        if bare.startswith('DOC') or 'DOC-' in title_upper:
+            return 'type:documentation'
+
+        # Bug patterns
+        if bare.startswith('BUG') or 'BUG-' in title_upper:
+            return 'type:bug'
+
+        # Epic patterns
+        if bare.startswith('EPIC') or 'EPIC-' in title_upper:
+            return 'type:epic'
+
         # Design patterns
         if 'DESIGN-' in title_upper or 'DES-' in title_upper:
             return 'type:design'
-        
-        # Implementation patterns
-        if 'IMPL-' in title_upper or title_upper.startswith('IMPLEMENT'):
-            return 'type:implementation'
-        
-        # Refactoring patterns
-        if any(word in title_upper for word in ['REFACTOR', 'REFACTORING', 'CLEANUP', 'TECH DEBT']):
-            return 'type:refactoring'
-        
+
+        # Refactoring / housekeeping patterns
+        if any(word in title_upper for word in ['REFACTOR', 'CLEANUP', 'HOUSEKEEPING', 'TECH DEBT']):
+            return 'type:housekeeping'
+
         # Cannot infer
         return ''
     
@@ -325,16 +346,19 @@ class GitHubIssueAuditor:
     def _infer_phase(self, type_label: str) -> str:
         """Infer phase from type label."""
         phase_map = {
-            'type:requirement:stakeholder': 'phase:01-stakeholder-requirements',
-            'type:requirement:functional': 'phase:02-requirements',
-            'type:requirement:non-functional': 'phase:02-requirements',
-            'type:architecture:decision': 'phase:03-architecture',
-            'type:architecture:component': 'phase:03-architecture',
-            'type:architecture:quality-scenario': 'phase:03-architecture',
-            'type:design': 'phase:04-design',
-            'type:implementation': 'phase:05-implementation',
-            'type:refactoring': 'phase:05-implementation',
-            'type:test': 'phase:07-verification-validation'
+            'type:stakeholder-requirement':          'phase:01-stakeholder-requirements',
+            'type:requirement:functional':           'phase:02-requirements',
+            'type:requirement:non-functional':       'phase:02-requirements',
+            'type:architecture:decision':            'phase:03-architecture',
+            'type:architecture:component':           'phase:03-architecture',
+            'type:architecture:quality-scenario':    'phase:03-architecture',
+            'type:design':                           'phase:04-design',
+            'type:implementation':                   'phase:05-implementation',
+            'type:housekeeping':                     'phase:05-implementation',
+            'type:probe':                            'phase:05-implementation',
+            'type:test-case':                        'phase:07-verification-validation',
+            'type:test-plan':                        'phase:07-verification-validation',
+            'type:documentation':                    'phase:08-transition',
         }
         return phase_map.get(type_label, '')
     
