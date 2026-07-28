@@ -213,8 +213,8 @@ describe('{str_title} (Verifies #{str_num})', () => {{
 ## Traceability
 
 **Upward**:
-- **Verifies**: #{str_num} (Stakeholder Requirement)
-- **Verifies**: {', '.join(f'#{n}' for n in related_reqs) if related_reqs else 'TBD'} (System Requirements)
+- Verifies: #{str_num} (Stakeholder Requirement)
+- Verifies: {', '.join(f'#{n}' for n in related_reqs) if related_reqs else 'TBD'} (System Requirements)
 
 **Artifacts**:
 - Test Code: `tests/acceptance/e2e/{test_id.lower()}.spec.ts`

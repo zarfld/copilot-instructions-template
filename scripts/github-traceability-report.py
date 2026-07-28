@@ -41,16 +41,22 @@ API_BASE = f'https://api.github.com/repos/{REPO_OWNER}/{REPO_NAME}'
 # 1. Type labels: type:stakeholder-requirement, type:requirement:functional, etc.
 # 2. Phase labels: phase:01-stakeholder-requirements, phase:02-requirements, phase:03-architecture, etc.
 REQUIREMENT_LABELS = [
-    # Type labels (colon-separated, verified in repository):
+    # Canonical type labels:
     'type:stakeholder-requirement',
     'type:requirement:functional',
     'type:requirement:non-functional',
     'type:architecture:decision',
     'type:architecture:component',
     'type:architecture:quality-scenario',
-    'type:test-plan',
     'type:test-case',
-    # Phase labels (colon-separated after "phase", verified in repository):
+    'type:test-plan',
+    'type:implementation',
+    'type:documentation',
+    'type:probe',
+    'type:bug',
+    'type:epic',
+    'type:housekeeping',
+    # Canonical phase labels:
     'phase:01-stakeholder-requirements',
     'phase:02-requirements',
     'phase:03-architecture',
@@ -120,6 +126,7 @@ def extract_links(issue_body: str) -> Dict[str, List[int]]:
         - Traces to: #123
         - Depends on: #45, #67
         - Verified by: #89
+        - Verifies: #45  (TEST issues — upward link to requirement)
         - Implemented by: #PR-15
         - Refined by: #234, #235
     
@@ -134,6 +141,7 @@ def extract_links(issue_body: str) -> Dict[str, List[int]]:
             'traces_to': [],
             'depends_on': [],
             'verified_by': [],
+            'verifies': [],
             'implemented_by': [],
             'refined_by': []
         }
@@ -142,6 +150,8 @@ def extract_links(issue_body: str) -> Dict[str, List[int]]:
     traces_to = re.findall(r'[Tt]races?\s+to:?\s*#(\d+)', issue_body)
     depends_on = re.findall(r'[Dd]epends?\s+on:?\s*#(\d+)', issue_body)
     verified_by = re.findall(r'[Vv]erified\s+by:?\s*#(\d+)', issue_body)
+    # Verifies: used in TEST issues (plain, not bold)
+    verifies = re.findall(r'[Vv]erifies?:?\s*#(\d+)', issue_body)
     implemented_by = re.findall(r'[Ii]mplemented\s+by:?\s*#(\d+)', issue_body)
     refined_by = re.findall(r'[Rr]efined\s+by:?\s*#(\d+)', issue_body)
     
@@ -149,6 +159,7 @@ def extract_links(issue_body: str) -> Dict[str, List[int]]:
         'traces_to': [int(n) for n in traces_to],
         'depends_on': [int(n) for n in depends_on],
         'verified_by': [int(n) for n in verified_by],
+        'verifies': [int(n) for n in verifies],
         'implemented_by': [int(n) for n in implemented_by],
         'refined_by': [int(n) for n in refined_by]
     }
@@ -167,26 +178,32 @@ def get_requirement_type(title: str, labels: List[str]) -> str:
         Requirement type abbreviation (StR, REQ-F, etc.)
     """
     # Extract type from title prefix (primary method)
+    # Handles [PREFIX] bracketed titles as emitted by issue templates
     import re
-    match = re.match(r'^(StR|REQ-F|REQ-NF|ADR|ARC-C|QA-SC|TEST|TEST-PLAN|DES-[A-Z])', title)
+    bare = re.sub(r'^\[([^\]]+)\]\s*', '', title)
+    match = re.match(r'^(StR|REQ-F|REQ-NF|ADR|ARC-C|QA-SC|TEST-PLAN|TEST|IMP|DOC|HOUSEKEEPING|EPIC|BUG|PROBE|DES-[A-Z])', bare)
     if match:
         prefix = match.group(1)
-        # Normalize design prefixes
         if prefix.startswith('DES-'):
             return 'DESIGN'
         return prefix
     
     # Fallback: check labels for type information
     label_map = {
-        # Type labels (colon-separated as they exist in GitHub)
-        'type:stakeholder-requirement': 'StR',
-        'type:requirement:functional': 'REQ-F',
-        'type:requirement:non-functional': 'REQ-NF',
-        'type:architecture:decision': 'ADR',
-        'type:architecture:component': 'ARC-C',
-        'type:architecture:quality-scenario': 'QA-SC',
-        'type:test-case': 'TEST',
-        'type:test-plan': 'TEST-PLAN',
+        'type:stakeholder-requirement':          'StR',
+        'type:requirement:functional':           'REQ-F',
+        'type:requirement:non-functional':       'REQ-NF',
+        'type:architecture:decision':            'ADR',
+        'type:architecture:component':           'ARC-C',
+        'type:architecture:quality-scenario':    'QA-SC',
+        'type:test-case':                        'TEST',
+        'type:test-plan':                        'TEST-PLAN',
+        'type:implementation':                   'IMP',
+        'type:documentation':                    'DOC',
+        'type:probe':                            'PROBE',
+        'type:bug':                              'BUG',
+        'type:epic':                             'EPIC',
+        'type:housekeeping':                     'HOUSEKEEPING',
         # Phase labels (colon after "phase" as they exist in GitHub)
         'phase:01-stakeholder-requirements': 'StR',
         'phase:02-requirements': 'REQ',
@@ -284,12 +301,17 @@ def generate_matrix():
     print("Functional and non-functional requirements without verification:\n")
     
     # Build map of verified requirements
+    # Use canonical label type:test-case and Verifies: links (not legacy test-case + traces_to)
     verified_reqs = set()
     for issue in issues:
         labels = [label['name'] for label in issue['labels']]
-        if 'test-case' in labels:
+        if 'type:test-case' in labels or 'type:test-plan' in labels:
             links = extract_links(issue.get('body', ''))
-            verified_reqs.update(links['traces_to'])
+            verified_reqs.update(links['verifies'])
+            # Also accept downward "Verified by" on parent issues
+        elif 'test-case' in labels:  # legacy fallback
+            links = extract_links(issue.get('body', ''))
+            verified_reqs.update(links['verifies'])
     
     unverified = []
     for issue in issues:

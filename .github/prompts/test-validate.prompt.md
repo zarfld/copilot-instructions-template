@@ -93,7 +93,7 @@ Labels: type:test, phase:07-verification-validation, priority:p0
 Test suite for user authentication functionality.
 
 ## Verifies Requirements
-- **Verifies**: #25 (REQ-F-AUTH-001: User Login)
+- Verifies: #25 (REQ-F-AUTH-001: User Login)
 
 ## Test Scenarios
 1. Successful login with valid credentials

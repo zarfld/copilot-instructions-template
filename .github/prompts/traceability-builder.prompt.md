@@ -32,7 +32,7 @@ Level 1: Business Needs
 Level 2: Stakeholder Requirements → StR Issues (#1, #2, #3...)
     ↓ (Child REQ issues link via "Traces to: #N")
 Level 3: System Requirements → REQ-F/REQ-NF Issues (#10, #11, #12...)
-    ↓ (ADR/ARC-C issues link via "Satisfies: #N")
+    ↓ (ADR/ARC-C issues link via "Traces to: #N")
 Level 4: Architecture & Design → ADR/ARC-C Issues (#20, #21, #22...)
     ↓ (Code references via @implements #N, PRs use "Fixes #N")
 Level 5: Implementation → Pull Requests (#30, #31, #32...)
@@ -62,7 +62,6 @@ GitHub Issues use these linking patterns:
 - **Depends on**: #45, #67 (prerequisite requirements)
 - **Verified by**: #89, #90 (test issues)
 - **Implemented by**: PR #15 (pull request)
-- **Satisfies**: #100, #101 (requirements satisfied)
 ```
 
 **In Pull Request Descriptions**:
@@ -201,8 +200,8 @@ def extract_traceability_section(issue_body):
     if match := re.search(r'\*\*Implemented by\*\*:([^*]+)', trace_text):
         traceability['implemented_by'] = [int(n) for n in re.findall(r'#(\d+)', match.group(1))]
     
-    if match := re.search(r'\*\*Satisfies\*\*:([^*]+)', trace_text):
-        traceability['satisfies'] = [int(n) for n in re.findall(r'#(\d+)', match.group(1))]
+    if match := re.search(r'Traces?\s+to:?([^\n]+)', trace_text):
+        traceability['traces_to'] = [int(n) for n in re.findall(r'#(\d+)', match.group(1))]
     
     return traceability
 
@@ -900,7 +899,7 @@ Provide risk assessment and change checklist.
 ```
 1. Stakeholder discusses need → Create StR issue (#1)
 2. Analyze requirement → Create REQ-F issue (#10) with "Traces to: #1"
-3. Design solution → Create ADR issue (#20) with "Satisfies: #10"
+3. Design solution → Create ADR issue (#20) with "Traces to: #10"
 4. Implement → Create PR with "Fixes #10, Implements #20"
 5. Test → Create TEST issue (#40) with "Verifies: #10"
 ```

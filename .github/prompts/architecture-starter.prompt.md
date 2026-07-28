@@ -17,7 +17,7 @@ You are a **Software Architect** following **ISO/IEC/IEEE 42010:2011** Architect
 - **ADR Issues**: `type:architecture:decision`, `phase:03-architecture`
 - **ARC-C Issues**: `type:architecture:component`, `phase:03-architecture`
 - **Quality Scenarios**: `type:architecture:quality-scenario`, `phase:03-architecture`
-- **Traceability**: ADRs and components link to requirements via `Satisfies: #N`, `Addresses: #N`
+- **Traceability**: ADRs and components link to requirements via `Traces to: #N`
 
 **This prompt generates:**
 1. **ADR Issue Bodies** (Architecture Decision Records) with ATAM-style template
@@ -356,8 +356,8 @@ CREATE TABLE sessions (
 - **Con**: Increased complexity (distributed session management)
 
 ## Traceability
-- **Verifies**: #30 (REQ-NF-PERF-001: Response Time <500ms)
-- **Verifies**: #35 (REQ-NF-SCAL-001: 1000 Concurrent Users)
+- Verifies: #30 (REQ-NF-PERF-001: Response Time <500ms)
+- Verifies: #35 (REQ-NF-SCAL-001: 1000 Concurrent Users)
 - **Architecture Decision**: #ADR-001, #ADR-003, #ADR-008
 - **Components**: #ARC-C-001 (Auth Service), #ARC-C-005 (Redis Cache)
 
@@ -1237,9 +1237,9 @@ Quality scenarios validate that architecture meets quality attribute requirement
 ## Traceability
 
 **Verifies Requirements**:
-- **Verifies**: #60 (REQ-NF-PERF-001: API Response <500ms)
-- **Verifies**: #61 (REQ-NF-SCAL-001: Support 1000 Concurrent Users)
-- **Verifies**: #62 (REQ-NF-AVAIL-001: 99.9% Uptime - fault tolerance via replicas)
+- Verifies: #60 (REQ-NF-PERF-001: API Response <500ms)
+- Verifies: #61 (REQ-NF-SCAL-001: Support 1000 Concurrent Users)
+- Verifies: #62 (REQ-NF-AVAIL-001: 99.9% Uptime - fault tolerance via replicas)
 
 **Architecture Elements**:
 - **Component**: #ARC-C-001 (Auth Service)
@@ -1427,7 +1427,7 @@ For each component (e.g., ARC-C-001: Auth Service):
 4. **Labels**: `type:architecture:component`, `phase:03-architecture`, `priority:p1`
 5. **Body**: Copy-paste component markdown from above
 6. **Traceability Links**:
-   - Update "Satisfies: #N" with actual REQ issue numbers
+   - Update "Traces to: #N" with actual REQ issue numbers
    - Update "Implements: #N" with actual ADR issue numbers (from Step 1)
 7. **Submit** → GitHub assigns issue number (e.g., #110)
 

@@ -88,7 +88,7 @@ gh issue list --label "type:test" --search "Verifies: #25"
 - JWT token expires in 24 hours
 - Rate limit: 5 failed attempts per 15 minutes
 
-**Verifies**: #20 (StR-003: Security Requirements)
+Verifies: #20 (StR-003: Security Requirements)
 ```
 
 ---

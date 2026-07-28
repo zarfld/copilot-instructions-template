@@ -16,14 +16,16 @@ body:
       value: |
         ## 🔗 Traceability (REQUIRED)
         
-        ⚠️ **CI Validation**: Use exact syntax `- **Verifies**: #N` (NOT "Traces to") or CI will fail.
+        ⚠️ **CI Validation**: Use exact syntax `- Verifies: #N` (plain, NOT bold, NOT "Traces to") or CI will fail.
         
         **Accepted formats**:
-        - ✅ `- **Verifies**: #123` (preferred)
-        - ✅ `- **Verified Requirements**: #123`
-        - ✅ `Verifies #123, #124` (multiple requirements)
+        - ✅ `- Verifies: #123` (preferred)
+        - ✅ `- Verifies: #123, #124` (multiple requirements)
+        - ✅ `Verifies: #123` (without leading dash)
         
         **Common mistakes (will fail CI)**:
+        - ❌ `- **Verifies**: #123` (bold — do not use)
+        - ❌ `**Verifies**: #123` (bold — do not use)
         - ❌ `Tests: #123` (wrong verb)
         - ❌ `Validates: #123` (wrong verb)
         - ❌ `Traces to: #123` (wrong relationship - use "Verifies" for tests)
@@ -35,11 +37,11 @@ body:
       description: "Link to requirements this test verifies"
       placeholder: |
         ## Traceability
-        - **Verifies**: #123 (REQ-F-AUTH-001: User Login)
-        - **Verifies**: #125 (REQ-NF-PERF-001: Login <100ms)
+        - Verifies: #123 (REQ-F-AUTH-001: User Login)
+        - Verifies: #125 (REQ-NF-PERF-001: Login <100ms)
       value: |
         ## Traceability
-        - **Verifies**: #
+        - Verifies: #
     validations:
       required: true
 

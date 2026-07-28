@@ -29,7 +29,7 @@ Validate end-to-end traceability across all software lifecycle artifacts using G
 StR Issue (#1: Stakeholder Requirement)
     ↓ (Child REQs link via "Traces to: #1")
 REQ-F/REQ-NF Issue (#10: System Requirement)
-    ↓ (ADRs/ARC-Cs link via "Satisfies: #10")
+    ↓ (ADRs/ARC-Cs link via "Traces to: #10")
 ADR/ARC-C Issue (#20: Architecture Decision/Component)
     ↓ (PRs link via "Fixes #10, Implements #20")
 Pull Request (#100: Code Implementation)
@@ -46,7 +46,7 @@ TEST Issue (#40: Test Case)
 | Issue Type | MUST Have Forward Link To | Validation |
 |------------|---------------------------|------------|
 | **StR** (Stakeholder Requirement) | ≥1 REQ-F or REQ-NF issue | Check: Other issues contain "Traces to: #N" where N is StR number |
-| **REQ-F/REQ-NF** (System Requirement) | ≥1 ADR or ARC-C issue | Check: ADR/ARC-C issues contain "Satisfies: #N" |
+| **REQ-F/REQ-NF** (System Requirement) | ≥1 ADR or ARC-C issue | Check: ADR/ARC-C issues contain "Traces to: #N" |
 | **REQ-F/REQ-NF** (System Requirement) | ≥1 PR (implementation) | Check: PRs contain "Fixes #N" or "Implements #N" |
 | **REQ-F/REQ-NF** (System Requirement) | ≥1 TEST issue (verification) | Check: TEST issues contain "Verifies: #N" |
 | **ADR/ARC-C** (Architecture) | ≥1 PR (implementation) | Check: PRs contain "Implements #N" |
@@ -70,7 +70,7 @@ def validate_forward_traceability(github_api, issue_number):
     
     elif issue_type in ['requirement:functional', 'requirement:non-functional']:
         # Check for architecture
-        adrs = find_issues_with_text(f"Satisfies: #{issue_number}")
+        adrs = find_issues_with_text(f"Traces to: #{issue_number}")
         if not adrs:
             errors.append(f"⚠️ REQ #{issue_number} has no architecture decisions")
         
@@ -100,8 +100,8 @@ def validate_forward_traceability(github_api, issue_number):
 | Issue Type | MUST Trace Back To | Validation |
 |------------|-------------------|------------|
 | **REQ-F/REQ-NF** | ≥1 StR issue (via "Traces to: #N") | Check: Issue body contains "Traces to: #N" in Traceability section |
-| **ADR/ARC-C** | ≥1 REQ-F/REQ-NF (via "Satisfies: #N") | Check: Issue body contains "Satisfies: #N" |
-| **TEST** | ≥1 REQ-F/REQ-NF (via "Verifies: #N") | Check: Issue body contains "Verifies: #N" or "Traces to: #N" |
+| **ADR/ARC-C** | ≥1 REQ-F/REQ-NF (via "Traces to: #N") | Check: Issue body contains "Traces to: #N" |
+| **TEST** | ≥1 REQ-F/REQ-NF (via "Verifies: #N") | Check: Issue body contains "Verifies: #N" |
 | **PR** | ≥1 REQ-F/REQ-NF (via "Fixes #N" or "Implements #N") | Check: PR description contains issue links |
 
 **Example Backward Validation**:
@@ -121,13 +121,13 @@ def validate_backward_traceability(github_api, issue_number):
             errors.append(f"❌ REQ #{issue_number} missing 'Traces to: #N' link to StR")
     
     elif issue_type in ['architecture:decision', 'architecture:component']:
-        # Must satisfy requirements
-        if not re.search(r'Satisfies:.*#(\d+)', body):
-            errors.append(f"❌ ADR/ARC-C #{issue_number} missing 'Satisfies: #N' link to REQ")
+        # Must trace to requirements
+        if not re.search(r'Traces to:.*#(\d+)', body):
+            errors.append(f"❌ ADR/ARC-C #{issue_number} missing 'Traces to: #N' link to REQ")
     
-    elif issue_type == 'test':
-        # Must verify requirements
-        if not re.search(r'(Verifies|Traces to):.*#(\d+)', body):
+    elif issue_type == 'test-case':
+        # Must verify requirements — only Verifies: is valid, not Traces to:
+        if not re.search(r'Verifies?:?\s*#(\d+)', body):
             errors.append(f"❌ TEST #{issue_number} missing 'Verifies: #N' link to REQ")
     
     return errors
@@ -423,7 +423,7 @@ Pass/Fail: {'✅ PASS' if len(critical_errors) == 0 else '🔴 FAIL'}
   - **Action**: Add "Traces to: #1" in Traceability section
 
 - **#30**: ADR-CACHE-001: Redis Caching Strategy
-  - **Issue**: Missing "Satisfies: #N" link to requirement
+  - **Issue**: Missing "Traces to: #N" link to requirement
   - **Action**: Link to performance requirement (create if missing)
 
 ### PR Missing Issue Links
@@ -451,8 +451,8 @@ Pass/Fail: {'✅ PASS' if len(critical_errors) == 0 else '🔴 FAIL'}
 |-------|------|-----------------|--------|--------|
 | #10 | REQ-F | StR via "Traces to:" | ✅ Links to #1 | None |
 | #11 | REQ-F | StR via "Traces to:" | ❌ Missing link | Add "Traces to: #1" |
-| #20 | ADR | REQ via "Satisfies:" | ✅ Links to #10 | None |
-| #30 | ADR | REQ via "Satisfies:" | ❌ Missing link | Add "Satisfies: #N" |
+| #20 | ADR | REQ via "Traces to:" | ✅ Links to #10 | None |
+| #30 | ADR | REQ via "Traces to:" | ❌ Missing link | Add "Traces to: #N" |
 | #40 | TEST | REQ via "Verifies:" | ✅ Links to #10 | None |
 
 ### Code Traceability Validation
@@ -497,7 +497,7 @@ Pass/Fail: {'✅ PASS' if len(critical_errors) == 0 else '🔴 FAIL'}
 ### Short-Term (This Sprint)
 1. Add "Traces to:" links for #11 and other orphan REQs
 2. Create ADR for #10 (authentication architecture)
-3. Add "Satisfies:" link for ADR #30
+3. Add "Traces to:" link for ADR #30
 4. Update PR #105 description with issue links
 
 ### Long-Term (Next Quarter)
@@ -590,7 +590,7 @@ Generate validation report with critical errors, warnings, and recommended actio
 
 Check:
 - Has parent StR link ("Traces to: #N")
-- Has architecture links (ADR/ARC-C with "Satisfies: #10")
+- Has architecture links (ADR/ARC-C with "Traces to: #10")
 - Has implementation (PR with "Fixes #10" or "Implements #10")
 - Has tests (TEST with "Verifies: #10")
 - All referenced issues are valid and accessible

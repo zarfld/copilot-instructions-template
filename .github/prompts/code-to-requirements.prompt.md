@@ -236,9 +236,9 @@ def generate_test_issue_body(test_data: Dict) -> str:
     test_cases_md = '\n'.join(f"- {case}" for case in test_data['test_cases'][:10])  # Limit to 10
     
     if test_data['verifies']:
-        verifies_md = f"- **Verifies**: #{test_data['verifies'][0]} (REQ-F-XXX)"
+        verifies_md = f"- Verifies: #{test_data['verifies'][0]} (REQ-F-XXX)"
     else:
-        verifies_md = "- **Verifies**: TBD (add requirement issue number)"
+        verifies_md = "- Verifies: TBD (add requirement issue number)"
     
     issue_body = f"""## Description
 Test suite reverse-engineered from existing test file

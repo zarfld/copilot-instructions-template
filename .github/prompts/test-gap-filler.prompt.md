@@ -152,7 +152,7 @@ def generate_test_issue_body(req_issue):
 Test suite for requirement #{req_num}: {req_title}
 
 ## Verifies Requirements
-- **Verifies**: #{req_num} ({req_id}: {req_title})
+- Verifies: #{req_num} ({req_id}: {req_title})
 
 ## Test Scenarios
 
@@ -308,7 +308,7 @@ In the TEST issue body, include:
 
 ```markdown
 ## Verifies Requirements
-- **Verifies**: #25 (REQ-F-AUTH-001: User Login)
+- Verifies: #25 (REQ-F-AUTH-001: User Login)
 ```
 
 In the requirement issue (#25), add comment:
