@@ -94,10 +94,10 @@ Expected: 200 OK response with tokens
 
 ```markdown
 ## Traceability
-- **Verifies**: #45, #46 (requirements)
-- **Test Suite**: Integration Tests
-- **Automated**: Yes (src/tests/integration/auth/login.spec.ts)
-- **Coverage**: Lines 92%, Branches 88%
+- Verifies: #45, #46 (requirements)
+- Test Suite: Integration Tests
+- Automated: Yes (src/tests/integration/auth/login.spec.ts)
+- Coverage: Lines 92%, Branches 88%
 ```
 
 ## 📋 IEEE 1012-2016 Compliance

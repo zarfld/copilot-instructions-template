@@ -35,7 +35,7 @@ Enforce bidirectional GitHub Issue traceability across all lifecycle phases.
 - Verifies: #45
 ```
 
-**Rejected verbs** (never use in issue bodies): `Satisfies:`, `Links to:`, `Parent:`, `Tests:`, `Validates:`, `Related to:`, `**Verifies**:` (bold).
+**Rejected verbs** (never use in issue bodies): `Satisfies:`, `Links to:`, `Parent:`, `Tests:`, `Validates:`, `Related to:`, bold-Verifies (i.e. `- **Verifies**: #N` with asterisks — always use plain `- Verifies: #N`).
 
 ## Issue Prefix → Canonical Label Table
 
@@ -85,7 +85,7 @@ Enforce bidirectional GitHub Issue traceability across all lifecycle phases.
 - [ ] Every REQ-F/REQ-NF contains `- Traces to:  #N` pointing to a valid StR
 - [ ] Every ADR/ARC-C contains `- Traces to:  #N` pointing to a valid REQ
 - [ ] Every TEST contains `- Verifies: #N` pointing to a valid REQ (plain, not bold)
-- [ ] No issue body contains `Satisfies:`, `**Verifies**:`, or `Parent:` as traceability verbs
+- [ ] No issue body contains `Satisfies:`, bold-Verifies (with asterisks), or `Parent:` as traceability verbs
 - [ ] `github-traceability-report.py` shows 0 orphaned requirements
 
 ## References
