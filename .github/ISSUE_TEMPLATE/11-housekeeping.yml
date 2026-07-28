@@ -1,0 +1,58 @@
+name: Housekeeping / Refactoring
+description: Track cleanup, refactoring, or technical debt reduction work
+title: "[HOUSEKEEPING] "
+labels: ["type:housekeeping"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## 🧹 Housekeeping / Refactoring
+        
+        Tracks cleanup, refactoring, or technical debt reduction. These tasks
+        improve code quality without adding new behavior.
+
+  - type: textarea
+    id: scope
+    attributes:
+      label: "Scope of Work"
+      description: "What files, modules, or patterns are affected?"
+      placeholder: |
+        Refactor UserService to extract token management into a dedicated
+        TokenService, reducing cyclomatic complexity from 18 to <6.
+    validations:
+      required: true
+
+  - type: textarea
+    id: rationale
+    attributes:
+      label: "Rationale"
+      description: "Why is this work needed? What problem does it solve?"
+      placeholder: |
+        The current UserService has grown to 800 lines and violates SRP.
+        It is difficult to test token expiry logic in isolation.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: type
+    attributes:
+      label: "Work Type"
+      options:
+        - "Refactoring — Restructure without behavior change"
+        - "Cleanup — Remove dead code / obsolete files"
+        - "Technical Debt — Address known shortcuts"
+        - "Dependency Update — Upgrade libraries"
+        - "Documentation — Update outdated docs"
+    validations:
+      required: true
+
+  - type: textarea
+    id: safety
+    attributes:
+      label: "Safety Net"
+      description: "What tests confirm existing behavior is preserved?"
+      placeholder: |
+        - Existing unit tests in tests/auth/ cover all public methods
+        - No new tests required; refactoring only
+    validations:
+      required: true

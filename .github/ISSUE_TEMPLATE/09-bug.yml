@@ -1,0 +1,83 @@
+name: Bug Report (BUG)
+description: Report a defect or unexpected behavior
+title: "[BUG] "
+labels: ["type:bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## 🐛 Bug Report
+        
+        Describe a defect or unexpected behavior. Bugs must be linked to the
+        requirement they violate (if known) to maintain traceability.
+
+  - type: textarea
+    id: description
+    attributes:
+      label: "Bug Description"
+      description: "What happened? What did you expect to happen?"
+      placeholder: |
+        When submitting the login form with a valid email but wrong password,
+        the error message reveals whether the email exists in the system,
+        violating REQ-NF-SECU-003 (no account enumeration).
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: "Steps to Reproduce"
+      placeholder: |
+        1. Navigate to /login
+        2. Enter email: existing@example.com
+        3. Enter wrong password: wrongpassword
+        4. Observe error: "Password incorrect for existing@example.com"
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: "Expected Behavior"
+      placeholder: "Generic error: 'Invalid credentials'"
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: "Actual Behavior"
+      placeholder: "Error reveals email existence: 'Password incorrect for existing@example.com'"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: "Severity"
+      options:
+        - "Critical — Data loss, security breach, or system down"
+        - "High — Major feature broken, no workaround"
+        - "Medium — Feature degraded, workaround exists"
+        - "Low — Minor issue, cosmetic"
+      default: 1
+    validations:
+      required: true
+
+  - type: textarea
+    id: traceability
+    attributes:
+      label: "Violated Requirement (if known)"
+      description: "Link to the requirement this bug violates"
+      placeholder: |
+        ## Traceability
+        - Traces to:  #123 (REQ-NF-SECU-003: No account enumeration)
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: "Environment"
+      placeholder: |
+        - OS: Ubuntu 22.04
+        - Browser: Chrome 120
+        - Version: v2.1.3

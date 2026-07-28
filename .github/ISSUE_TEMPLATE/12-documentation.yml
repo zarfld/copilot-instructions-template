@@ -1,0 +1,57 @@
+name: Documentation Task (DOC)
+description: Track a documentation update or creation task
+title: "[DOC] "
+labels: ["type:documentation"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## 📝 Documentation Task
+        
+        Tracks creation or update of documentation.
+        Documentation tasks should trace to the requirement or component they describe.
+
+  - type: textarea
+    id: traceability
+    attributes:
+      label: "Traceability"
+      description: "Link to what this document describes or implements"
+      placeholder: |
+        ## Traceability
+        - Traces to:  #123 (REQ-F-AUTH-001: User Login)
+      value: |
+        ## Traceability
+        - Traces to:  #
+
+  - type: dropdown
+    id: doc_type
+    attributes:
+      label: "Documentation Type"
+      options:
+        - "API Reference"
+        - "User Guide"
+        - "Architecture / ADR"
+        - "README / Quick Start"
+        - "Runbook / Operations"
+        - "Decision Record"
+        - "Other"
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: "What needs to be documented?"
+      placeholder: |
+        Document the JWT token refresh flow introduced in ADR-SECU-001.
+        Include sequence diagram, token lifetime, and error handling.
+    validations:
+      required: true
+
+  - type: textarea
+    id: target_audience
+    attributes:
+      label: "Target Audience"
+      placeholder: "API consumers, new team members, operations team"
+    validations:
+      required: true

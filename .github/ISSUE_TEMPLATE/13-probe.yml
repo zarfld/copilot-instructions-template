@@ -1,0 +1,161 @@
+name: Hardware Probe (PROBE)
+description: Capture real hardware behavior via HIL probe for use as CI test fixtures
+title: "[PROBE] "
+labels: ["type:probe", "phase:05-implementation"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## 🔬 Hardware-in-the-Loop (HIL) Probe
+        
+        **Purpose**: Discover and capture real hardware behavior **before** writing mocks or CI tests.
+        
+        ### When to create a PROBE issue
+        
+        Create a PROBE when:
+        - Hardware behavior is unknown or unspecified
+        - A mock would otherwise be invented from documentation only
+        - You need to verify assumptions about device responses
+        
+        ### Workflow
+        
+        1. Create this PROBE issue linked to the REQ or TEST it supports
+        2. Run focused HIL probe against real hardware
+        3. Fill in ALL metadata fields below from observed behavior
+        4. Commit captured fixture to `tests/fixtures/hil/`
+        5. Write CI test using the captured fixture (creates TEST issue)
+        6. CI tests run **without** hardware from this point forward
+        
+        ⚠️ **`.hil.test.*` files are excluded from default GitHub-hosted CI**
+        ⚠️ **A fixture-backed CI test does NOT create new HIL evidence by itself**
+
+  - type: markdown
+    attributes:
+      value: |
+        ## 🔗 Traceability (REQUIRED)
+        
+        Link to the requirement or test issue this probe supports.
+        Use `- Traces to:  #N` syntax.
+
+  - type: textarea
+    id: traceability
+    attributes:
+      label: "Requirement / Test Links"
+      placeholder: |
+        ## Traceability
+        - Traces to:  #123 (REQ-F-CTRL-001: Device reports status on query)
+        - Traces to:  #89 (TEST-CTRL-STATUS-001: Verify status query response)
+      value: |
+        ## Traceability
+        - Traces to:  #
+    validations:
+      required: true
+
+  - type: input
+    id: device_model
+    attributes:
+      label: "Device Model"
+      description: "Exact model name and variant"
+      placeholder: "Yamaha QL5 (firmware 5.0.2)"
+    validations:
+      required: true
+
+  - type: input
+    id: device_serial
+    attributes:
+      label: "Device Serial Number"
+      description: "Serial number of the specific unit probed"
+      placeholder: "YQL5-123456"
+    validations:
+      required: true
+
+  - type: input
+    id: firmware_version
+    attributes:
+      label: "Firmware Version"
+      description: "Exact firmware version running on the device"
+      placeholder: "5.0.2"
+    validations:
+      required: true
+
+  - type: input
+    id: probe_name
+    attributes:
+      label: "Command / Probe Name"
+      description: "Name or identifier of the command or API call being probed"
+      placeholder: "GET_CHANNEL_STATUS / SysEx 0xF0 0x43 ..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: control_key_path
+    attributes:
+      label: "Control / Key Path"
+      description: "Parameter path, channel, address, or key being queried"
+      placeholder: |
+        Channel: 1
+        Parameter: fader_level
+        Address: 0x00 0x01 0x00
+    validations:
+      required: true
+
+  - type: textarea
+    id: raw_response
+    attributes:
+      label: "Raw Response / State Dump"
+      description: "Exact raw bytes, JSON, or text response received from the device. This becomes the fixture source."
+      placeholder: |
+        ```
+        F0 43 10 3E 00 01 00 00 7F F7
+        ```
+        or
+        ```json
+        {"channel": 1, "fader": 127, "mute": false}
+        ```
+    validations:
+      required: true
+
+  - type: input
+    id: fixture_path
+    attributes:
+      label: "Fixture File Path"
+      description: "Where the captured response is stored in the repo"
+      placeholder: "tests/fixtures/hil/yamaha_ql5/channel_status_ch1.json"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: confidence
+    attributes:
+      label: "Confidence Level"
+      description: "How confident are you this represents the device's real behavior?"
+      options:
+        - "High — Reproduced 3+ times, consistent response"
+        - "Medium — Reproduced 2 times, minor variance"
+        - "Low — Single observation, needs re-verification"
+        - "Tentative — Inferred from partial data"
+      default: 0
+    validations:
+      required: true
+
+  - type: textarea
+    id: scope_note
+    attributes:
+      label: "Scope Note"
+      description: "What exactly does this HIL evidence prove? What does it NOT prove?"
+      placeholder: |
+        **Proves**: Channel 1 fader query returns the correct MIDI SysEx response
+        format on firmware 5.0.2.
+        
+        **Does NOT prove**: Behavior on other channels, other firmware versions,
+        or under load conditions.
+    validations:
+      required: true
+
+  - type: textarea
+    id: ci_test_created
+    attributes:
+      label: "CI Test Issue"
+      description: "Link to the TEST issue created from this fixture (fill after fixture is captured)"
+      placeholder: |
+        - Verified by: #90 (TEST-CTRL-STATUS-001: fixture-backed CI test)

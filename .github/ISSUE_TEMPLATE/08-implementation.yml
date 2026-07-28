@@ -1,0 +1,89 @@
+name: Implementation Task (IMP)
+description: Track an implementation task linked to requirements and architecture decisions
+title: "[IMP] "
+labels: ["type:implementation", "phase:05-implementation"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## 🔨 Implementation Task
+        
+        Tracks a concrete implementation effort that realizes one or more requirements.
+        Every implementation task MUST trace to at least one requirement or architecture decision.
+
+  - type: markdown
+    attributes:
+      value: |
+        ## 🔗 Traceability (REQUIRED)
+        
+        ⚠️ **CI Validation**: Use exact syntax `- Traces to:  #N` or CI will fail.
+        
+        **Accepted formats**:
+        - ✅ `- Traces to:  #123` (preferred — two spaces before #N)
+        - ✅ `Traces to: #123`
+        
+        **Common mistakes (will fail CI)**:
+        - ❌ `Links to: #123`
+        - ❌ `Parent: #123`
+        - ❌ `Satisfies: #123`
+
+  - type: textarea
+    id: traceability
+    attributes:
+      label: "Requirement / Architecture Links"
+      description: "Link to requirements and architecture decisions this task implements"
+      placeholder: |
+        ## Traceability
+        - Traces to:  #123 (REQ-F-AUTH-001: User Login)
+        - Traces to:  #45 (ADR-SECU-001: JWT Authentication)
+      value: |
+        ## Traceability
+        - Traces to:  #
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: "Priority"
+      options:
+        - "priority:p0 — Critical (blocking)"
+        - "priority:p1 — High"
+        - "priority:p2 — Medium"
+        - "priority:p3 — Low"
+      default: 1
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: "Implementation Description"
+      description: "What will be built? What design decisions does this realize?"
+      placeholder: |
+        Implement the JWT token generation and validation logic as specified in
+        ADR-SECU-001. The UserService class will expose login() and logout() methods.
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance_criteria
+    attributes:
+      label: "Acceptance Criteria"
+      description: "How will we know this is done? Reference test issue numbers."
+      placeholder: |
+        - [ ] Unit tests pass (TEST issue #N)
+        - [ ] Integration tests pass (TEST issue #M)
+        - [ ] Code has @implements #N traceability annotations
+        - [ ] PR links to this issue with Fixes #N or Implements #N
+    validations:
+      required: true
+
+  - type: textarea
+    id: test_coverage
+    attributes:
+      label: "Test Coverage"
+      description: "Link to TEST issues that verify this implementation"
+      placeholder: |
+        - Verified by: #89 (TEST-AUTH-LOGIN-001)
+        - Verified by: #90 (TEST-AUTH-LOGOUT-001)

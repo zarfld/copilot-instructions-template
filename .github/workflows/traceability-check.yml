@@ -64,27 +64,17 @@ jobs:
             echo "⚠️ Traceability generation needs GitHub Issues to be created first"
             echo '{"source": "github-issues", "items": [], "metrics": {}}' > build/traceability.json
           }
-        continue-on-error: true
       
       - name: Check for unlinked requirements (ADR linkage)
         run: |
           echo "🔍 Checking for requirements without ADR links..."
-          python scripts/trace_unlinked_requirements.py --markdown || {
-            echo "⚠️ Unlinked requirements check needs traceability.json"
-            exit 0
-          }
-        continue-on-error: true
+          python scripts/trace_unlinked_requirements.py --markdown
       
       - name: Check for orphaned requirements
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          python scripts/github-orphan-check.py || {
-            echo "\u26a0\ufe0f Orphan check needs GitHub Issues to be created first"
-            echo "See docs/QUICK-START-github-issues.md for issue creation workflow"
-            exit 0
-          }
-        continue-on-error: true
+          python scripts/github-orphan-check.py
         id: orphan-check
       
       - name: Generate traceability report
@@ -108,11 +98,7 @@ jobs:
       - name: Validate traceability matrix completeness
         run: |
           echo "✅ Validating traceability matrix..."
-          python scripts/validate-traceability.py || {
-            echo "⚠️ Validation needs reports to be generated first"
-            exit 0
-          }
-        continue-on-error: true
+          python scripts/validate-traceability.py
       
       - name: Upload traceability artifacts
         uses: actions/upload-artifact@v4

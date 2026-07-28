@@ -1,0 +1,73 @@
+name: Epic
+description: Group a set of related issues under a single high-level goal
+title: "[EPIC] "
+labels: ["type:epic"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## 🗺️ Epic
+        
+        An Epic groups multiple issues (StR, REQ-F, REQ-NF, IMP, TEST) under a
+        single business objective. Epics trace to stakeholder requirements.
+
+  - type: textarea
+    id: goal
+    attributes:
+      label: "Epic Goal"
+      description: "What business outcome does completing this epic achieve?"
+      placeholder: |
+        Enable users to authenticate securely using their email and password,
+        with support for password reset and session management.
+    validations:
+      required: true
+
+  - type: textarea
+    id: traceability
+    attributes:
+      label: "Traceability"
+      description: "Link to the StR this epic realizes"
+      placeholder: |
+        ## Traceability
+        - Traces to:  #1 (StR-AUTH-001: Secure User Authentication)
+      value: |
+        ## Traceability
+        - Traces to:  #
+
+  - type: textarea
+    id: child_issues
+    attributes:
+      label: "Child Issues"
+      description: "List the issues that make up this epic"
+      placeholder: |
+        ## Child Issues
+        - [ ] #10 REQ-F-AUTH-001: User Login
+        - [ ] #11 REQ-F-AUTH-002: User Logout
+        - [ ] #12 REQ-F-AUTH-003: Password Reset
+        - [ ] #45 IMP: Implement login endpoint
+        - [ ] #89 TEST-AUTH-LOGIN-001: Verify login flow
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: "Priority"
+      options:
+        - "priority:p0 — Critical"
+        - "priority:p1 — High"
+        - "priority:p2 — Medium"
+        - "priority:p3 — Low"
+      default: 1
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance_criteria
+    attributes:
+      label: "Epic Acceptance Criteria"
+      description: "What conditions must ALL child issues satisfy for this epic to be complete?"
+      placeholder: |
+        - [ ] All REQ-F/REQ-NF issues under this epic are closed
+        - [ ] All TEST issues pass in CI
+        - [ ] Acceptance test with stakeholder completed
+    validations:
+      required: true
